@@ -281,7 +281,7 @@ export function CozyCreator({ settings, onHome }: { settings: Settings; onHome: 
       {/* palette + tools */}
       <div className="relative z-10 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 sm:px-4">
         <div className="rounded-2xl border-4 border-white bg-white/95 p-2 shadow-[0_5px_0_rgba(59,47,74,0.1)]">
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex shrink-0 items-center gap-1 rounded-full bg-[#f6f2ff] p-1">
               <button
                 type="button"
@@ -308,7 +308,7 @@ export function CozyCreator({ settings, onHome }: { settings: Settings; onHome: 
                 🧽
               </button>
             </div>
-            <div className="grid min-w-0 flex-1 grid-cols-6 justify-items-center gap-1.5 px-1">
+            <div className="order-3 grid w-full grid-cols-6 justify-items-center gap-2 px-1 py-1">
               {PALETTE.map((c) => (
                 <button
                   key={c}
