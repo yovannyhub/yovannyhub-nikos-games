@@ -308,7 +308,7 @@ export function CozyCreator({ settings, onHome }: { settings: Settings; onHome: 
                 🧽
               </button>
             </div>
-            <div className="flex min-w-0 flex-1 justify-center gap-1 overflow-x-auto px-1">
+            <div className="grid min-w-0 flex-1 grid-cols-6 justify-items-center gap-1.5 px-1">
               {PALETTE.map((c) => (
                 <button
                   key={c}
