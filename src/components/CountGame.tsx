@@ -53,7 +53,20 @@ export function CountGame({ settings, onHome }: { settings: Settings; onHome: ()
   useEffect(() => {
     if (done) nextRef.current?.focus();
   }, [done]);
+  // Automatically read each new counting question aloud.
+  useEffect(() => {
+    if (done || finished) return;
 
+    speak();
+
+    return () => {
+      try {
+        window.speechSynthesis?.cancel();
+      } catch {
+        /* ignore */
+      }
+    };
+  }, [speak, done, finished]);
   // stop any spoken instruction when leaving the game
   useEffect(() => {
     return () => {
