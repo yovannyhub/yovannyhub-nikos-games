@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { useCallback, useEffect, useRef, useState } from "react";
 import { audio } from "../game/audio";
 import { FRIENDS, type Settings } from "../game/types";
 import { FriendPreview } from "./FriendPreview";
@@ -23,10 +24,12 @@ export function CountGame({ settings, onHome }: { settings: Settings; onHome: ()
   const [added, setAdded] = useState<number[]>([]);
   const [done, setDone] = useState(false);
   const [finished, setFinished] = useState(false);
+
   const nextRef = useRef<HTMLButtonElement>(null);
   const voiceRef = useRef<HTMLAudioElement | null>(null);
+  const voiceEnabledRef = useRef(true);
+
   const chosen = FRIENDS.find((f) => f.kind === settings.friend) ?? FRIENDS[1];
-  // Niko is already hosting, so the helper is always a different pal
   const friend = chosen.kind === "niko" ? FRIENDS[1] : chosen;
 
   const { targets, max } = SETS[setKey];
@@ -35,65 +38,62 @@ export function CountGame({ settings, onHome }: { settings: Settings; onHome: ()
   const info = ITEM_INFO[item];
   const plural = target === 1 ? info.one : info.plural;
   const friendName = friend.name;
-  const canSpeak = useMemo(() => typeof window !== "undefined" && "speechSynthesis" in window, []);
 
-  
-const speak = useCallback(() => {
-  const filename = `count-${String(target).padStart(2, "0")}-${item}.mp3`;
-  const recording = new Audio(`${import.meta.env.BASE_URL}audio/${filename}`);
+  const stopVoice = useCallback(() => {
+    if (voiceRef.current) {
+      voiceRef.current.pause();
+      voiceRef.current.removeAttribute("src");
+      voiceRef.current.load();
+      voiceRef.current = null;
+    }
+  }, []);
 
-  window.speechSynthesis?.cancel();
+  const speak = useCallback(() => {
+    stopVoice();
 
-  if (voiceRef.current) {
-    voiceRef.current.pause();
-    voiceRef.current.currentTime = 0;
-  }
+    if (!voiceEnabledRef.current) return;
 
-  voiceRef.current = recording;
-  recording.volume = 0.9;
-  recording.play().catch(() => {
-    // Some devices require a tap before playing audio.
-  });
-}, [target, item]);
+    const filename = `count-${String(target).padStart(2, "0")}-${item}.mp3`;
+    const recording = new Audio(`${import.meta.env.BASE_URL}audio/${filename}`);
 
+    recording.volume = 0.9;
+    recording.preload = "auto";
+    voiceRef.current = recording;
+
+    recording.play().catch(() => {
+      // iOS and other browsers may require a user tap.
+      // The Say it button allows the child to replay.
+    });
+  }, [target, item, stopVoice]);
 
   useEffect(() => {
     if (done) nextRef.current?.focus();
   }, [done]);
-  // Automatically read each new counting question aloud.
+
   useEffect(() => {
-    if (done || finished) return;
+    if (!done && !finished) {
+      speak();
+    }
 
-    speak();
+    return () => {
+      stopVoice();
+    };
+  }, [speak, stopVoice, done, finished]);
 
-   
-return () => {
-  if (voiceRef.current) {
-    voiceRef.current.pause();
-    voiceRef.current.currentTime = 0;
-    voiceRef.current = null;
-  }
-};
-}, [speak, done, finished]);
-
-  // stop any spoken instruction when leaving the game
   useEffect(() => {
     return () => {
-      try {
-        window.speechSynthesis?.cancel();
-      } catch {
-        /* ignore */
-      }
+      stopVoice();
     };
-  }, []);
+  }, [stopVoice]);
 
   const addOne = () => {
-    if (done || finished) return;
-    if (count >= target) return;
+    if (done || finished || count >= target) return;
+
     const n = count + 1;
     setCount(n);
     setAdded((a) => [...a, Date.now() + Math.random()]);
     audio.bloom(n - 1);
+
     if (n === target) {
       setDone(true);
       window.setTimeout(() => audio.cheer(), 180);
@@ -102,6 +102,7 @@ return () => {
 
   const undo = () => {
     if (done || count === 0) return;
+
     setCount((c) => Math.max(0, c - 1));
     setAdded((a) => a.slice(0, -1));
     audio.miss();
@@ -109,11 +110,15 @@ return () => {
 
   const next = () => {
     if (!done) return;
+
+    stopVoice();
+
     if (round + 1 >= targets.length) {
       setFinished(true);
       audio.tada();
       return;
     }
+
     setRound((r) => r + 1);
     setCount(0);
     setAdded([]);
@@ -122,18 +127,19 @@ return () => {
   };
 
   const reset = (key: SetKey = setKey) => {
+    stopVoice();
     audio.click();
-    try {
-      window.speechSynthesis?.cancel();
-    } catch {
-      /* ignore */
-    }
     setSetKey(key);
     setRound(0);
     setCount(0);
     setAdded([]);
     setDone(false);
     setFinished(false);
+  };
+
+  const goHome = () => {
+    stopVoice();
+    onHome();
   };
 
   const atStart = round === 0 && count === 0 && !done && !finished;
@@ -157,7 +163,7 @@ return () => {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={onHome}
+            onClick={goHome}
             aria-label="Back to Niko's Games home"
             className="btn-chunky flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full border-4 border-white bg-white/90 text-2xl text-[#3b2f4a]"
           >
@@ -202,7 +208,7 @@ return () => {
                 <BigButton color="purple" onClick={() => reset(setKey === "little" ? "big" : "little")}>
                   {setKey === "little" ? "🔢 Try 6–10" : "🔢 Back to 1–5"}
                 </BigButton>
-                <BigButton color="white" onClick={onHome}>
+                <BigButton color="white" onClick={goHome}>
                   🏠 Home
                 </BigButton>
               </div>
@@ -236,20 +242,18 @@ return () => {
                     <span className="ml-1 text-xs font-semibold text-[#8a809a]">({NUMBER_WORDS[target] ?? target})</span>
                   </div>
                 </div>
-                {canSpeak && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      audio.unlock();
-                      speak();
-                    }}
-                    aria-label={`Hear the instruction: put ${NUMBER_WORDS[target] ?? target} ${plural} in the basket`}
-                    className="btn-chunky flex h-14 w-14 shrink-0 cursor-pointer flex-col items-center justify-center rounded-2xl border-4 border-[#e2dafc] bg-[#f6f2ff] text-xl leading-none text-[#3b2f4a]"
-                  >
-                    <span aria-hidden="true">🔊</span>
-                    <span className="mt-0.5 text-[10px] font-bold">Say it</span>
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    audio.unlock();
+                    speak();
+                  }}
+                  aria-label={`Hear the instruction: put ${NUMBER_WORDS[target] ?? target} ${plural} in the basket`}
+                  className="btn-chunky flex h-14 w-14 shrink-0 cursor-pointer flex-col items-center justify-center rounded-2xl border-4 border-[#e2dafc] bg-[#f6f2ff] text-xl leading-none text-[#3b2f4a]"
+                >
+                  <span aria-hidden="true">🔊</span>
+                  <span className="mt-0.5 text-[10px] font-bold">Say it</span>
+                </button>
               </div>
               {atStart && (
                 <div className="mt-2 flex items-center justify-center gap-2 border-t-2 border-dashed border-[#eee7fa] pt-2">
@@ -281,7 +285,6 @@ return () => {
                 </div>
               </div>
               <div className="relative w-full max-w-[300px]">
-                {/* items sit in the basket */}
                 <div className="relative z-10 -mb-2 flex min-h-[58px] flex-wrap items-end justify-center gap-0 px-3">
                   {added.length === 0 ? (
                     <span className="mb-1 rounded-full bg-white/80 px-2 py-0.5 text-xs font-semibold text-[#8a809a]">The basket is empty. Tap below! 👇</span>
@@ -293,7 +296,6 @@ return () => {
                     ))
                   )}
                 </div>
-                {/* rim + woven basket */}
                 <div className="relative">
                   <div className="h-4 rounded-full border-2 border-[#a96a2e] bg-[#e9b877]" />
                   <div className="basket-body relative -mt-1 flex h-[64px] items-end justify-center rounded-b-[2rem] border-2 border-t-0 border-[#a96a2e] pb-2">
