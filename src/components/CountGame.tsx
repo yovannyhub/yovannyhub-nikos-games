@@ -24,6 +24,7 @@ export function CountGame({ settings, onHome }: { settings: Settings; onHome: ()
   const [done, setDone] = useState(false);
   const [finished, setFinished] = useState(false);
   const nextRef = useRef<HTMLButtonElement>(null);
+  const voiceRef = useRef<HTMLAudioElement | null>(null);
   const chosen = FRIENDS.find((f) => f.kind === settings.friend) ?? FRIENDS[1];
   // Niko is already hosting, so the helper is always a different pal
   const friend = chosen.kind === "niko" ? FRIENDS[1] : chosen;
@@ -36,19 +37,25 @@ export function CountGame({ settings, onHome }: { settings: Settings; onHome: ()
   const friendName = friend.name;
   const canSpeak = useMemo(() => typeof window !== "undefined" && "speechSynthesis" in window, []);
 
-  const speak = useCallback(() => {
-    if (!canSpeak) return;
-    try {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(`Put ${NUMBER_WORDS[target] ?? target} ${plural} in the basket.`);
-      u.rate = 0.85;
-      u.pitch = 1.1;
-      u.volume = 0.9;
-      window.speechSynthesis.speak(u);
-    } catch {
-      /* device has no voice */
-    }
-  }, [canSpeak, target, plural]);
+  
+const speak = useCallback(() => {
+  const filename = `count-${String(target).padStart(2, "0")}-${item}.mp3`;
+  const recording = new Audio(`${import.meta.env.BASE_URL}audio/${filename}`);
+
+  window.speechSynthesis?.cancel();
+
+  if (voiceRef.current) {
+    voiceRef.current.pause();
+    voiceRef.current.currentTime = 0;
+  }
+
+  voiceRef.current = recording;
+  recording.volume = 0.9;
+  recording.play().catch(() => {
+    // Some devices require a tap before playing audio.
+  });
+}, [target, item]);
+
 
   useEffect(() => {
     if (done) nextRef.current?.focus();
@@ -59,14 +66,16 @@ export function CountGame({ settings, onHome }: { settings: Settings; onHome: ()
 
     speak();
 
-    return () => {
-      try {
-        window.speechSynthesis?.cancel();
-      } catch {
-        /* ignore */
-      }
-    };
-  }, [speak, done, finished]);
+   
+return () => {
+  if (voiceRef.current) {
+    voiceRef.current.pause();
+    voiceRef.current.currentTime = 0;
+    voiceRef.current = null;
+  }
+};
+}, [speak, done, finished]);
+
   // stop any spoken instruction when leaving the game
   useEffect(() => {
     return () => {
