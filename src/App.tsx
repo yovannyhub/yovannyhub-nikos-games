@@ -82,7 +82,7 @@ export default function App() {
   const updateSettings = useCallback((s: Partial<Settings>) => setSettings((prev) => ({ ...prev, ...s })), []);
 
   // --- actions
-  const play = useCallback(() => {
+  const play = useCallback((adventure = 0) => {
     const e = engineRef.current;
     if (!e) return;
     const s = settingsRef.current;
@@ -96,6 +96,7 @@ export default function App() {
     if (s.music) audio.startMusic();
     e.setFriend("kitty");
     e.setOptions({ calm: s.calm, slow: s.slow });
+    e.setLearningGame(adventure);
     e.start("relaxed");
     setPhase("playing");
   }, []);
@@ -196,7 +197,7 @@ export default function App() {
         <StartScreen
           settings={settings}
           onChange={updateSettings}
-          onPlay={play}
+          onPlay={(adventure) => play(adventure)}
           scores={scores}
           onClearScores={() => {
             clearScores();
