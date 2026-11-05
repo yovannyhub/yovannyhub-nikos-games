@@ -123,34 +123,48 @@ export function StartScreen({ settings, onChange, onPlay, scores, onClearScores 
         </p>
 
         <Panel className="w-full">
-          <h2 className="mb-2 text-center text-xl font-bold">1. Pick a friend</h2>
-          <div className="grid grid-cols-5 gap-1 sm:gap-2" role="radiogroup" aria-label="Pick a friend">
-            {FRIENDS.map((f) => {
-              const sel = settings.friend === f.kind;
+          <h2 className="mb-1 text-center text-xl font-bold">1. Pick a friend · Choose a world</h2>
+          <p className="mb-3 text-center text-xs font-semibold text-[#8a809a]">Play Kitty's Meadow now! More worlds are coming soon.</p>
+          <div className="grid grid-cols-5 gap-1 sm:gap-2" aria-label="Adventure levels">
+            {[
+              { icon: "🐱", name: "Kitty", place: "Meadow" },
+              { icon: "🐠", name: "Fish", place: "Ocean" },
+              { icon: "👽", name: "Alien", place: "Galaxy" },
+              { icon: "🐷", name: "Piggy", place: "Farm" },
+              { icon: "🦊", name: "Fox", place: "Forest" },
+              { icon: "🐼", name: "Panda", place: "Bamboo" },
+              { icon: "🐧", name: "Penguin", place: "Snow" },
+              { icon: "🦁", name: "Lion", place: "Savanna" },
+              { icon: "🐉", name: "Dragon", place: "Dragonland" },
+              { icon: "🦄", name: "Unicorn", place: "Magic" },
+            ].map((level, index) => {
+              const available = index === 0;
+              const selected = available && settings.friend === "kitty" && settings.mode === "relaxed";
               return (
                 <button
-                  key={f.kind}
+                  key={level.place}
                   type="button"
-                  role="radio"
-                  aria-checked={sel}
-                  aria-label={`${f.name} the ${f.kind}`}
+                  disabled={!available}
+                  aria-label={`Level ${index + 1}: ${level.name} in ${level.place}${available ? ", play now" : ", coming soon"}`}
                   onClick={() => {
-                    onChange({ friend: f.kind });
+                    onChange({ friend: "kitty", mode: "relaxed" });
                     audio.unlock();
-                    audio.catch(FRIENDS.indexOf(f) * 2);
+                    audio.catch(2);
                   }}
-                  className={`flex cursor-pointer flex-col items-center rounded-2xl border-4 pb-1 transition-all ${
-                    sel ? "scale-105 border-[#ff7ab6] bg-[#fff0f7]" : "border-transparent bg-[#f6f2ff] hover:bg-[#efeaff]"
+                  className={`relative flex min-w-0 flex-col items-center rounded-2xl border-[3px] px-0.5 py-2 transition-all ${
+                    selected ? "border-[#ff7ab6] bg-[#fff0f7]" : available ? "border-[#b3e8c1] bg-[#e8fbf1] hover:bg-[#d7f8e4]" : "cursor-not-allowed border-transparent bg-[#f6f2ff] opacity-70"
                   }`}
                 >
-                  <span className={sel ? "anim-wiggle" : ""}>
-                    <FriendPreview kind={f.kind} size={56} />
-                  </span>
-                  <span className="text-xs font-bold sm:text-base">{f.name}</span>
+                  <span className="absolute left-1 top-0.5 text-[10px] font-bold text-[#776b8b]">{index + 1}</span>
+                  <span className="text-3xl sm:text-4xl" aria-hidden="true">{level.icon}</span>
+                  <span className="text-xs font-bold sm:text-sm">{level.name}</span>
+                  <span className="text-[10px] font-semibold text-[#7b708d]">{level.place}</span>
+                  <span className="text-[9px] font-bold text-[#7c5cff]">{available ? "▶ PLAY" : "🔒 SOON"}</span>
                 </button>
               );
             })}
           </div>
+          <p className="mt-2 text-center text-xs font-semibold text-[#6b6080]">Kitty's Meadow uses the original Relaxed catching game. Other games below stay available.</p>
 
           <h2 className="mb-2 mt-4 text-center text-xl font-bold">2. Pick a game</h2>
           <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Pick a game">
