@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { audio } from "../game/audio";
 import { FRIENDS, type ScoreEntry, type Settings } from "../game/types";
-import { FriendPreview } from "./FriendPreview";
 import { ScoreTable } from "./ScoreTable";
 import { BigButton, Panel, SettingsToggles } from "./ui";
 
@@ -19,6 +18,7 @@ const TITLE_COLORS = ["#ff7ab6", "#ffb000", "#3cc68a", "#4aa8ff", "#7c5cff"];
 export function StartScreen({ settings, onChange, onPlay, scores, onClearScores }: Props) {
   const [view, setView] = useState<"main" | "scores" | "grownups">("main");
   const [confirmClear, setConfirmClear] = useState(false);
+  const [selectedAdventure, setSelectedAdventure] = useState(0);
 
   if (view === "scores") {
     return (
@@ -167,211 +167,48 @@ export function StartScreen({ settings, onChange, onPlay, scores, onClearScores 
           <p className="mt-2 text-center text-xs font-semibold text-[#6b6080]">Kitty's Meadow uses the original Relaxed catching game. Other games below stay available.</p>
 
           <h2 className="mb-2 mt-4 text-center text-xl font-bold">2. Pick a game</h2>
-          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Pick a game">
-            {(
-              [
-                { mode: "relaxed", icon: "🌈", title: "Relaxed", desc: "Just catch! No clouds.", tint: "border-[#7c5cff] bg-[#efeaff]" },
-                { mode: "adventure", icon: "⛰️", title: "Adventure", desc: "3 hearts. Dodge clouds!", tint: "border-[#ff7ab6] bg-[#fff0f7]" },
-                { mode: "cove", icon: "🍃", title: "Calm Cove", desc: "No score. Tap & grow.", tint: "border-[#3cc68a] bg-[#e8fbf1]" },
-                { mode: "count", icon: "🔢", title: "Count With Niko", desc: "Count 1–5 or 6–10.", tint: "border-[#ffb000] bg-[#fff8e1]" },
-              ] as const
-            ).map((m) => {
-              const sel = settings.mode === m.mode;
-              return (
-                <button
-                  key={m.mode}
-                  type="button"
-                  role="radio"
-                  aria-checked={sel}
-                  onClick={() => {
-                    onChange({ mode: m.mode });
-                    audio.unlock();
-                    if (m.mode === "count") audio.bloom(2);
-                    else audio.click();
-                  }}
-                  className={`relative flex cursor-pointer flex-col items-center rounded-2xl border-4 px-2 py-2 text-center transition-all ${
-                    sel ? `${m.tint} shadow-sm` : "border-transparent bg-[#f6f2ff] hover:bg-[#efeaff]"
-                  }`}
-                >
-                  <span className="text-3xl" aria-hidden="true">{m.icon}</span>
-                  <span className="text-base font-bold leading-tight sm:text-lg">{m.title}</span>
-                  <span className="text-xs font-medium leading-tight text-[#6b6080] sm:text-sm">{m.desc}</span>
-                  {sel && (
-                    <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#3cc68a] text-[11px] font-bold text-white" aria-hidden="true">✓</span>
-                  )}
-                </button>
-              );
-            })}
-                      <button
-              type="button"
-              role="radio"
-              aria-checked={settings.mode === "find"}
-              onClick={() => {
-                onChange({ mode: "find" });
-                audio.unlock();
-                audio.catch(4);
-              }}
-              className={`relative col-span-2 flex w-full cursor-pointer items-center gap-3 rounded-2xl border-4 px-3 py-2 text-left transition-all ${
-                settings.mode === "find" ? "border-[#7c5cff] bg-[#efeaff] shadow-sm" : "border-transparent bg-[#f6f2ff] hover:bg-[#efeaff]"
-              }`}
-            >
-              <span className="text-3xl" aria-hidden="true">🔍</span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-base font-bold leading-tight sm:text-lg">Find a Friend</span>
-                <span className="block text-xs font-medium leading-tight text-[#6b6080] sm:text-sm">
-                  Hidden pictures with a hint button. Optional gentle timer.
-                </span>
-              </span>
-              <span
-                aria-hidden="true"
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                  settings.mode === "find" ? "bg-[#3cc68a] text-white" : "bg-white text-[#b9aecd]"
+          <p className="mb-3 text-center text-xs font-semibold text-[#8a809a]">Ten learning adventures. One easy catching game!</p>
+          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Pick a learning adventure">
+            {[
+              { icon: "🎨", title: "Color Match" },
+              { icon: "🔷", title: "Shape Finder" },
+              { icon: "🔢", title: "Counting Fun" },
+              { icon: "🧠", title: "Memory Match" },
+              { icon: "😊", title: "Feelings & Faces" },
+              { icon: "👂", title: "Listen & Choose" },
+              { icon: "💬", title: "Let's Communicate" },
+              { icon: "☀️", title: "My Daily Routine" },
+              { icon: "🐾", title: "Animal Friends" },
+              { icon: "🏆", title: "Niko's Big Challenge" },
+            ].map((game, index) => (
+              <button
+                key={game.title}
+                type="button"
+                role="radio"
+                aria-checked={selectedAdventure === index}
+                onClick={() => {
+                  setSelectedAdventure(index);
+                  onChange({ mode: "relaxed", friend: "kitty" });
+                  audio.unlock();
+                  audio.click();
+                }}
+                className={`relative flex min-h-[86px] cursor-pointer flex-col items-center justify-center rounded-2xl border-4 px-2 py-2 text-center transition-all ${
+                  selectedAdventure === index
+                    ? "border-[#7c5cff] bg-[#efeaff] shadow-sm"
+                    : "border-transparent bg-[#f6f2ff] hover:bg-[#efeaff]"
                 }`}
               >
-                ✓
-              </span>
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={settings.mode === "together"}
-              onClick={() => {
-                onChange({ mode: "together" });
-                audio.unlock();
-                audio.cheer();
-              }}
-              className={`relative col-span-2 flex w-full cursor-pointer items-center gap-3 rounded-2xl border-4 px-3 py-2 text-left transition-all ${
-                settings.mode === "together" ? "border-[#ff7ab6] bg-[#fff0f7] shadow-sm" : "border-transparent bg-[#f6f2ff] hover:bg-[#fff0f7]"
-              }`}
-            >
-              <span className="text-3xl" aria-hidden="true">🤝</span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-base font-bold leading-tight sm:text-lg">Together Time</span>
-                <span className="block text-xs font-medium leading-tight text-[#6b6080] sm:text-sm">
-                  A turn-taking picnic for two. Play with Niko or a grown-up.
-                </span>
-              </span>
-              <span
-                aria-hidden="true"
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                  settings.mode === "together" ? "bg-[#3cc68a] text-white" : "bg-white text-[#b9aecd]"
-                }`}
-              >
-                ✓
-              </span>
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={settings.mode === "creator"}
-              onClick={() => {
-                onChange({ mode: "creator" });
-                audio.unlock();
-                audio.bloom(4);
-              }}
-              className={`relative col-span-2 flex w-full cursor-pointer items-center gap-3 rounded-2xl border-4 px-3 py-2 text-left transition-all ${
-                settings.mode === "creator" ? "border-[#3cc68a] bg-[#e8fbf1] shadow-sm" : "border-transparent bg-[#f6f2ff] hover:bg-[#e8fbf1]"
-              }`}
-            >
-              <span className="text-3xl" aria-hidden="true">🎨</span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-base font-bold leading-tight sm:text-lg">Cozy Creator</span>
-                <span className="block text-xs font-medium leading-tight text-[#6b6080] sm:text-sm">
-                  Colour a garden, meadow, moonlit glade or pond. No rules!
-                </span>
-              </span>
-              <span
-                aria-hidden="true"
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                  settings.mode === "creator" ? "bg-[#3cc68a] text-white" : "bg-white text-[#b9aecd]"
-                }`}
-              >
-                ✓
-              </span>
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={settings.mode === "pattern"}
-              onClick={() => {
-                onChange({ mode: "pattern" });
-                audio.unlock();
-                audio.catch(3);
-              }}
-              className={`relative col-span-2 mt-0 flex w-full cursor-pointer items-center gap-3 rounded-2xl border-4 px-3 py-2 text-left transition-all ${
-                settings.mode === "pattern" ? "border-[#ffb000] bg-[#fff8e1] shadow-sm" : "border-transparent bg-[#f6f2ff] hover:bg-[#fff8e1]"
-              }`}
-            >
-              <span className="text-3xl" aria-hidden="true">🛤️</span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-base font-bold leading-tight sm:text-lg">Pattern Path</span>
-                <span className="block text-xs font-medium leading-tight text-[#6b6080] sm:text-sm">
-                  What comes next? ⭐💛⭐💛… Walk your pal to the picnic.
-                </span>
-              </span>
-              <span
-                aria-hidden="true"
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                  settings.mode === "pattern" ? "bg-[#3cc68a] text-white" : "bg-white text-[#b9aecd]"
-                }`}
-              >
-                ✓
-              </span>
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={settings.mode === "music"}
-              onClick={() => {
-                onChange({ mode: "music" });
-                audio.unlock();
-                audio.pad(2);
-              }}
-              className={`relative col-span-2 mt-0 flex w-full cursor-pointer items-center gap-3 rounded-2xl border-4 px-3 py-2 text-left transition-all ${
-                settings.mode === "music" ? "border-[#4aa8ff] bg-[#e8f3ff] shadow-sm" : "border-transparent bg-[#f6f2ff] hover:bg-[#e8f3ff]"
-              }`}
-            >
-              <span className="text-3xl" aria-hidden="true">🎶</span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-base font-bold leading-tight sm:text-lg">Music Meadow</span>
-                <span className="block text-xs font-medium leading-tight text-[#6b6080] sm:text-sm">
-                  Find the guitar, piano &amp; more. Hear real sounds!
-                </span>
-              </span>
-              <span
-                aria-hidden="true"
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                  settings.mode === "music" ? "bg-[#3cc68a] text-white" : "bg-white text-[#b9aecd]"
-                }`}
-              >
-                ✓
-              </span>
-            </button>
-                    </div>
-
-          {settings.mode === "cove" || settings.mode === "count" || settings.mode === "pattern" || settings.mode === "creator" || settings.mode === "together" || settings.mode === "find" || settings.mode === "music" ? (
-            <p className={`mt-3 rounded-2xl px-3 py-2 text-center text-sm font-semibold ${
-              settings.mode === "cove" || settings.mode === "creator"
-                ? "bg-[#e8fbf1] text-[#2f7f5f]"
-                : settings.mode === "together"
-                  ? "bg-[#fff0f7] text-[#b03060]"
-                  : "bg-[#fff8e1] text-[#9a6b00]"
-            }`}>
-              {settings.mode === "count"
-                ? "🔢 No timer and no wrong answers. Tap to count at your own pace."
-                : settings.mode === "pattern"
-                  ? "🛤️ No timer and no lost points. Guesses that don't fit just wobble — try again!"
-                  : settings.mode === "creator"
-                    ? "🎨 No score and no wrong answer. Pick a colour, tap a shape, undo anytime."
-                    : settings.mode === "together"
-                      ? "🤝 A game for two: you both win when both pals reach the picnic. No timer, no losing."
-                      : settings.mode === "music"
-                        ? "🎶 Niko names an instrument — find it on the board and tap it to hear it play! Taps that aren&apos;t it just wobble."
-                        : settings.mode === "find"
-                        ? "🔍 Three things to spot at a time. Hints and a spoken prompt are always there; the timer is optional."
-                        : "🍃 No score and no timer here — just play and leave when you're ready."}
-            </p>
-          ) : (
+                <span className="text-3xl" aria-hidden="true">{game.icon}</span>
+                <span className="text-sm font-bold leading-tight sm:text-base">{game.title}</span>
+                {selectedAdventure === index && (
+                  <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#3cc68a] text-[11px] font-bold text-white" aria-hidden="true">✓</span>
+                )}
+              </button>
+            ))}
+          </div>
+          <p className="mt-3 rounded-2xl bg-[#e8fbf1] px-3 py-2 text-center text-xs font-semibold text-[#2f7f5f]">
+            🌱 All games currently use the relaxed catching activity. Different learning objects and worlds are coming next.
+          </p>
           <label className="mt-4 flex items-center gap-2 rounded-2xl bg-[#f6f2ff] px-3 py-2">
             <span className="text-sm font-bold whitespace-nowrap">Your name:</span>
             <input
@@ -383,22 +220,16 @@ export function StartScreen({ settings, onChange, onPlay, scores, onClearScores 
               aria-label="Your name for the Star Board (optional)"
             />
           </label>
-          )}
-
-          <BigButton color="pink" onClick={onPlay} className="mt-4 w-full py-4 text-3xl" ariaLabel="Play">
-            {settings.mode === "cove"
-              ? "🍃 Visit Calm Cove"
-              : settings.mode === "count"
-                ? "🔢 Count with Niko"
-                : settings.mode === "pattern"
-                  ? "🛤️ Walk the Pattern Path"
-                  : settings.mode === "creator"
-                    ? "🎨 Start creating"
-                    : settings.mode === "together"
-                      ? "🤝 Start Together Time"
-                      : settings.mode === "music"
-                        ? "🎶 Play Music Meadow"
-                        : "▶ Play!"}
+          <BigButton
+            color="pink"
+            onClick={() => {
+              onChange({ mode: "relaxed", friend: "kitty" });
+              onPlay();
+            }}
+            className="mt-4 w-full py-4 text-3xl"
+            ariaLabel="Play relaxed catching game"
+          >
+            ▶ Play!
           </BigButton>
           <p className="mt-2 hidden text-center text-sm font-medium text-[#8a809a] sm:block">Press Enter to play · Arrow keys to move · P to pause</p>
         </Panel>
