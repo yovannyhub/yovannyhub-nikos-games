@@ -818,6 +818,9 @@ export class GameEngine {
       audio.cheer();
     }
 
+    // Level 1: keep the meadow throughout the Relaxed round.
+    if (this.mode === "relaxed") return;
+
     // world progression
     const lvl = Math.floor(this.caught / CATCHES_PER_WORLD);
     if (lvl > this.worldLevel) {
