@@ -27,7 +27,7 @@ import {
   type HudState,
 } from "./types";
 
-type ItemKind = "star" | "berry" | "blue" | "rainbow" | "heart" | "cloud";
+type ItemKind = "star" | "berry" | "blue" | "rainbow" | "heart" | "cloud" | "redOrb" | "blueOrb" | "yellowOrb";
 
 interface Item {
   kind: ItemKind;
@@ -109,9 +109,10 @@ const ITEM_COLORS: Record<ItemKind, string[]> = {
   rainbow: ["#ff7ab6", "#ffd23f", "#7be08f", "#7ad7ff", "#a98bff"],
   heart: ["#ff6fa5", "#ffb3d1", "#ffffff"],
   cloud: ["#9aa4bf", "#c6cde0", "#7fc4ff"],
+  redOrb: ["#ff5b68"], blueOrb: ["#428bff"], yellowOrb: ["#ffcf3b"],
 };
 
-const ITEM_POINTS: Record<ItemKind, number> = { star: 10, berry: 15, blue: 10, rainbow: 50, heart: 20, cloud: 0 };
+const ITEM_POINTS: Record<ItemKind, number> = { star: 10, berry: 15, blue: 10, rainbow: 50, heart: 20, cloud: 0, redOrb: 10, blueOrb: 10, yellowOrb: 10 };
 
 const COMBO_WORDS: Record<number, string> = { 5: "Nice!", 10: "Super!", 15: "Wow!", 20: "Amazing!", 30: "Superstar!" };
 
@@ -128,6 +129,10 @@ export class GameEngine {
 
   state: EngineState = "ready";
   mode: GameMode = "relaxed";
+  learningGame = 0;
+  colorMatches = 0;
+  targetColor = 0;
+  setLearningGame(index: number) { this.learningGame = index; }
   friend: FriendInfo = FRIENDS[0];
   calm = false;
   slow = false;
@@ -321,6 +326,8 @@ export class GameEngine {
 
   start(mode: GameMode) {
     this.mode = mode;
+    this.colorMatches = 0;
+    this.targetColor = 0;
     this.items.length = 0;
     this.particles.length = 0;
     this.floaters.length = 0;
@@ -358,7 +365,7 @@ export class GameEngine {
     } else {
       this.showBanner("Let's go!", mode === "relaxed" ? "Catch the yummy stars!" : "Catch stars, dodge grumpy clouds!", "#ff7ab6", 2.2);
       // a friendly first star falls right toward the player so the first catch happens fast
-      this.spawnItem("star", this.W / 2 + (Math.random() - 0.5) * this.size * 1.5, 1.25);
+      this.spawnItem(this.learningGame === 0 ? "redOrb" : "star", this.W / 2 + (Math.random() - 0.5) * this.size * 1.5, 1.25);
     }
     this.emitHud(true);
   }
@@ -498,6 +505,7 @@ export class GameEngine {
   }
 
   chooseKind(): ItemKind {
+    if (this.mode === "relaxed" && this.learningGame === 0) return (["redOrb", "blueOrb", "yellowOrb"] as const)[Math.floor(Math.random() * 3)];
     const roll = Math.random();
     if (this.mode === "adventure") {
       const cloudChance = this.playT < 3.5 ? 0 : Math.min(0.34, 0.18 + this.level * 0.03);
@@ -781,6 +789,20 @@ export class GameEngine {
   }
 
   catchItem(it: Item) {
+    if (this.mode === "relaxed" && this.learningGame === 0) {
+      const colors: ItemKind[] = ["redOrb", "blueOrb", "yellowOrb"];
+      if (it.kind !== colors[this.targetColor]) {
+        this.floater(it.x, it.y - 18, "Try another color!", "#ffffff", 22);
+        audio.miss();
+        return;
+      }
+      this.colorMatches++;
+      if (this.colorMatches % 5 === 0) {
+        this.targetColor = (this.targetColor + 1) % 3;
+        this.showBanner("Great matching!", `Now catch ${["RED", "BLUE", "YELLOW"][this.targetColor]}!`, "#7c5cff", 2.3);
+        audio.levelUp();
+      }
+    }
     const s = this.size;
     this.combo++;
     this.caught++;
@@ -907,11 +929,39 @@ export class GameEngine {
       drawWorld(ctx, WORLDS[this.worldIdx], W, H, this.time, gy, motion);
     }
 
+    if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 0) {
+      ctx.fillStyle = "rgba(255,255,255,0.94)";
+      ctx.beginPath();
+      ctx.roundRect(Math.max(8, W / 2 - 135), Math.min(104, H * 0.16), 270, 52, 22);
+      ctx.fill();
+      ctx.fillStyle = ["#e33243", "#176be0", "#9b7400"][this.targetColor];
+      ctx.font = "bold 22px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`Catch ${["RED", "BLUE", "YELLOW"][this.targetColor]}!`, W / 2, Math.min(138, H * 0.16 + 34));
+    }
+
     // items
     for (const it of this.items) {
       const pop = Math.min(1, it.spawnT * 5);
       const r = it.r * (0.6 + 0.4 * pop);
       switch (it.kind) {
+        case "redOrb":
+        case "blueOrb":
+        case "yellowOrb": {
+          const fill = it.kind === "redOrb" ? "#ff5b68" : it.kind === "blueOrb" ? "#428bff" : "#ffcf3b";
+          ctx.beginPath();
+          ctx.arc(it.x, it.y, r * 0.9, 0, Math.PI * 2);
+          ctx.fillStyle = fill;
+          ctx.fill();
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = "#ffffff";
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(it.x - r * 0.25, it.y - r * 0.28, r * 0.18, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255,255,255,0.65)";
+          ctx.fill();
+          break;
+        }
         case "star":
           drawStar(ctx, it.x, it.y, r, it.rot * 0.5);
           break;
