@@ -7,7 +7,7 @@ import { BigButton, Panel, SettingsToggles } from "./ui";
 interface Props {
   settings: Settings;
   onChange: (s: Partial<Settings>) => void;
-  onPlay: () => void;
+  onPlay: (adventure: number) => void;
   scores: ScoreEntry[];
   onClearScores: () => void;
 }
@@ -222,10 +222,7 @@ export function StartScreen({ settings, onChange, onPlay, scores, onClearScores 
           </label>
           <BigButton
             color="pink"
-            onClick={() => {
-              onChange({ mode: "relaxed", friend: "kitty" });
-              onPlay();
-            }}
+            onClick={() => onPlay(selectedAdventure)}
             className="mt-4 w-full py-4 text-3xl"
             ariaLabel="Play relaxed catching game"
           >
