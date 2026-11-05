@@ -118,9 +118,6 @@ export function StartScreen({ settings, onChange, onPlay, scores, onClearScores 
             <span className="text-sm font-semibold text-[#3b2f4a] sm:text-base">gentle games for little hands</span>
           </div>
         </div>
-        <p className="max-w-sm rounded-full bg-white/80 px-4 py-1 text-center text-sm font-semibold text-[#3b2f4a] sm:text-base">
-          Catch stars, count, make art & music, seek & find, and play together. ⭐🌱🎶
-        </p>
 
         <Panel className="w-full">
           <h2 className="mb-1 text-center text-xl font-bold">1. Pick a friend · Choose a world</h2>
