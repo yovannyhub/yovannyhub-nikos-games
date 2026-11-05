@@ -91,18 +91,12 @@ export default function App() {
     audio.musicOn = s.music;
     audio.stopMusic();
     setResult(null);
-    if (s.mode === "count" || s.mode === "pattern" || s.mode === "creator" || s.mode === "together" || s.mode === "find" || s.mode === "music") {
-      // The learning and making games are calm, DOM-based screens: no timer, no score.
-      e.goHome();
-      e.setVisible(false);
-      setPhase(s.mode);
-      return;
-    }
+    // All choices on the new home screen use the original Relaxed catching game.
     e.setVisible(true);
     if (s.music) audio.startMusic();
-    e.setFriend(s.friend);
+    e.setFriend("kitty");
     e.setOptions({ calm: s.calm, slow: s.slow });
-    e.start(s.mode);
+    e.start("relaxed");
     setPhase("playing");
   }, []);
 
