@@ -1,4 +1,4 @@
-export type FriendKind = "niko" | "bunny" | "kitty" | "bear" | "frog";
+export type FriendKind = "niko" | "bunny" | "kitty" | "fish" | "bear" | "frog";
 export type GameMode = "relaxed" | "adventure" | "cove" | "count" | "pattern" | "creator" | "together" | "find" | "music";
 
 export interface FriendInfo {
@@ -14,6 +14,7 @@ export const FRIENDS: FriendInfo[] = [
   { kind: "niko", name: "Niko", body: "#ffab5e", belly: "#fff1d9", dark: "#d97a37", inner: "#ffb3a7" },
   { kind: "bunny", name: "Bun-Bun", body: "#fdf2f8", belly: "#ffffff", dark: "#d9a8c2", inner: "#ffb3cf" },
   { kind: "kitty", name: "Mochi", body: "#ffc178", belly: "#fff1dc", dark: "#d98a3d", inner: "#ffb3a7" },
+  { kind: "fish", name: "Finn", body: "#ffae65", belly: "#ffe5b0", dark: "#e17a46", inner: "#ff7e8c" },
   { kind: "bear", name: "Honey", body: "#c98f5e", belly: "#f3d3ae", dark: "#8d5a33", inner: "#f2b8a0" },
   { kind: "frog", name: "Pip", body: "#86d98a", belly: "#dcf7c9", dark: "#4fa257", inner: "#ffb3c1" },
 ];
