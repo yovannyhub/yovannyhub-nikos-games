@@ -862,6 +862,24 @@ export class GameEngine {
   }
 
   catchItem(it: Item) {
+    if (this.mode === "relaxed" && this.learningGame === 9) {
+      const groups: ItemKind[][] = [["redOrb", "blueOrb", "yellowOrb"], ["circleShape", "squareShape", "triangleShape"], ["animalCow", "animalDuck", "animalFrog"]];
+      const group = groups[Math.floor(this.challengeStage / 3) % 3];
+      const target = group[this.challengeStage % 3];
+      if (it.kind !== target) {
+        this.floater(it.x, it.y - 18, "Try another one!", "#ffffff", 22);
+        audio.miss();
+        return;
+      }
+      this.challengeMatches++;
+      if (this.challengeMatches % 5 === 0) {
+        this.challengeStage = (this.challengeStage + 1) % 9;
+        this.items.length = 0;
+        this.spawnItem(this.chooseKind(), this.W / 2, 1.25);
+        this.showBanner("Fantastic!", "A new challenge begins!", "#7c5cff", 2.3);
+        audio.levelUp();
+      }
+    }
     if (this.mode === "relaxed" && this.learningGame === 8) {
       const choices: ItemKind[] = ["animalCow", "animalDuck", "animalFrog"];
       if (it.kind !== choices[this.targetAnimal]) {
