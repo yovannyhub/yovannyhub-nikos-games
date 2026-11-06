@@ -1246,3 +1246,33 @@ export function drawBambooWorld(ctx: Ctx, W: number, H: number, time: number, gr
   ctx.fillStyle = "#d3dfac"; ctx.beginPath();
   ctx.ellipse(W * 0.5, H + 25, W * 0.3, H - groundY + 42, 0, 0, Math.PI * 2); ctx.fill();
 }
+
+export function drawSnowWorld(ctx: Ctx, W: number, H: number, time: number, groundY: number) {
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, "#87b8e6");
+  sky.addColorStop(1, "#e3f5ff");
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#d1e9f5";
+  ctx.beginPath();
+  ctx.moveTo(0, groundY);
+  for (let x = 0; x <= W + 12; x += 12) ctx.lineTo(x, groundY - H * 0.17 - Math.sin(x * 0.014) * 30);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.fill();
+  ctx.fillStyle = "#f8fcff";
+  ctx.beginPath();
+  ctx.moveTo(0, groundY);
+  for (let x = 0; x <= W + 12; x += 12) ctx.lineTo(x, groundY - 8 + Math.sin(x * 0.023) * 8);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.fill();
+  for (let i = 0; i < 12; i++) {
+    const x = (i * 137 + 23) % Math.max(1, W);
+    const y = (i * 89 + time * (i % 3 + 1) * 3) % Math.max(1, groundY);
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.beginPath();
+    ctx.arc(x, y, 2 + i % 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
