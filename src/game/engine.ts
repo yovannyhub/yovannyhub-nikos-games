@@ -840,6 +840,20 @@ export class GameEngine {
   }
 
   catchItem(it: Item) {
+    if (this.mode === "relaxed" && this.learningGame === 6) {
+      const choices: ItemKind[] = ["communicateWater", "communicateFood", "communicateHelp"];
+      if (it.kind !== choices[this.targetNeed]) {
+        this.floater(it.x, it.y - 18, "Try another picture!", "#ffffff", 22);
+        audio.miss();
+        return;
+      }
+      this.communicationMatches++;
+      if (this.communicationMatches % 5 === 0) {
+        this.targetNeed = (this.targetNeed + 1) % 3;
+        this.showBanner("Great communicating!", "Choose the next picture!", "#7c5cff", 2.3);
+        audio.levelUp();
+      }
+    }
     if (this.mode === "relaxed" && this.learningGame === 5) {
       const sounds: ItemKind[] = ["listenBird", "listenCat", "listenDog"];
       if (it.kind !== sounds[this.targetSound]) {
