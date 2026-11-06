@@ -1050,6 +1050,17 @@ export class GameEngine {
     if (this.invuln > 0) alpha = this.calm ? 0.6 : 0.55 + 0.45 * (0.5 + 0.5 * Math.cos(this.invuln * Math.PI * 6));
     const bob = this.state === "ready" ? Math.abs(Math.sin(this.time * 3)) * -s * 0.25 : 0;
     const breathe = Math.sin(this.time * 3) * 0.02;
+    if (this.mode === "relaxed" && this.learningGame === 1) {
+      // Use the exact tropical fish emoji displayed on the Level 2 homepage card.
+      // Browser-native color emoji rendering keeps the selected friend consistent.
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = `${Math.round(s * 2.15)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+      ctx.fillText("🐠", this.px, this.py + bob);
+      ctx.restore();
+    } else {
     drawFriend(ctx, this.friend, this.px, this.py + bob, s, {
       t: this.time,
       mood: this.state === "ready" ? "happy" : this.mood,
@@ -1059,6 +1070,7 @@ export class GameEngine {
       basket: this.state !== "ready" && this.mode !== "cove",
       alpha,
     });
+    }
 
     // movement hint at start
     if (this.state === "playing" && this.playT < 4.5 && !this.movedOnce) {
