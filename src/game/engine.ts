@@ -18,6 +18,7 @@ import {
   drawSnowWorld,
   drawSavannaWorld,
   drawDragonWorld,
+  drawMagicWorld,
   heartPath,
   type Mood,
 } from "./draw";
@@ -421,7 +422,7 @@ export class GameEngine {
     if (mode === "cove") {
       this.showBanner("Calm Cove", "Tap or drag anywhere for a little magic", "#7c5cff", 3.4);
     } else {
-      this.showBanner("Let's go!", mode === "relaxed" ? (this.learningGame === 8 ? "Find the COW!" : this.learningGame === 7 ? "Find WAKE UP!" : this.learningGame === 6 ? "Find WATER!" : this.learningGame === 5 ? "Listen! Find the BIRD!" : this.learningGame === 4 ? "Find the HAPPY face!" : this.learningGame === 3 ? "Remember the picture!" : this.learningGame === 2 ? "Count the stars! Catch ONE!" : this.learningGame === 1 ? "Catch the CIRCLE!" : "Catch RED!") : "Catch stars, dodge grumpy clouds!", "#ff7ab6", 2.2);
+      this.showBanner("Let's go!", mode === "relaxed" ? (this.learningGame === 9 ? "Niko’s Big Challenge!" : this.learningGame === 8 ? "Find the COW!" : this.learningGame === 7 ? "Find WAKE UP!" : this.learningGame === 6 ? "Find WATER!" : this.learningGame === 5 ? "Listen! Find the BIRD!" : this.learningGame === 4 ? "Find the HAPPY face!" : this.learningGame === 3 ? "Remember the picture!" : this.learningGame === 2 ? "Count the stars! Catch ONE!" : this.learningGame === 1 ? "Catch the CIRCLE!" : "Catch RED!") : "Catch stars, dodge grumpy clouds!", "#ff7ab6", 2.2);
       // a friendly first star falls right toward the player so the first catch happens fast
       this.spawnItem(this.learningGame === 0 ? "redOrb" : this.learningGame === 1 ? "circleShape" : this.learningGame === 2 ? "oneGroup" : this.learningGame === 3 ? "memorySun" : this.learningGame === 4 ? "feelingHappy" : this.learningGame === 5 ? "listenBird" : this.learningGame === 6 ? "communicateWater" : this.learningGame === 7 ? "routineWake" : this.learningGame === 8 ? "animalCow" : this.learningGame === 9 ? "redOrb" : "star", this.W / 2 + (Math.random() - 0.5) * this.size * 1.5, 1.25);
     }
@@ -1109,7 +1110,7 @@ export class GameEngine {
     } else if (this.worldFade < 1) {
       if (this.prevWorldIdx === 1 && this.mode === "relaxed") drawOceanWorld(ctx, W, H, this.time, gy); else drawWorld(ctx, WORLDS[this.prevWorldIdx], W, H, this.time, gy, motion);
       ctx.globalAlpha = this.worldFade;
-      if (this.learningGame === 1 && this.mode === "relaxed") drawOceanWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 2 && this.mode === "relaxed") drawGalaxyWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 3 && this.mode === "relaxed") drawFarmWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 4 && this.mode === "relaxed") drawForestWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 5 && this.mode === "relaxed") drawBambooWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 6 && this.mode === "relaxed") drawSnowWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 7 && this.mode === "relaxed") drawSavannaWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 8 && this.mode === "relaxed") drawDragonWorld(ctx, W, H, this.time, gy); else drawWorld(ctx, WORLDS[this.worldIdx], W, H, this.time, gy, motion);
+      if (this.learningGame === 1 && this.mode === "relaxed") drawOceanWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 2 && this.mode === "relaxed") drawGalaxyWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 3 && this.mode === "relaxed") drawFarmWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 4 && this.mode === "relaxed") drawForestWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 5 && this.mode === "relaxed") drawBambooWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 6 && this.mode === "relaxed") drawSnowWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 7 && this.mode === "relaxed") drawSavannaWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 8 && this.mode === "relaxed") drawDragonWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 9 && this.mode === "relaxed") drawMagicWorld(ctx, W, H, this.time, gy); else drawWorld(ctx, WORLDS[this.worldIdx], W, H, this.time, gy, motion);
       ctx.globalAlpha = 1;
     } else {
       if (this.learningGame === 1 && this.mode === "relaxed") drawOceanWorld(ctx, W, H, this.time, gy);
@@ -1120,6 +1121,7 @@ export class GameEngine {
       else if (this.learningGame === 6 && this.mode === "relaxed") drawSnowWorld(ctx, W, H, this.time, gy);
       else if (this.learningGame === 7 && this.mode === "relaxed") drawSavannaWorld(ctx, W, H, this.time, gy);
       else if (this.learningGame === 8 && this.mode === "relaxed") drawDragonWorld(ctx, W, H, this.time, gy);
+      else if (this.learningGame === 9 && this.mode === "relaxed") drawMagicWorld(ctx, W, H, this.time, gy);
       else drawWorld(ctx, WORLDS[this.worldIdx], W, H, this.time, gy, motion);
     }
 
@@ -1354,7 +1356,7 @@ export class GameEngine {
     if (this.invuln > 0) alpha = this.calm ? 0.6 : 0.55 + 0.45 * (0.5 + 0.5 * Math.cos(this.invuln * Math.PI * 6));
     const bob = this.state === "ready" ? Math.abs(Math.sin(this.time * 3)) * -s * 0.25 : 0;
     const breathe = Math.sin(this.time * 3) * 0.02;
-    if (this.mode === "relaxed" && (this.learningGame === 1 || this.learningGame === 2 || this.learningGame === 3 || this.learningGame === 4 || this.learningGame === 5 || this.learningGame === 6 || this.learningGame === 7 || this.learningGame === 8)) {
+    if (this.mode === "relaxed" && (this.learningGame === 1 || this.learningGame === 2 || this.learningGame === 3 || this.learningGame === 4 || this.learningGame === 5 || this.learningGame === 6 || this.learningGame === 7 || this.learningGame === 8 || this.learningGame === 9)) {
       // Use the same character emoji as the homepage displayed on the Level 2 homepage card.
       // Browser-native color emoji rendering keeps the selected friend consistent.
       ctx.save();
@@ -1362,7 +1364,7 @@ export class GameEngine {
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.font = `${Math.round(s * 2.15)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
-      ctx.fillText(this.learningGame === 8 ? "🐉" : this.learningGame === 7 ? "🦁" : this.learningGame === 6 ? "🐧" : this.learningGame === 5 ? "🐼" : this.learningGame === 4 ? "🦊" : this.learningGame === 3 ? "🐷" : this.learningGame === 2 ? "👽" : "🐠", this.px, this.py + bob);
+      ctx.fillText(this.learningGame === 9 ? "🦄" : this.learningGame === 8 ? "🐉" : this.learningGame === 7 ? "🦁" : this.learningGame === 6 ? "🐧" : this.learningGame === 5 ? "🐼" : this.learningGame === 4 ? "🦊" : this.learningGame === 3 ? "🐷" : this.learningGame === 2 ? "👽" : "🐠", this.px, this.py + bob);
       ctx.restore();
     } else {
     drawFriend(ctx, this.friend, this.px, this.py + bob, s, {
