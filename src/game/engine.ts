@@ -1202,6 +1202,14 @@ export class GameEngine {
       const pop = Math.min(1, it.spawnT * 5);
       const r = it.r * (0.6 + 0.4 * pop);
       switch (it.kind) {
+        case "animalCow":
+        case "animalDuck":
+        case "animalFrog": {
+          const animal = it.kind === "animalCow" ? "🐮" : it.kind === "animalDuck" ? "🦆" : "🐸";
+          ctx.save(); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.font = `${Math.round(r * 1.8)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+          ctx.fillText(animal, it.x, it.y); ctx.restore(); break;
+        }
         case "routineWake":
         case "routineBrush":
         case "routineSleep": {
