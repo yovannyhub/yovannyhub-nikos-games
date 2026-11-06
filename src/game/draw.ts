@@ -1221,3 +1221,28 @@ export function drawForestWorld(ctx: Ctx, W: number, H: number, time: number, gr
     ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI * 2); ctx.fill();
   }
 }
+
+export function drawBambooWorld(ctx: Ctx, W: number, H: number, time: number, groundY: number) {
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, "#c7f2d6"); sky.addColorStop(1, "#f1f8ce");
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#b5e4b0"; ctx.beginPath();
+  ctx.ellipse(W / 2, groundY + 20, W * 0.8, H * 0.19, 0, Math.PI, Math.PI * 2); ctx.fill();
+  for (let i = 0; i < 11; i++) {
+    const x = (i + 0.5) * W / 11, top = groundY - H * (0.22 + (i % 4) * 0.06);
+    ctx.fillStyle = i % 2 ? "#6fbf7d" : "#84ce88";
+    ctx.fillRect(x - 7, top, 14, groundY - top + 12);
+    ctx.strokeStyle = "#4f9b67"; ctx.lineWidth = 3;
+    for (let y = top + 28; y < groundY; y += 37) {
+      ctx.beginPath(); ctx.moveTo(x - 7, y); ctx.lineTo(x + 7, y); ctx.stroke();
+    }
+    ctx.fillStyle = "#59aa70";
+    for (let j = 0; j < 4; j++) {
+      const y = top + 22 + j * 47, side = j % 2 ? -1 : 1;
+      ctx.beginPath(); ctx.ellipse(x + side * 19, y, 25, 7, side * 0.4, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  ctx.fillStyle = "#83c98c"; ctx.fillRect(0, groundY, W, H - groundY);
+  ctx.fillStyle = "#d3dfac"; ctx.beginPath();
+  ctx.ellipse(W * 0.5, H + 25, W * 0.3, H - groundY + 42, 0, 0, Math.PI * 2); ctx.fill();
+}
