@@ -1300,3 +1300,39 @@ export function drawSavannaWorld(ctx: Ctx, W: number, H: number, time: number, g
   ctx.fillStyle = "#f4dfac"; ctx.beginPath();
   ctx.ellipse(W * 0.5, H + 20, W * 0.3, H - groundY + 34, 0, 0, Math.PI * 2); ctx.fill();
 }
+
+export function drawDragonWorld(ctx: Ctx, W: number, H: number, time: number, groundY: number) {
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, "#8c86d7");
+  sky.addColorStop(1, "#e9c6ed");
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#ffe3bd";
+  ctx.beginPath();
+  ctx.arc(W * 0.78, H * 0.18, 36, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#9f9acb";
+  ctx.beginPath();
+  ctx.moveTo(0, groundY);
+  for (let x = 0; x <= W + 12; x += 12) ctx.lineTo(x, groundY - 110 - Math.sin(x * 0.018) * 48);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.fill();
+  ctx.fillStyle = "#b4b3df";
+  ctx.beginPath();
+  ctx.moveTo(0, groundY);
+  for (let x = 0; x <= W + 12; x += 12) ctx.lineTo(x, groundY - 35 + Math.sin(x * 0.025) * 19);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.fill();
+  ctx.fillStyle = "#c8b8e5";
+  ctx.fillRect(0, groundY, W, H - groundY);
+  for (let i = 0; i < 12; i++) {
+    const x = (i * 137 + 17) % Math.max(1, W);
+    const y = (i * 79 + time * 4) % Math.max(1, groundY);
+    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    ctx.beginPath();
+    ctx.arc(x, y, 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
