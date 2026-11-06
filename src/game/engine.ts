@@ -10,6 +10,7 @@ import {
   drawStar,
   drawStrawberry,
   drawWorld,
+  drawOceanWorld,
   heartPath,
   type Mood,
 } from "./draw";
@@ -348,8 +349,8 @@ export class GameEngine {
     this.worldLevel = 0;
     this.maxWorldLevel = 0;
     this.prevWorldIdx = this.worldIdx;
-    this.worldIdx = 0;
-    this.worldFade = this.prevWorldIdx === 0 ? 1 : 0;
+    this.worldIdx = this.learningGame === 1 ? 1 : 0;
+    this.worldFade = this.prevWorldIdx === this.worldIdx ? 1 : 0;
     this.invuln = 0;
     this.shake = 0;
     this.flash = 0;
@@ -472,7 +473,7 @@ export class GameEngine {
       timeLeft: Math.ceil(this.timeLeft),
       combo: this.combo,
       multiplier: this.multiplier,
-      world: this.mode === "cove" ? "Calm Cove" : WORLDS[this.worldIdx].name,
+      world: this.mode === "cove" ? "Calm Cove" : this.learningGame === 1 ? "Ocean World" : WORLDS[this.worldIdx].name,
       mode: this.mode,
     };
     const key = `${h.score}|${h.hearts}|${h.timeLeft}|${h.multiplier}|${h.world}|${h.combo}`;
@@ -941,9 +942,9 @@ export class GameEngine {
         drawCoveFlower(ctx, f.x, f.y, (s / 46) * ease, f.color, this.time, f.seed);
       }
     } else if (this.worldFade < 1) {
-      drawWorld(ctx, WORLDS[this.prevWorldIdx], W, H, this.time, gy, motion);
+      if (this.prevWorldIdx === 1 && this.mode === "relaxed") drawOceanWorld(ctx, W, H, this.time, gy); else drawWorld(ctx, WORLDS[this.prevWorldIdx], W, H, this.time, gy, motion);
       ctx.globalAlpha = this.worldFade;
-      drawWorld(ctx, WORLDS[this.worldIdx], W, H, this.time, gy, motion);
+      if (this.learningGame === 1 && this.mode === "relaxed") drawOceanWorld(ctx, W, H, this.time, gy); else drawWorld(ctx, WORLDS[this.worldIdx], W, H, this.time, gy, motion);
       ctx.globalAlpha = 1;
     } else {
       drawWorld(ctx, WORLDS[this.worldIdx], W, H, this.time, gy, motion);
