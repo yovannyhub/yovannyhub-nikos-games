@@ -135,7 +135,7 @@ export function StartScreen({ settings, onChange, onPlay, scores, onClearScores 
               { icon: "🐉", title: "Animal Friends", friend: "Dragon", world: "Dragon World" },
               { icon: "🦄", title: "Niko's Big Challenge", friend: "Unicorn", world: "Magic World" },
             ].map((adventure, index) => {
-              const available = index < 4;
+              const available = index < 5;
               const selected = selectedAdventure === index;
               return (
                 <button
@@ -165,7 +165,7 @@ export function StartScreen({ settings, onChange, onPlay, scores, onClearScores 
             })}
           </div>
           <p className="mt-3 rounded-2xl bg-[#e8fbf1] px-3 py-2 text-center text-xs font-semibold text-[#2f7f5f]">
-            🌱 Levels 1–4 are ready! More learning adventures are coming soon.
+            🌱 Levels 1–5 are ready! More learning adventures are coming soon.
           </p>
           <label className="mt-4 flex items-center gap-2 rounded-2xl bg-[#f6f2ff] px-3 py-2">
             <span className="text-sm font-bold whitespace-nowrap">Your name:</span>
