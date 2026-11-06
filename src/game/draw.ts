@@ -41,6 +41,59 @@ export function drawFriend(ctx: Ctx, f: FriendInfo, x: number, y: number, s: num
 
   const ink = "#3b2f4a";
 
+  // Finn is a fish, not a recolored version of Mochi's round cat body.
+  // Draw a recognizable side-facing fish with a tail, fins, gills, and eyes.
+  if (f.kind === "fish") {
+    const wag = Math.sin(o.t * 5) * s * 0.12;
+    ctx.fillStyle = "#f57b65";
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.65, 0);
+    ctx.lineTo(-s * 1.65, -s * 0.68 + wag);
+    ctx.lineTo(-s * 1.58, s * 0.75 + wag);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#f9a75c";
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.25, -s * 0.53);
+    ctx.lineTo(s * 0.05, -s * 1.15);
+    ctx.lineTo(s * 0.4, -s * 0.54);
+    ctx.closePath();
+    ctx.fill();
+    ellipse(ctx, 0, 0, s * 1.12, s * 0.72, "#ffae65");
+    ellipse(ctx, s * 0.28, s * 0.21, s * 0.65, s * 0.34, "#ffe5b0");
+    ctx.fillStyle = "#f57b65";
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.15, s * 0.52);
+    ctx.lineTo(-s * 0.4, s * 1.03);
+    ctx.lineTo(s * 0.35, s * 0.6);
+    ctx.closePath();
+    ctx.fill();
+    ellipse(ctx, s * 0.48, -s * 0.18, s * 0.18, s * 0.2, "#ffffff");
+    ellipse(ctx, s * 0.53, -s * 0.17, s * 0.1, s * 0.12, "#30304e");
+    ellipse(ctx, s * 0.57, -s * 0.22, s * 0.035, s * 0.04, "#ffffff");
+    ctx.strokeStyle = "#d67c4f";
+    ctx.lineWidth = s * 0.045;
+    ctx.beginPath();
+    ctx.arc(-s * 0.22, s * 0.03, s * 0.23, -Math.PI * 0.42, Math.PI * 0.42);
+    ctx.stroke();
+    ctx.strokeStyle = "#70435c";
+    ctx.lineWidth = s * 0.05;
+    ctx.beginPath();
+    ctx.arc(s * 0.83, s * 0.17, s * 0.13, 0.1, Math.PI * 0.85);
+    ctx.stroke();
+    if (o.basket) {
+      ctx.fillStyle = "#e4a75e";
+      ctx.beginPath();
+      ctx.roundRect(-s * 0.65, s * 0.57, s * 1.35, s * 0.46, s * 0.14);
+      ctx.fill();
+      ctx.strokeStyle = "#c9873f";
+      ctx.lineWidth = s * 0.045;
+      ctx.stroke();
+    }
+    ctx.restore();
+    return;
+  }
+
   if (f.kind === "fish") {
     ctx.fillStyle = f.dark;
     ctx.beginPath();
