@@ -1154,3 +1154,23 @@ export function drawOceanWorld(ctx: Ctx, W: number, H: number, time: number, gro
   }
   ctx.restore();
 }
+
+export function drawGalaxyWorld(ctx: Ctx, W: number, H: number, time: number, groundY: number) {
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, "#171747"); sky.addColorStop(0.6, "#43337e"); sky.addColorStop(1, "#7059a7");
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+  for (let i = 0; i < 85; i++) {
+    const x = (i * 157 + 29) % Math.max(1, W), y = (i * 101 + 47) % Math.max(1, groundY);
+    ctx.globalAlpha = 0.55 + 0.3 * Math.sin(time * 1.2 + i * 2);
+    ctx.fillStyle = i % 3 ? "#ffffff" : "#ffdc8b";
+    ctx.beginPath(); ctx.arc(x, y, i % 9 === 0 ? 2.3 : 1.1, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "#d0a3ec"; ctx.beginPath();
+  ctx.arc(W * 0.8, H * 0.23, Math.min(W * 0.14, 65), 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "rgba(249,218,255,0.8)"; ctx.lineWidth = 7; ctx.beginPath();
+  ctx.ellipse(W * 0.8, H * 0.23, Math.min(W * 0.21, 98), Math.min(W * 0.05, 25), -0.35, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = "#6152a1"; ctx.beginPath(); ctx.moveTo(0, groundY);
+  for (let x = 0; x <= W + 16; x += 16) ctx.lineTo(x, groundY - 12 + Math.sin(x * 0.018) * 11);
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.fill();
+}
