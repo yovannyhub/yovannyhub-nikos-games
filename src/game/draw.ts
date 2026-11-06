@@ -1174,3 +1174,27 @@ export function drawGalaxyWorld(ctx: Ctx, W: number, H: number, time: number, gr
   for (let x = 0; x <= W + 16; x += 16) ctx.lineTo(x, groundY - 12 + Math.sin(x * 0.018) * 11);
   ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.fill();
 }
+
+export function drawFarmWorld(ctx: Ctx, W: number, H: number, time: number, groundY: number) {
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, "#a7e6ff"); sky.addColorStop(1, "#e8f8d6");
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#ffe38d"; ctx.beginPath(); ctx.arc(W * 0.8, H * 0.17, 37, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#8bd19b"; ctx.beginPath(); ctx.ellipse(W * 0.25, groundY + 20, W * 0.75, H * 0.24, 0, Math.PI, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#60b883"; ctx.beginPath(); ctx.ellipse(W * 0.8, groundY + 30, W * 0.7, H * 0.22, 0, Math.PI, Math.PI * 2); ctx.fill();
+  const bx = W * 0.22, by = groundY - H * 0.21, bw = Math.min(130, W * 0.27), bh = H * 0.2;
+  ctx.fillStyle = "#df6f63"; ctx.fillRect(bx, by, bw, bh);
+  ctx.beginPath(); ctx.moveTo(bx - 10, by); ctx.lineTo(bx + bw / 2, by - bh * 0.45); ctx.lineTo(bx + bw + 10, by); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "#fff4d9"; ctx.fillRect(bx + bw * 0.35, by + bh * 0.38, bw * 0.3, bh * 0.62);
+  ctx.fillStyle = "#75bd78"; ctx.fillRect(0, groundY, W, H - groundY);
+  ctx.strokeStyle = "#fff7e8"; ctx.lineWidth = 5;
+  for (let x = 0; x < W; x += 55) {
+    ctx.beginPath(); ctx.moveTo(x, groundY - 12); ctx.lineTo(x, groundY + 30); ctx.stroke();
+  }
+  ctx.beginPath(); ctx.moveTo(0, groundY + 2); ctx.lineTo(W, groundY + 2); ctx.stroke();
+  for (let i = 0; i < 13; i++) {
+    const x = (i * 83 + 17) % Math.max(1, W);
+    ctx.fillStyle = i % 2 ? "#ffd66e" : "#ff9ab5";
+    ctx.beginPath(); ctx.arc(x, groundY + 32 + Math.sin(time + i) * 2, 4, 0, Math.PI * 2); ctx.fill();
+  }
+}
