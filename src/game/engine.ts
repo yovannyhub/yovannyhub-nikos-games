@@ -16,6 +16,7 @@ import {
   drawForestWorld,
   drawBambooWorld,
   drawSnowWorld,
+  drawSavannaWorld,
   heartPath,
   type Mood,
 } from "./draw";
@@ -33,7 +34,7 @@ import {
   type HudState,
 } from "./types";
 
-type ItemKind = "star" | "berry" | "blue" | "rainbow" | "heart" | "cloud" | "redOrb" | "blueOrb" | "yellowOrb" | "circleShape" | "squareShape" | "triangleShape" | "starShape" | "oneGroup" | "twoGroup" | "threeGroup" | "memorySun" | "memoryMoon" | "memoryStar" | "feelingHappy" | "feelingSad" | "feelingCalm" | "listenBird" | "listenCat" | "listenDog" | "communicateWater" | "communicateFood" | "communicateHelp";
+type ItemKind = "star" | "berry" | "blue" | "rainbow" | "heart" | "cloud" | "redOrb" | "blueOrb" | "yellowOrb" | "circleShape" | "squareShape" | "triangleShape" | "starShape" | "oneGroup" | "twoGroup" | "threeGroup" | "memorySun" | "memoryMoon" | "memoryStar" | "feelingHappy" | "feelingSad" | "feelingCalm" | "listenBird" | "listenCat" | "listenDog" | "communicateWater" | "communicateFood" | "communicateHelp" | "routineWake" | "routineBrush" | "routineSleep";
 
 interface Item {
   kind: ItemKind;
@@ -116,10 +117,10 @@ const ITEM_COLORS: Record<ItemKind, string[]> = {
   heart: ["#ff6fa5", "#ffb3d1", "#ffffff"],
   cloud: ["#9aa4bf", "#c6cde0", "#7fc4ff"],
   redOrb: ["#ff5b68"], blueOrb: ["#428bff"], yellowOrb: ["#ffcf3b"],
-  circleShape: ["#ff668c"], squareShape: ["#5f91ff"], triangleShape: ["#ffc44d"], starShape: ["#a875ef"], oneGroup: ["#ffd36c"], twoGroup: ["#ffd36c"], threeGroup: ["#ffd36c"], memorySun: ["#ffd34d"], memoryMoon: ["#c2b4ff"], memoryStar: ["#ff9dc6"], feelingHappy: ["#ffd46e"], feelingSad: ["#8ac9ef"], feelingCalm: ["#b8e9b3"], listenBird: ["#ffe8a8"], listenCat: ["#ffc4a6"], listenDog: ["#b7dcff"], communicateWater: ["#a8e5ff"], communicateFood: ["#ffe7a6"], communicateHelp: ["#ffc2d2"],
+  circleShape: ["#ff668c"], squareShape: ["#5f91ff"], triangleShape: ["#ffc44d"], starShape: ["#a875ef"], oneGroup: ["#ffd36c"], twoGroup: ["#ffd36c"], threeGroup: ["#ffd36c"], memorySun: ["#ffd34d"], memoryMoon: ["#c2b4ff"], memoryStar: ["#ff9dc6"], feelingHappy: ["#ffd46e"], feelingSad: ["#8ac9ef"], feelingCalm: ["#b8e9b3"], listenBird: ["#ffe8a8"], listenCat: ["#ffc4a6"], listenDog: ["#b7dcff"], communicateWater: ["#a8e5ff"], communicateFood: ["#ffe7a6"], communicateHelp: ["#ffc2d2"], routineWake: ["#ffe6a3"], routineBrush: ["#a9e6ff"], routineSleep: ["#c9b9f9"],
 };
 
-const ITEM_POINTS: Record<ItemKind, number> = { star: 10, berry: 15, blue: 10, rainbow: 50, heart: 20, cloud: 0, redOrb: 10, blueOrb: 10, yellowOrb: 10, circleShape: 10, squareShape: 10, triangleShape: 10, starShape: 10, oneGroup: 10, twoGroup: 10, threeGroup: 10, memorySun: 10, memoryMoon: 10, memoryStar: 10, feelingHappy: 10, feelingSad: 10, feelingCalm: 10, listenBird: 10, listenCat: 10, listenDog: 10, communicateWater: 10, communicateFood: 10, communicateHelp: 10 };
+const ITEM_POINTS: Record<ItemKind, number> = { star: 10, berry: 15, blue: 10, rainbow: 50, heart: 20, cloud: 0, redOrb: 10, blueOrb: 10, yellowOrb: 10, circleShape: 10, squareShape: 10, triangleShape: 10, starShape: 10, oneGroup: 10, twoGroup: 10, threeGroup: 10, memorySun: 10, memoryMoon: 10, memoryStar: 10, feelingHappy: 10, feelingSad: 10, feelingCalm: 10, listenBird: 10, listenCat: 10, listenDog: 10, communicateWater: 10, communicateFood: 10, communicateHelp: 10, routineWake: 10, routineBrush: 10, routineSleep: 10 };
 
 const COMBO_WORDS: Record<number, string> = { 5: "Nice!", 10: "Super!", 15: "Wow!", 20: "Amazing!", 30: "Superstar!" };
 
@@ -152,6 +153,8 @@ export class GameEngine {
   targetSound = 0;
   communicationMatches = 0;
   targetNeed = 0;
+  routineMatches = 0;
+  targetRoutine = 0;
   lastSpokenTarget = -1;
   speakTarget() {
     if (this.learningGame !== 5 || !audio.soundOn || typeof window === "undefined" || !("speechSynthesis" in window)) return;
@@ -372,6 +375,8 @@ export class GameEngine {
     this.targetSound = 0;
     this.communicationMatches = 0;
     this.targetNeed = 0;
+    this.routineMatches = 0;
+    this.targetRoutine = 0;
     this.items.length = 0;
     this.particles.length = 0;
     this.floaters.length = 0;
@@ -407,9 +412,9 @@ export class GameEngine {
     if (mode === "cove") {
       this.showBanner("Calm Cove", "Tap or drag anywhere for a little magic", "#7c5cff", 3.4);
     } else {
-      this.showBanner("Let's go!", mode === "relaxed" ? (this.learningGame === 6 ? "Find WATER!" : this.learningGame === 5 ? "Listen! Find the BIRD!" : this.learningGame === 4 ? "Find the HAPPY face!" : this.learningGame === 3 ? "Remember the picture!" : this.learningGame === 2 ? "Count the stars! Catch ONE!" : this.learningGame === 1 ? "Catch the CIRCLE!" : "Catch RED!") : "Catch stars, dodge grumpy clouds!", "#ff7ab6", 2.2);
+      this.showBanner("Let's go!", mode === "relaxed" ? (this.learningGame === 7 ? "Find WAKE UP!" : this.learningGame === 6 ? "Find WATER!" : this.learningGame === 5 ? "Listen! Find the BIRD!" : this.learningGame === 4 ? "Find the HAPPY face!" : this.learningGame === 3 ? "Remember the picture!" : this.learningGame === 2 ? "Count the stars! Catch ONE!" : this.learningGame === 1 ? "Catch the CIRCLE!" : "Catch RED!") : "Catch stars, dodge grumpy clouds!", "#ff7ab6", 2.2);
       // a friendly first star falls right toward the player so the first catch happens fast
-      this.spawnItem(this.learningGame === 0 ? "redOrb" : this.learningGame === 1 ? "circleShape" : this.learningGame === 2 ? "oneGroup" : this.learningGame === 3 ? "memorySun" : this.learningGame === 4 ? "feelingHappy" : this.learningGame === 5 ? "listenBird" : this.learningGame === 6 ? "communicateWater" : "star", this.W / 2 + (Math.random() - 0.5) * this.size * 1.5, 1.25);
+      this.spawnItem(this.learningGame === 0 ? "redOrb" : this.learningGame === 1 ? "circleShape" : this.learningGame === 2 ? "oneGroup" : this.learningGame === 3 ? "memorySun" : this.learningGame === 4 ? "feelingHappy" : this.learningGame === 5 ? "listenBird" : this.learningGame === 6 ? "communicateWater" : this.learningGame === 7 ? "routineWake" : "star", this.W / 2 + (Math.random() - 0.5) * this.size * 1.5, 1.25);
     }
     this.emitHud(true);
     if (this.learningGame === 5 && mode === "relaxed") this.speakTarget();
@@ -512,7 +517,7 @@ export class GameEngine {
       timeLeft: Math.ceil(this.timeLeft),
       combo: this.combo,
       multiplier: this.multiplier,
-      world: this.mode === "cove" ? "Calm Cove" : this.learningGame === 1 ? "Ocean World" : this.learningGame === 2 ? "Galaxy World" : this.learningGame === 3 ? "Happy Farm" : this.learningGame === 4 ? "Enchanted Forest" : this.learningGame === 5 ? "Bamboo World" : this.learningGame === 6 ? "Snow World" : WORLDS[this.worldIdx].name,
+      world: this.mode === "cove" ? "Calm Cove" : this.learningGame === 1 ? "Ocean World" : this.learningGame === 2 ? "Galaxy World" : this.learningGame === 3 ? "Happy Farm" : this.learningGame === 4 ? "Enchanted Forest" : this.learningGame === 5 ? "Bamboo World" : this.learningGame === 6 ? "Snow World" : this.learningGame === 7 ? "Savanna World" : WORLDS[this.worldIdx].name,
       mode: this.mode,
     };
     const key = `${h.score}|${h.hearts}|${h.timeLeft}|${h.multiplier}|${h.world}|${h.combo}`;
@@ -550,6 +555,7 @@ export class GameEngine {
   }
 
   chooseKind(): ItemKind {
+    if (this.mode === "relaxed" && this.learningGame === 7) return (["routineWake", "routineBrush", "routineSleep"] as const)[Math.floor(Math.random() * 3)];
     if (this.mode === "relaxed" && this.learningGame === 6) return (["communicateWater", "communicateFood", "communicateHelp"] as const)[Math.floor(Math.random() * 3)];
     if (this.mode === "relaxed" && this.learningGame === 5) return (["listenBird", "listenCat", "listenDog"] as const)[Math.floor(Math.random() * 3)];
     if (this.mode === "relaxed" && this.learningGame === 4) return (["feelingHappy", "feelingSad", "feelingCalm"] as const)[Math.floor(Math.random() * 3)];
@@ -1060,7 +1066,7 @@ export class GameEngine {
     } else if (this.worldFade < 1) {
       if (this.prevWorldIdx === 1 && this.mode === "relaxed") drawOceanWorld(ctx, W, H, this.time, gy); else drawWorld(ctx, WORLDS[this.prevWorldIdx], W, H, this.time, gy, motion);
       ctx.globalAlpha = this.worldFade;
-      if (this.learningGame === 1 && this.mode === "relaxed") drawOceanWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 2 && this.mode === "relaxed") drawGalaxyWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 3 && this.mode === "relaxed") drawFarmWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 4 && this.mode === "relaxed") drawForestWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 5 && this.mode === "relaxed") drawBambooWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 6 && this.mode === "relaxed") drawSnowWorld(ctx, W, H, this.time, gy); else drawWorld(ctx, WORLDS[this.worldIdx], W, H, this.time, gy, motion);
+      if (this.learningGame === 1 && this.mode === "relaxed") drawOceanWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 2 && this.mode === "relaxed") drawGalaxyWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 3 && this.mode === "relaxed") drawFarmWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 4 && this.mode === "relaxed") drawForestWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 5 && this.mode === "relaxed") drawBambooWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 6 && this.mode === "relaxed") drawSnowWorld(ctx, W, H, this.time, gy); else if (this.learningGame === 7 && this.mode === "relaxed") drawSavannaWorld(ctx, W, H, this.time, gy); else drawWorld(ctx, WORLDS[this.worldIdx], W, H, this.time, gy, motion);
       ctx.globalAlpha = 1;
     } else {
       if (this.learningGame === 1 && this.mode === "relaxed") drawOceanWorld(ctx, W, H, this.time, gy);
@@ -1069,6 +1075,7 @@ export class GameEngine {
       else if (this.learningGame === 4 && this.mode === "relaxed") drawForestWorld(ctx, W, H, this.time, gy);
       else if (this.learningGame === 5 && this.mode === "relaxed") drawBambooWorld(ctx, W, H, this.time, gy);
       else if (this.learningGame === 6 && this.mode === "relaxed") drawSnowWorld(ctx, W, H, this.time, gy);
+      else if (this.learningGame === 7 && this.mode === "relaxed") drawSavannaWorld(ctx, W, H, this.time, gy);
       else drawWorld(ctx, WORLDS[this.worldIdx], W, H, this.time, gy, motion);
     }
 
@@ -1269,7 +1276,7 @@ export class GameEngine {
     if (this.invuln > 0) alpha = this.calm ? 0.6 : 0.55 + 0.45 * (0.5 + 0.5 * Math.cos(this.invuln * Math.PI * 6));
     const bob = this.state === "ready" ? Math.abs(Math.sin(this.time * 3)) * -s * 0.25 : 0;
     const breathe = Math.sin(this.time * 3) * 0.02;
-    if (this.mode === "relaxed" && (this.learningGame === 1 || this.learningGame === 2 || this.learningGame === 3 || this.learningGame === 4 || this.learningGame === 5 || this.learningGame === 6)) {
+    if (this.mode === "relaxed" && (this.learningGame === 1 || this.learningGame === 2 || this.learningGame === 3 || this.learningGame === 4 || this.learningGame === 5 || this.learningGame === 6 || this.learningGame === 7)) {
       // Use the same character emoji as the homepage displayed on the Level 2 homepage card.
       // Browser-native color emoji rendering keeps the selected friend consistent.
       ctx.save();
@@ -1277,7 +1284,7 @@ export class GameEngine {
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.font = `${Math.round(s * 2.15)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
-      ctx.fillText(this.learningGame === 6 ? "🐧" : this.learningGame === 5 ? "🐼" : this.learningGame === 4 ? "🦊" : this.learningGame === 3 ? "🐷" : this.learningGame === 2 ? "👽" : "🐠", this.px, this.py + bob);
+      ctx.fillText(this.learningGame === 7 ? "🦁" : this.learningGame === 6 ? "🐧" : this.learningGame === 5 ? "🐼" : this.learningGame === 4 ? "🦊" : this.learningGame === 3 ? "🐷" : this.learningGame === 2 ? "👽" : "🐠", this.px, this.py + bob);
       ctx.restore();
     } else {
     drawFriend(ctx, this.friend, this.px, this.py + bob, s, {
