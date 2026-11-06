@@ -27,7 +27,7 @@ import {
   type HudState,
 } from "./types";
 
-type ItemKind = "star" | "berry" | "blue" | "rainbow" | "heart" | "cloud" | "redOrb" | "blueOrb" | "yellowOrb";
+type ItemKind = "star" | "berry" | "blue" | "rainbow" | "heart" | "cloud" | "redOrb" | "blueOrb" | "yellowOrb" | "circleShape" | "squareShape" | "triangleShape" | "starShape";
 
 interface Item {
   kind: ItemKind;
@@ -110,9 +110,10 @@ const ITEM_COLORS: Record<ItemKind, string[]> = {
   heart: ["#ff6fa5", "#ffb3d1", "#ffffff"],
   cloud: ["#9aa4bf", "#c6cde0", "#7fc4ff"],
   redOrb: ["#ff5b68"], blueOrb: ["#428bff"], yellowOrb: ["#ffcf3b"],
+  circleShape: ["#ff668c"], squareShape: ["#5f91ff"], triangleShape: ["#ffc44d"], starShape: ["#a875ef"],
 };
 
-const ITEM_POINTS: Record<ItemKind, number> = { star: 10, berry: 15, blue: 10, rainbow: 50, heart: 20, cloud: 0, redOrb: 10, blueOrb: 10, yellowOrb: 10 };
+const ITEM_POINTS: Record<ItemKind, number> = { star: 10, berry: 15, blue: 10, rainbow: 50, heart: 20, cloud: 0, redOrb: 10, blueOrb: 10, yellowOrb: 10, circleShape: 10, squareShape: 10, triangleShape: 10, starShape: 10 };
 
 const COMBO_WORDS: Record<number, string> = { 5: "Nice!", 10: "Super!", 15: "Wow!", 20: "Amazing!", 30: "Superstar!" };
 
@@ -132,6 +133,8 @@ export class GameEngine {
   learningGame = 0;
   colorMatches = 0;
   targetColor = 0;
+  targetShape = 0;
+  shapeMatches = 0;
   setLearningGame(index: number) { this.learningGame = index; }
   friend: FriendInfo = FRIENDS[0];
   calm = false;
@@ -328,6 +331,8 @@ export class GameEngine {
     this.mode = mode;
     this.colorMatches = 0;
     this.targetColor = 0;
+    this.targetShape = 0;
+    this.shapeMatches = 0;
     this.items.length = 0;
     this.particles.length = 0;
     this.floaters.length = 0;
@@ -365,7 +370,7 @@ export class GameEngine {
     } else {
       this.showBanner("Let's go!", mode === "relaxed" ? "Catch the yummy stars!" : "Catch stars, dodge grumpy clouds!", "#ff7ab6", 2.2);
       // a friendly first star falls right toward the player so the first catch happens fast
-      this.spawnItem(this.learningGame === 0 ? "redOrb" : "star", this.W / 2 + (Math.random() - 0.5) * this.size * 1.5, 1.25);
+      this.spawnItem(this.learningGame === 0 ? "redOrb" : this.learningGame === 1 ? "circleShape" : "star", this.W / 2 + (Math.random() - 0.5) * this.size * 1.5, 1.25);
     }
     this.emitHud(true);
   }
@@ -505,6 +510,7 @@ export class GameEngine {
   }
 
   chooseKind(): ItemKind {
+    if (this.mode === "relaxed" && this.learningGame === 1) return (["circleShape", "squareShape", "triangleShape", "starShape"] as const)[Math.floor(Math.random() * 4)];
     if (this.mode === "relaxed" && this.learningGame === 0) return (["redOrb", "blueOrb", "yellowOrb"] as const)[Math.floor(Math.random() * 3)];
     const roll = Math.random();
     if (this.mode === "adventure") {
@@ -789,6 +795,20 @@ export class GameEngine {
   }
 
   catchItem(it: Item) {
+    if (this.mode === "relaxed" && this.learningGame === 1) {
+      const shapes: ItemKind[] = ["circleShape", "squareShape", "triangleShape", "starShape"];
+      if (it.kind !== shapes[this.targetShape]) {
+        this.floater(it.x, it.y - 18, "Try another shape!", "#ffffff", 22);
+        audio.miss();
+        return;
+      }
+      this.shapeMatches++;
+      if (this.shapeMatches % 5 === 0) {
+        this.targetShape = (this.targetShape + 1) % 4;
+        this.showBanner("Great finding!", `Now catch the ${["CIRCLE", "SQUARE", "TRIANGLE", "STAR"][this.targetShape]}!`, "#7c5cff", 2.3);
+        audio.levelUp();
+      }
+    }
     if (this.mode === "relaxed" && this.learningGame === 0) {
       const colors: ItemKind[] = ["redOrb", "blueOrb", "yellowOrb"];
       if (it.kind !== colors[this.targetColor]) {
@@ -940,11 +960,51 @@ export class GameEngine {
       ctx.fillText(`Catch ${["RED", "BLUE", "YELLOW"][this.targetColor]}!`, W / 2, Math.min(138, H * 0.16 + 34));
     }
 
+    if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 1) {
+      const y = Math.min(104, H * 0.16);
+      ctx.fillStyle = "rgba(255,255,255,0.94)";
+      ctx.beginPath();
+      ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 52, 22);
+      ctx.fill();
+      ctx.fillStyle = "#593e91";
+      ctx.font = "bold 21px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`Catch the ${["CIRCLE", "SQUARE", "TRIANGLE", "STAR"][this.targetShape]}!`, W / 2, y + 34);
+    }
+
     // items
     for (const it of this.items) {
       const pop = Math.min(1, it.spawnT * 5);
       const r = it.r * (0.6 + 0.4 * pop);
       switch (it.kind) {
+        case "circleShape":
+        case "squareShape":
+        case "triangleShape":
+        case "starShape": {
+          ctx.save();
+          ctx.translate(it.x, it.y);
+          ctx.fillStyle = it.kind === "circleShape" ? "#ff668c" : it.kind === "squareShape" ? "#5f91ff" : it.kind === "triangleShape" ? "#ffc44d" : "#a875ef";
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          if (it.kind === "circleShape") ctx.arc(0, 0, r * 0.82, 0, Math.PI * 2);
+          else if (it.kind === "squareShape") ctx.rect(-r * 0.75, -r * 0.75, r * 1.5, r * 1.5);
+          else {
+            const points = it.kind === "triangleShape" ? 3 : 10;
+            for (let i = 0; i < points; i++) {
+              const angle = -Math.PI / 2 + i * Math.PI * 2 / points;
+              const radius = it.kind === "starShape" && i % 2 ? r * 0.38 : r * 0.85;
+              const x = Math.cos(angle) * radius;
+              const y = Math.sin(angle) * radius;
+              if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+          }
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+          break;
+        }
         case "redOrb":
         case "blueOrb":
         case "yellowOrb": {
