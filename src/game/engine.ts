@@ -852,6 +852,20 @@ export class GameEngine {
   }
 
   catchItem(it: Item) {
+    if (this.mode === "relaxed" && this.learningGame === 8) {
+      const choices: ItemKind[] = ["animalCow", "animalDuck", "animalFrog"];
+      if (it.kind !== choices[this.targetAnimal]) {
+        this.floater(it.x, it.y - 18, "Try another animal!", "#ffffff", 22);
+        audio.miss();
+        return;
+      }
+      this.animalMatches++;
+      if (this.animalMatches % 5 === 0) {
+        this.targetAnimal = (this.targetAnimal + 1) % 3;
+        this.showBanner("Animal expert!", "Find the next animal!", "#7c5cff", 2.3);
+        audio.levelUp();
+      }
+    }
     if (this.mode === "relaxed" && this.learningGame === 7) {
       const choices: ItemKind[] = ["routineWake", "routineBrush", "routineSleep"];
       if (it.kind !== choices[this.targetRoutine]) {
