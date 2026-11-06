@@ -41,6 +41,22 @@ export function drawFriend(ctx: Ctx, f: FriendInfo, x: number, y: number, s: num
 
   const ink = "#3b2f4a";
 
+  if (f.kind === "fish") {
+    ctx.fillStyle = f.dark;
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.55, s * 0.1);
+    ctx.lineTo(-s * 1.12, -s * 0.55);
+    ctx.lineTo(-s * 1.08, s * 0.65);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.12, -s * 0.55);
+    ctx.lineTo(s * 0.22, -s * 1.2);
+    ctx.lineTo(s * 0.42, -s * 0.55);
+    ctx.closePath();
+    ctx.fill();
+  }
+
   // ---- ears / top features (behind body)
   if (f.kind === "bunny") {
     const sway = Math.sin(o.t * 3) * 0.08;
@@ -1027,4 +1043,61 @@ export function drawFindScene(
       ctx.stroke();
     }
   }
+}
+
+/** Distinct gentle underwater backdrop for Shape Finder. */
+export function drawOceanWorld(ctx: Ctx, W: number, H: number, time: number, groundY: number) {
+  const water = ctx.createLinearGradient(0, 0, 0, H);
+  water.addColorStop(0, "#74d9f8");
+  water.addColorStop(0.65, "#1c9bc8");
+  water.addColorStop(1, "#12678f");
+  ctx.fillStyle = water;
+  ctx.fillRect(0, 0, W, H);
+  ctx.save();
+  for (let i = 0; i < 7; i++) {
+    const x = W * (0.1 + i * 0.145) + Math.sin(time * 0.3 + i) * 8;
+    ctx.fillStyle = "rgba(255,255,255,0.13)";
+    ctx.beginPath();
+    ctx.moveTo(x - 28, 0);
+    ctx.lineTo(x + 14, 0);
+    ctx.lineTo(x + H * 0.15, groundY);
+    ctx.lineTo(x - H * 0.06, groundY);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#f4d9a2";
+  ctx.beginPath();
+  ctx.moveTo(0, groundY);
+  for (let x = 0; x <= W + 20; x += 20) ctx.lineTo(x, groundY + Math.sin(x * 0.025) * 8);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.fill();
+  for (let i = 0; i < 22; i++) {
+    const x = ((i * 137 + 31) % Math.max(1, W));
+    const y = ((i * 97 - time * (7 + i % 4) + H * 40) % Math.max(1, groundY));
+    const radius = 3 + i % 6;
+    ctx.strokeStyle = "rgba(225,250,255,0.42)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  for (let i = 0; i < 12; i++) {
+    const x = W * (i + 0.5) / 12;
+    const y = groundY + 12;
+    const sway = Math.sin(time * 1.4 + i) * 7;
+    ctx.strokeStyle = i % 2 ? "#2da68c" : "#2fc1a4";
+    ctx.lineWidth = 5;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(x, y + 45);
+    ctx.quadraticCurveTo(x + sway, y + 5, x + sway * 2, y - 35 - i % 3 * 12);
+    ctx.stroke();
+    ctx.fillStyle = ["#ff8b9e", "#ffbd68", "#a997f9"][i % 3];
+    for (let j = 0; j < 3; j++) {
+      ctx.beginPath();
+      ctx.arc(x + sway + j * 9 - 9, y + 28 - j * 14, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
 }
