@@ -1336,3 +1336,40 @@ export function drawDragonWorld(ctx: Ctx, W: number, H: number, time: number, gr
     ctx.fill();
   }
 }
+
+export function drawMagicWorld(ctx: Ctx, W: number, H: number, time: number, groundY: number) {
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, "#7974cb");
+  sky.addColorStop(0.55, "#e4b8ed");
+  sky.addColorStop(1, "#ffe5c9");
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "rgba(255,244,207,0.85)";
+  ctx.beginPath();
+  ctx.arc(W * 0.77, H * 0.18, 38, 0, Math.PI * 2);
+  ctx.fill();
+  for (let i = 0; i < 3; i++) {
+    ctx.strokeStyle = ["#f9a9bd", "#f8df98", "#a8e6d2"][i];
+    ctx.lineWidth = 9;
+    ctx.beginPath();
+    ctx.arc(W * 0.38, groundY + 30, W * 0.37 + i * 12, Math.PI, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.fillStyle = "#b6d9c5";
+  ctx.beginPath();
+  ctx.moveTo(0, groundY);
+  for (let x = 0; x <= W + 12; x += 12) ctx.lineTo(x, groundY - 28 + Math.sin(x * 0.019) * 20);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.fill();
+  ctx.fillStyle = "#e4f1d8";
+  ctx.fillRect(0, groundY, W, H - groundY);
+  for (let i = 0; i < 16; i++) {
+    const x = (i * 113 + 29) % Math.max(1, W);
+    const y = (i * 71 + time * (i % 3 + 1) * 3) % Math.max(1, groundY);
+    ctx.fillStyle = "rgba(255,255,255,0.78)";
+    ctx.beginPath();
+    ctx.arc(x, y, 2 + i % 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
