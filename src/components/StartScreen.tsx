@@ -120,91 +120,52 @@ export function StartScreen({ settings, onChange, onPlay, scores, onClearScores 
         </div>
 
         <Panel className="w-full">
-          <h2 className="mb-1 text-center text-xl font-bold">1. Pick a friend · Choose a world</h2>
-          <p className="mb-3 text-center text-xs font-semibold text-[#8a809a]">Play Kitty's Meadow now! More worlds are coming soon.</p>
-          <div className="grid grid-cols-5 gap-1 sm:gap-2" aria-label="Adventure levels">
+          <h2 className="mb-1 text-center text-xl font-bold">Choose your adventure!</h2>
+          <p className="mb-3 text-center text-xs font-semibold text-[#8a809a]">Each adventure has its own friend, world, and learning game.</p>
+          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Choose an adventure">
             {[
-              { icon: "🐱", name: "Kitty", place: "Meadow" },
-              { icon: "🐠", name: "Fish", place: "Ocean" },
-              { icon: "👽", name: "Alien", place: "Galaxy" },
-              { icon: "🐷", name: "Piggy", place: "Farm" },
-              { icon: "🦊", name: "Fox", place: "Forest" },
-              { icon: "🐼", name: "Panda", place: "Bamboo" },
-              { icon: "🐧", name: "Penguin", place: "Snow" },
-              { icon: "🦁", name: "Lion", place: "Savanna" },
-              { icon: "🐉", name: "Dragon", place: "Dragonland" },
-              { icon: "🦄", name: "Unicorn", place: "Magic" },
-            ].map((level, index) => {
-              const available = index === 0;
-              const selected = available && settings.friend === "kitty" && settings.mode === "relaxed";
+              { icon: "🐱", title: "Color Match", friend: "Mochi the Kitty", world: "Sunny Meadow" },
+              { icon: "🐠", title: "Shape Finder", friend: "Finn the Fish", world: "Ocean World" },
+              { icon: "👽", title: "Counting Fun", friend: "Alien", world: "Galaxy" },
+              { icon: "🐷", title: "Memory Match", friend: "Pig", world: "Farm" },
+              { icon: "🦊", title: "Feelings & Faces", friend: "Fox", world: "Forest" },
+              { icon: "🐼", title: "Listen & Choose", friend: "Panda", world: "Bamboo" },
+              { icon: "🐧", title: "Let's Communicate", friend: "Penguin", world: "Snow" },
+              { icon: "🦁", title: "My Daily Routine", friend: "Lion", world: "Savanna" },
+              { icon: "🐉", title: "Animal Friends", friend: "Dragon", world: "Dragon World" },
+              { icon: "🦄", title: "Niko's Big Challenge", friend: "Unicorn", world: "Magic World" },
+            ].map((adventure, index) => {
+              const available = index < 2;
+              const selected = selectedAdventure === index;
               return (
                 <button
-                  key={level.place}
+                  key={adventure.title}
                   type="button"
+                  role="radio"
+                  aria-checked={selected && available}
                   disabled={!available}
-                  aria-label={`Level ${index + 1}: ${level.name} in ${level.place}${available ? ", play now" : ", coming soon"}`}
+                  aria-label={`Level ${index + 1}: ${adventure.title} with ${adventure.friend} in ${adventure.world}${available ? "" : ", coming soon"}`}
                   onClick={() => {
-                    onChange({ friend: "kitty", mode: "relaxed" });
+                    setSelectedAdventure(index);
+                    onChange({ mode: "relaxed", friend: index === 1 ? "fish" : "kitty" });
                     audio.unlock();
-                    audio.catch(2);
+                    audio.click();
                   }}
-                  className={`relative flex min-w-0 flex-col items-center rounded-2xl border-[3px] px-0.5 py-2 transition-all ${
-                    selected ? "border-[#ff7ab6] bg-[#fff0f7]" : available ? "border-[#b3e8c1] bg-[#e8fbf1] hover:bg-[#d7f8e4]" : "cursor-not-allowed border-transparent bg-[#f6f2ff] opacity-70"
+                  className={`relative flex min-h-[118px] flex-col items-center justify-center rounded-2xl border-4 px-2 py-2 text-center transition-all ${
+                    selected && available ? "border-[#7c5cff] bg-[#efeaff] shadow-sm" : available ? "cursor-pointer border-[#b3e8c1] bg-[#e8fbf1] hover:bg-[#d7f8e4]" : "cursor-not-allowed border-transparent bg-[#f6f2ff] opacity-65"
                   }`}
                 >
-                  <span className="absolute left-1 top-0.5 text-[10px] font-bold text-[#776b8b]">{index + 1}</span>
-                  <span className="text-3xl sm:text-4xl" aria-hidden="true">{level.icon}</span>
-                  <span className="text-xs font-bold sm:text-sm">{level.name}</span>
-                  <span className="text-[10px] font-semibold text-[#7b708d]">{level.place}</span>
-                  <span className="text-[9px] font-bold text-[#7c5cff]">{available ? "▶ PLAY" : "🔒 SOON"}</span>
+                  <span className="absolute left-2 top-1 text-xs font-bold text-[#776b8b]">Level {index + 1}</span>
+                  <span className="text-3xl sm:text-4xl" aria-hidden="true">{adventure.icon}</span>
+                  <span className="text-sm font-bold leading-tight sm:text-base">{adventure.title}</span>
+                  <span className="text-[11px] font-semibold text-[#6b6080]">{adventure.friend} · {adventure.world}</span>
+                  <span className="mt-1 text-[10px] font-bold text-[#7c5cff]">{available ? "▶ READY TO PLAY" : "🔒 COMING SOON"}</span>
                 </button>
               );
             })}
           </div>
-          <p className="mt-2 text-center text-xs font-semibold text-[#6b6080]">Kitty's Meadow uses the original Relaxed catching game. Other games below stay available.</p>
-
-          <h2 className="mb-2 mt-4 text-center text-xl font-bold">2. Pick a game</h2>
-          <p className="mb-3 text-center text-xs font-semibold text-[#8a809a]">Ten learning adventures. One easy catching game!</p>
-          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Pick a learning adventure">
-            {[
-              { icon: "🎨", title: "Color Match" },
-              { icon: "🔷", title: "Shape Finder" },
-              { icon: "🔢", title: "Counting Fun" },
-              { icon: "🧠", title: "Memory Match" },
-              { icon: "😊", title: "Feelings & Faces" },
-              { icon: "👂", title: "Listen & Choose" },
-              { icon: "💬", title: "Let's Communicate" },
-              { icon: "☀️", title: "My Daily Routine" },
-              { icon: "🐾", title: "Animal Friends" },
-              { icon: "🏆", title: "Niko's Big Challenge" },
-            ].map((game, index) => (
-              <button
-                key={game.title}
-                type="button"
-                role="radio"
-                aria-checked={selectedAdventure === index}
-                onClick={() => {
-                  setSelectedAdventure(index);
-                  onChange({ mode: "relaxed", friend: "kitty" });
-                  audio.unlock();
-                  audio.click();
-                }}
-                className={`relative flex min-h-[86px] cursor-pointer flex-col items-center justify-center rounded-2xl border-4 px-2 py-2 text-center transition-all ${
-                  selectedAdventure === index
-                    ? "border-[#7c5cff] bg-[#efeaff] shadow-sm"
-                    : "border-transparent bg-[#f6f2ff] hover:bg-[#efeaff]"
-                }`}
-              >
-                <span className="text-3xl" aria-hidden="true">{game.icon}</span>
-                <span className="text-sm font-bold leading-tight sm:text-base">{game.title}</span>
-                {selectedAdventure === index && (
-                  <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#3cc68a] text-[11px] font-bold text-white" aria-hidden="true">✓</span>
-                )}
-              </button>
-            ))}
-          </div>
           <p className="mt-3 rounded-2xl bg-[#e8fbf1] px-3 py-2 text-center text-xs font-semibold text-[#2f7f5f]">
-            🌱 Color Match and Shape Finder are ready! More learning adventures are coming soon.
+            🌱 Color Match and Shape Finder are ready! More adventures are coming soon.
           </p>
           <label className="mt-4 flex items-center gap-2 rounded-2xl bg-[#f6f2ff] px-3 py-2">
             <span className="text-sm font-bold whitespace-nowrap">Your name:</span>
