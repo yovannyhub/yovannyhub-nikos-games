@@ -1172,6 +1172,14 @@ export class GameEngine {
       const pop = Math.min(1, it.spawnT * 5);
       const r = it.r * (0.6 + 0.4 * pop);
       switch (it.kind) {
+        case "routineWake":
+        case "routineBrush":
+        case "routineSleep": {
+          const picture = it.kind === "routineWake" ? "🌅" : it.kind === "routineBrush" ? "🪥" : "🛏️";
+          ctx.save(); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.font = `${Math.round(r * 1.8)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+          ctx.fillText(picture, it.x, it.y); ctx.restore(); break;
+        }
         case "communicateWater":
         case "communicateFood":
         case "communicateHelp": {
