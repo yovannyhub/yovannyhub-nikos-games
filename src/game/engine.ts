@@ -846,6 +846,20 @@ export class GameEngine {
   }
 
   catchItem(it: Item) {
+    if (this.mode === "relaxed" && this.learningGame === 7) {
+      const choices: ItemKind[] = ["routineWake", "routineBrush", "routineSleep"];
+      if (it.kind !== choices[this.targetRoutine]) {
+        this.floater(it.x, it.y - 18, "Try another picture!", "#ffffff", 22);
+        audio.miss();
+        return;
+      }
+      this.routineMatches++;
+      if (this.routineMatches % 5 === 0) {
+        this.targetRoutine = (this.targetRoutine + 1) % 3;
+        this.showBanner("Great routine!", "Find the next activity!", "#7c5cff", 2.3);
+        audio.levelUp();
+      }
+    }
     if (this.mode === "relaxed" && this.learningGame === 6) {
       const choices: ItemKind[] = ["communicateWater", "communicateFood", "communicateHelp"];
       if (it.kind !== choices[this.targetNeed]) {
