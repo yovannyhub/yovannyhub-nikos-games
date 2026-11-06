@@ -1158,6 +1158,15 @@ export class GameEngine {
       ctx.font = "bold 14px sans-serif";
       ctx.fillText("Catch the matching picture", W / 2, y + 49);
     }
+    if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 7) {
+      const y = Math.min(104, H * 0.16);
+      ctx.fillStyle = "rgba(255,255,255,0.97)";
+      ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 66, 22); ctx.fill();
+      ctx.fillStyle = "#76532c"; ctx.textAlign = "center"; ctx.font = "bold 19px sans-serif";
+      ctx.fillText(`Find ${["WAKE UP", "BRUSH TEETH", "BEDTIME"][this.targetRoutine]}!`, W / 2, y + 27);
+      ctx.font = "bold 14px sans-serif";
+      ctx.fillText("Catch the matching picture", W / 2, y + 50);
+    }
     // items
     for (const it of this.items) {
       const pop = Math.min(1, it.spawnT * 5);
