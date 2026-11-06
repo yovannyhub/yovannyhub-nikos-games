@@ -97,7 +97,7 @@ export default function App() {
     // All choices on the new home screen use the original Relaxed catching game.
     e.setVisible(true);
     if (s.music) audio.startMusic();
-    e.setFriend("kitty");
+    e.setFriend(game === 1 ? "fish" : "kitty");
     e.setOptions({ calm: s.calm, slow: s.slow });
     e.setLearningGame(game);
     e.start("relaxed");
