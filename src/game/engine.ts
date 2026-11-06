@@ -1128,6 +1128,15 @@ export class GameEngine {
       ctx.fillStyle = "#315c45"; ctx.textAlign = "center"; ctx.font = "bold 20px sans-serif";
       ctx.fillText(`Listen! Find the ${["BIRD", "CAT", "DOG"][this.targetSound]}!`, W / 2, y + 37);
     }
+    if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 6) {
+      const y = Math.min(104, H * 0.16);
+      ctx.fillStyle = "rgba(255,255,255,0.97)";
+      ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 66, 22); ctx.fill();
+      ctx.fillStyle = "#375d85"; ctx.textAlign = "center"; ctx.font = "bold 19px sans-serif";
+      ctx.fillText(`I need ${["WATER", "FOOD", "HELP"][this.targetNeed]}!`, W / 2, y + 26);
+      ctx.font = "bold 14px sans-serif";
+      ctx.fillText("Catch the matching picture", W / 2, y + 49);
+    }
     // items
     for (const it of this.items) {
       const pop = Math.min(1, it.spawnT * 5);
