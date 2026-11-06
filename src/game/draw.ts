@@ -1276,3 +1276,27 @@ export function drawSnowWorld(ctx: Ctx, W: number, H: number, time: number, grou
     ctx.fill();
   }
 }
+
+export function drawSavannaWorld(ctx: Ctx, W: number, H: number, time: number, groundY: number) {
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, "#f6b776");
+  sky.addColorStop(1, "#ffe4ad");
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#ffe4a0";
+  ctx.beginPath(); ctx.arc(W * 0.79, H * 0.2, 45, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#d6b978"; ctx.beginPath();
+  ctx.moveTo(0, groundY);
+  for (let x = 0; x <= W + 12; x += 12) ctx.lineTo(x, groundY - 35 + Math.sin(x * 0.014) * 14);
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.fill();
+  ctx.fillStyle = "#e5c77f"; ctx.fillRect(0, groundY, W, H - groundY);
+  for (let i = 0; i < 5; i++) {
+    const x = W * (i + 0.4) / 5, y = groundY - 18;
+    ctx.fillStyle = "#8e7547"; ctx.fillRect(x - 5, y - 80, 10, 90);
+    ctx.fillStyle = "#75985d";
+    ctx.beginPath(); ctx.ellipse(x, y - 83, 40, 16, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x - 21, y - 73, 25, 12, -0.2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x + 20, y - 74, 26, 12, 0.2, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.fillStyle = "#f4dfac"; ctx.beginPath();
+  ctx.ellipse(W * 0.5, H + 20, W * 0.3, H - groundY + 34, 0, 0, Math.PI * 2); ctx.fill();
+}
