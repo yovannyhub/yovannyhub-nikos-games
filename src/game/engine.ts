@@ -816,6 +816,20 @@ export class GameEngine {
   }
 
   catchItem(it: Item) {
+    if (this.mode === "relaxed" && this.learningGame === 4) {
+      const feelings: ItemKind[] = ["feelingHappy", "feelingSad", "feelingCalm"];
+      if (it.kind !== feelings[this.targetFeeling]) {
+        this.floater(it.x, it.y - 18, "Try another face!", "#ffffff", 22);
+        audio.miss();
+        return;
+      }
+      this.feelingMatches++;
+      if (this.feelingMatches % 5 === 0) {
+        this.targetFeeling = (this.targetFeeling + 1) % 3;
+        this.showBanner("Great job!", `Find the ${["HAPPY", "SAD", "CALM"][this.targetFeeling]} face!`, "#7c5cff", 2.3);
+        audio.levelUp();
+      }
+    }
     if (this.mode === "relaxed" && this.learningGame === 3) {
       const memories: ItemKind[] = ["memorySun", "memoryMoon", "memoryStar"];
       if (it.kind !== memories[this.targetMemory]) {
@@ -1045,11 +1059,27 @@ export class GameEngine {
       ctx.font = "bold 32px sans-serif";
       ctx.fillText(showing ? pictures[this.targetMemory] : "❓", W / 2, y + 57);
     }
+    if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 4) {
+      const y = Math.min(104, H * 0.16);
+      ctx.fillStyle = "rgba(255,255,255,0.96)";
+      ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 58, 22); ctx.fill();
+      ctx.fillStyle = "#365947"; ctx.textAlign = "center"; ctx.font = "bold 21px sans-serif";
+      ctx.fillText(`Find the ${["HAPPY", "SAD", "CALM"][this.targetFeeling]} face!`, W / 2, y + 36);
+    }
     // items
     for (const it of this.items) {
       const pop = Math.min(1, it.spawnT * 5);
       const r = it.r * (0.6 + 0.4 * pop);
       switch (it.kind) {
+        case "feelingHappy":
+        case "feelingSad":
+        case "feelingCalm": {
+          const face = it.kind === "feelingHappy" ? "😊" : it.kind === "feelingSad" ? "😢" : "😌";
+          ctx.save(); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.font = `${Math.round(r * 1.8)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+          ctx.fillText(face, it.x, it.y);
+          ctx.restore(); break;
+        }
         case "memorySun":
         case "memoryMoon":
         case "memoryStar": {
