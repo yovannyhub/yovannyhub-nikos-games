@@ -947,7 +947,8 @@ export class GameEngine {
       if (this.learningGame === 1 && this.mode === "relaxed") drawOceanWorld(ctx, W, H, this.time, gy); else drawWorld(ctx, WORLDS[this.worldIdx], W, H, this.time, gy, motion);
       ctx.globalAlpha = 1;
     } else {
-      drawWorld(ctx, WORLDS[this.worldIdx], W, H, this.time, gy, motion);
+      if (this.learningGame === 1 && this.mode === "relaxed") drawOceanWorld(ctx, W, H, this.time, gy);
+      else drawWorld(ctx, WORLDS[this.worldIdx], W, H, this.time, gy, motion);
     }
 
     if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 0) {
