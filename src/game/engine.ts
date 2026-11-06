@@ -407,6 +407,7 @@ export class GameEngine {
       this.spawnItem(this.learningGame === 0 ? "redOrb" : this.learningGame === 1 ? "circleShape" : this.learningGame === 2 ? "oneGroup" : this.learningGame === 3 ? "memorySun" : this.learningGame === 4 ? "feelingHappy" : this.learningGame === 5 ? "listenBird" : "star", this.W / 2 + (Math.random() - 0.5) * this.size * 1.5, 1.25);
     }
     this.emitHud(true);
+    if (this.learningGame === 5 && mode === "relaxed") this.speakTarget();
   }
 
   pause() {
@@ -833,6 +834,21 @@ export class GameEngine {
   }
 
   catchItem(it: Item) {
+    if (this.mode === "relaxed" && this.learningGame === 5) {
+      const sounds: ItemKind[] = ["listenBird", "listenCat", "listenDog"];
+      if (it.kind !== sounds[this.targetSound]) {
+        this.floater(it.x, it.y - 18, "Try another animal!", "#ffffff", 22);
+        audio.miss();
+        return;
+      }
+      this.listenMatches++;
+      if (this.listenMatches % 5 === 0) {
+        this.targetSound = (this.targetSound + 1) % 3;
+        this.showBanner("Great listening!", "Listen for the next animal!", "#7c5cff", 2.3);
+        audio.levelUp();
+        this.speakTarget();
+      }
+    }
     if (this.mode === "relaxed" && this.learningGame === 4) {
       const feelings: ItemKind[] = ["feelingHappy", "feelingSad", "feelingCalm"];
       if (it.kind !== feelings[this.targetFeeling]) {
@@ -1084,11 +1100,26 @@ export class GameEngine {
       ctx.fillStyle = "#365947"; ctx.textAlign = "center"; ctx.font = "bold 21px sans-serif";
       ctx.fillText(`Find the ${["HAPPY", "SAD", "CALM"][this.targetFeeling]} face!`, W / 2, y + 36);
     }
+    if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 5) {
+      const y = Math.min(104, H * 0.16);
+      ctx.fillStyle = "rgba(255,255,255,0.96)";
+      ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 62, 22); ctx.fill();
+      ctx.fillStyle = "#315c45"; ctx.textAlign = "center"; ctx.font = "bold 20px sans-serif";
+      ctx.fillText(`Listen! Find the ${["BIRD", "CAT", "DOG"][this.targetSound]}!`, W / 2, y + 37);
+    }
     // items
     for (const it of this.items) {
       const pop = Math.min(1, it.spawnT * 5);
       const r = it.r * (0.6 + 0.4 * pop);
       switch (it.kind) {
+        case "listenBird":
+        case "listenCat":
+        case "listenDog": {
+          const animal = it.kind === "listenBird" ? "🐦" : it.kind === "listenCat" ? "🐱" : "🐶";
+          ctx.save(); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.font = `${Math.round(r * 1.8)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+          ctx.fillText(animal, it.x, it.y); ctx.restore(); break;
+        }
         case "feelingHappy":
         case "feelingSad":
         case "feelingCalm": {
