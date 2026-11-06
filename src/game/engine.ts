@@ -158,6 +158,8 @@ export class GameEngine {
   targetRoutine = 0;
   animalMatches = 0;
   targetAnimal = 0;
+  challengeMatches = 0;
+  challengeStage = 0;
   lastSpokenTarget = -1;
   speakTarget() {
     if (this.learningGame !== 5 || !audio.soundOn || typeof window === "undefined" || !("speechSynthesis" in window)) return;
@@ -382,6 +384,8 @@ export class GameEngine {
     this.targetRoutine = 0;
     this.animalMatches = 0;
     this.targetAnimal = 0;
+    this.challengeMatches = 0;
+    this.challengeStage = 0;
     this.items.length = 0;
     this.particles.length = 0;
     this.floaters.length = 0;
@@ -419,7 +423,7 @@ export class GameEngine {
     } else {
       this.showBanner("Let's go!", mode === "relaxed" ? (this.learningGame === 8 ? "Find the COW!" : this.learningGame === 7 ? "Find WAKE UP!" : this.learningGame === 6 ? "Find WATER!" : this.learningGame === 5 ? "Listen! Find the BIRD!" : this.learningGame === 4 ? "Find the HAPPY face!" : this.learningGame === 3 ? "Remember the picture!" : this.learningGame === 2 ? "Count the stars! Catch ONE!" : this.learningGame === 1 ? "Catch the CIRCLE!" : "Catch RED!") : "Catch stars, dodge grumpy clouds!", "#ff7ab6", 2.2);
       // a friendly first star falls right toward the player so the first catch happens fast
-      this.spawnItem(this.learningGame === 0 ? "redOrb" : this.learningGame === 1 ? "circleShape" : this.learningGame === 2 ? "oneGroup" : this.learningGame === 3 ? "memorySun" : this.learningGame === 4 ? "feelingHappy" : this.learningGame === 5 ? "listenBird" : this.learningGame === 6 ? "communicateWater" : this.learningGame === 7 ? "routineWake" : this.learningGame === 8 ? "animalCow" : "star", this.W / 2 + (Math.random() - 0.5) * this.size * 1.5, 1.25);
+      this.spawnItem(this.learningGame === 0 ? "redOrb" : this.learningGame === 1 ? "circleShape" : this.learningGame === 2 ? "oneGroup" : this.learningGame === 3 ? "memorySun" : this.learningGame === 4 ? "feelingHappy" : this.learningGame === 5 ? "listenBird" : this.learningGame === 6 ? "communicateWater" : this.learningGame === 7 ? "routineWake" : this.learningGame === 8 ? "animalCow" : this.learningGame === 9 ? "redOrb" : "star", this.W / 2 + (Math.random() - 0.5) * this.size * 1.5, 1.25);
     }
     this.emitHud(true);
     if (this.learningGame === 5 && mode === "relaxed") this.speakTarget();
@@ -522,7 +526,7 @@ export class GameEngine {
       timeLeft: Math.ceil(this.timeLeft),
       combo: this.combo,
       multiplier: this.multiplier,
-      world: this.mode === "cove" ? "Calm Cove" : this.learningGame === 1 ? "Ocean World" : this.learningGame === 2 ? "Galaxy World" : this.learningGame === 3 ? "Happy Farm" : this.learningGame === 4 ? "Enchanted Forest" : this.learningGame === 5 ? "Bamboo World" : this.learningGame === 6 ? "Snow World" : this.learningGame === 7 ? "Savanna World" : this.learningGame === 8 ? "Dragon World" : WORLDS[this.worldIdx].name,
+      world: this.mode === "cove" ? "Calm Cove" : this.learningGame === 1 ? "Ocean World" : this.learningGame === 2 ? "Galaxy World" : this.learningGame === 3 ? "Happy Farm" : this.learningGame === 4 ? "Enchanted Forest" : this.learningGame === 5 ? "Bamboo World" : this.learningGame === 6 ? "Snow World" : this.learningGame === 7 ? "Savanna World" : this.learningGame === 8 ? "Dragon World" : this.learningGame === 9 ? "Magic World" : WORLDS[this.worldIdx].name,
       mode: this.mode,
     };
     const key = `${h.score}|${h.hearts}|${h.timeLeft}|${h.multiplier}|${h.world}|${h.combo}`;
@@ -560,6 +564,11 @@ export class GameEngine {
   }
 
   chooseKind(): ItemKind {
+    if (this.mode === "relaxed" && this.learningGame === 9) {
+      const groups: ItemKind[][] = [["redOrb", "blueOrb", "yellowOrb"], ["circleShape", "squareShape", "triangleShape"], ["animalCow", "animalDuck", "animalFrog"]];
+      const group = groups[Math.floor(this.challengeStage / 3) % 3];
+      return group[Math.floor(Math.random() * group.length)];
+    }
     if (this.mode === "relaxed" && this.learningGame === 8) return (["animalCow", "animalDuck", "animalFrog"] as const)[Math.floor(Math.random() * 3)];
     if (this.mode === "relaxed" && this.learningGame === 7) return (["routineWake", "routineBrush", "routineSleep"] as const)[Math.floor(Math.random() * 3)];
     if (this.mode === "relaxed" && this.learningGame === 6) return (["communicateWater", "communicateFood", "communicateHelp"] as const)[Math.floor(Math.random() * 3)];
