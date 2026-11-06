@@ -1188,6 +1188,15 @@ export class GameEngine {
       ctx.font = "bold 14px sans-serif";
       ctx.fillText("Catch the matching picture", W / 2, y + 50);
     }
+    if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 8) {
+      const y = Math.min(104, H * 0.16);
+      ctx.fillStyle = "rgba(255,255,255,0.97)";
+      ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 65, 22); ctx.fill();
+      ctx.fillStyle = "#5a4d87"; ctx.textAlign = "center"; ctx.font = "bold 20px sans-serif";
+      ctx.fillText(`Find the ${["COW", "DUCK", "FROG"][this.targetAnimal]}!`, W / 2, y + 27);
+      ctx.font = "bold 14px sans-serif";
+      ctx.fillText("Catch the matching animal", W / 2, y + 50);
+    }
     // items
     for (const it of this.items) {
       const pop = Math.min(1, it.spawnT * 5);
