@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ColorMatchWorld } from "./components/ColorMatchWorld";
+import { ShapeFinderWorld } from "./components/ShapeFinderWorld";
 import { CountGame } from "./components/CountGame";
 import { CozyCreator } from "./components/CozyCreator";
 import { PatternPath } from "./components/PatternPath";
@@ -31,7 +32,7 @@ function awardAdventureStars(previous: number[], level: number, score: number): 
   return previous.map((old, index) => index === level ? Math.max(old, stars) : old);
 }
 
-type Phase = "color" | "start" | "playing" | "paused" | "over" | "count" | "pattern" | "creator" | "together" | "find" | "music";
+type Phase = "shape" | "color" | "start" | "playing" | "paused" | "over" | "count" | "pattern" | "creator" | "together" | "find" | "music";
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -54,7 +55,7 @@ export default function App() {
   const songRef = useRef<HTMLAudioElement | null>(null);
   const stopSong = () => { songRef.current?.pause(); songRef.current = null; };
   const resumeSong = () => {
-    if (songRef.current && settingsRef.current.music && !settingsRef.current.quiet && (phaseRef.current === "playing" || phaseRef.current === "color") && !lauryVoiceRef.current)
+    if (songRef.current && settingsRef.current.music && !settingsRef.current.quiet && (phaseRef.current === "playing" || phaseRef.current === "color" || phaseRef.current === "shape") && !lauryVoiceRef.current)
       void songRef.current.play().catch(() => {});
   };
   const [laurySpeaking, setLaurySpeaking] = useState(false);
@@ -164,12 +165,12 @@ export default function App() {
     songRef.current = song;
     setResult(null);
     // All choices on the new home screen use the original Relaxed catching game.
-    e.setVisible(game !== 0);
+    e.setVisible(game > 1);
     e.setFriend(game === 1 ? "fish" : "kitty");
     e.setOptions({ calm: s.calm, slow: s.slow });
     e.setLearningGame(game);
-    if (game !== 0) e.start("relaxed");
-    setPhase(game === 0 ? "color" : "playing");
+    if (game > 1) e.start("relaxed");
+    setPhase(game === 0 ? "color" : game === 1 ? "shape" : "playing");
     playLaury(game);
   }, [playLaury, stopLaury]);
 
@@ -235,7 +236,7 @@ export default function App() {
           e.preventDefault();
           play();
         }
-      } else if (p === "color") {
+      } else if (p === "color" || p === "shape") {
         if (k === "Escape") { e.preventDefault(); home(); }
       } else if (p === "count" || p === "pattern" || p === "creator" || p === "together" || p === "find" || p === "music") {
         if (k === "Escape") {
@@ -271,6 +272,21 @@ export default function App() {
 
       {(phase === "playing" || phase === "paused") && <Hud hud={hud} onPause={pause} onExit={home} />}
       {phase === "playing" && settings.sound && <button type="button" onClick={() => playLaury(selectedGameRef.current)} aria-label="Hear Laury instructions again" className="absolute right-3 top-[max(6.5rem,calc(env(safe-area-inset-top)+5.75rem))] z-30 flex h-14 w-14 items-center justify-center rounded-full border-2 border-white bg-[#7750f7] text-xl text-white shadow-lg sm:left-4 sm:right-auto sm:top-28 sm:h-auto sm:w-auto sm:px-4 sm:py-2 sm:text-sm"><span className="sm:hidden" aria-hidden="true">{laurySpeaking ? "🔈" : "🔊"}</span><span className="hidden sm:inline">{laurySpeaking ? "🔊 Laury is speaking…" : "🔊 Hear Laury Again"}</span></button>}
+
+      {phase === "shape" && <ShapeFinderWorld settings={settings} onHome={home} onHearLaury={() => playLaury(1)} onFinish={(score) => {
+        stopLaury();
+        stopSong();
+        setAdventureStars(previous => {
+          const next = awardAdventureStars(previous, 1, score);
+          try { localStorage.setItem(STAR_KEY, JSON.stringify(next)); } catch { /* storage unavailable */ }
+          return next;
+        });
+        setRank(-1);
+        setLastId(null);
+        setResult({ score, bestCombo: 10, caught: 10, mode: "relaxed", friend: "fish", worldsVisited: 1 });
+        overAt.current = performance.now();
+        setPhase("over");
+      }} />}
 
       {phase === "color" && <ColorMatchWorld settings={settings} onHome={home} onHearLaury={() => playLaury(0)} onFinish={(score) => {
         stopLaury();
