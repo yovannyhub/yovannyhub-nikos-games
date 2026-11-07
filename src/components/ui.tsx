@@ -56,9 +56,9 @@ const TOGGLES: { key: "sound" | "music" | "calm" | "slow" | "quiet"; on: string;
   { key: "quiet", on: "🤫", off: "🎶", label: "Quiet", help: "Mute songs and game effects, but keep Laury speaking" },
 ];
 
-export function SettingsToggles({ settings, onChange }: { settings: Settings; onChange: (s: Partial<Settings>) => void }) {
+export function SettingsToggles({ settings, onChange, onStarBoard }: { settings: Settings; onChange: (s: Partial<Settings>) => void; onStarBoard?: () => void }) {
   return (
-    <div className="grid grid-cols-3 gap-2 sm:grid-cols-5" role="group" aria-label="Settings">
+    <div className={`grid grid-cols-3 gap-2 ${onStarBoard ? "sm:grid-cols-6" : "sm:grid-cols-5"}`} role="group" aria-label="Settings and achievements">
       {TOGGLES.map((t) => {
         const on = settings[t.key];
         return (
@@ -83,6 +83,13 @@ export function SettingsToggles({ settings, onChange }: { settings: Settings; on
           </button>
         );
       })}
+      {onStarBoard && (
+        <button type="button" onClick={onStarBoard} aria-label="Open Star Board achievements" className="flex min-h-[64px] cursor-pointer flex-col items-center justify-center rounded-2xl border-4 border-[#f4d76a] bg-[#fff4c7] px-1 py-1 text-sm font-semibold text-[#594719]">
+          <span className="text-2xl leading-none">🏆</span>
+          <span>Star Board</span>
+          <span className="mt-0.5 rounded-full bg-[#ffd23f] px-2 text-[10px] font-bold text-[#594719]">VIEW</span>
+        </button>
+      )}
     </div>
   );
 }
