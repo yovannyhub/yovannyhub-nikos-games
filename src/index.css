@@ -170,3 +170,12 @@ input:focus-visible {
   .note-float { animation-duration: 0.4s; }
   .firefly { animation: none; }
 }
+
+/* Sensory-friendly calm mode: eliminate decorative motion while preserving layout. */
+.calm .animate-spin-slow, .calm .note-float { animation: none; }
+.calm .btn-chunky, .calm button { transition-duration: 0s; }
+.calm button:hover { transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .anim-popin, .note-float, .confetti span, .animate-spin-slow { animation: none !important; }
+  button { transition-duration: 0s !important; }
+}
