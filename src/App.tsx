@@ -54,6 +54,17 @@ export default function App() {
   const lauryVoiceRef = useRef<HTMLAudioElement | null>(null);
   const songRef = useRef<HTMLAudioElement | null>(null);
   const fadeFrameRef = useRef<number | null>(null);
+  // iOS Safari does not reliably support changing HTMLAudioElement.volume.
+  // Route music through a Web Audio gain node for real mobile fades.
+  const musicContextRef = useRef<AudioContext | null>(null);
+  const musicGainRef = useRef<GainNode | null>(null);
+  const musicLevelRef = useRef(0);
+  const setMusicLevel = (level: number) => {
+    const value = Math.max(0, Math.min(0.18, level));
+    musicLevelRef.current = value;
+    if (musicGainRef.current) musicGainRef.current.gain.value = value;
+    else if (songRef.current) songRef.current.volume = value;
+  };
   const cancelFade = () => {
     if (fadeFrameRef.current !== null) cancelAnimationFrame(fadeFrameRef.current);
     fadeFrameRef.current = null;
@@ -68,14 +79,14 @@ export default function App() {
     const song = songRef.current;
     if (!song) return;
     if (direction === "in" && (!settingsRef.current.music || settingsRef.current.quiet || lauryVoiceRef.current)) return;
-    const from = song.volume;
+    const from = musicLevelRef.current;
     const to = direction === "in" ? 0.18 : 0;
     const start = performance.now();
     if (direction === "in") void song.play().catch(() => {});
     const tick = (now: number) => {
       if (songRef.current !== song) return;
       const t = Math.min(1, (now - start) / duration);
-      song.volume = Math.max(0, Math.min(1, from + (to - from) * t));
+      setMusicLevel(from + (to - from) * t);
       if (t < 1) fadeFrameRef.current = requestAnimationFrame(tick);
       else {
         fadeFrameRef.current = null;
@@ -155,6 +166,8 @@ export default function App() {
       engine.destroy();
       engineRef.current = null;
       audio.stopMusic();
+      void musicContextRef.current?.close().catch(() => {});
+      musicContextRef.current = null;
     };
   }, []);
 
@@ -191,8 +204,24 @@ export default function App() {
     audio.stopMusic();
     const song = new Audio(`${import.meta.env.BASE_URL}audio/world-${String(game + 1).padStart(2, "0")}-music.mp3`);
     song.loop = true;
-    song.volume = 0;
     songRef.current = song;
+    musicGainRef.current = null;
+    musicLevelRef.current = 0;
+    try {
+      const context = musicContextRef.current ?? new AudioContext();
+      musicContextRef.current = context;
+      const source = context.createMediaElementSource(song);
+      const gain = context.createGain();
+      gain.gain.value = 0;
+      source.connect(gain);
+      gain.connect(context.destination);
+      musicGainRef.current = gain;
+      song.volume = 1;
+      void context.resume().catch(() => {});
+    } catch {
+      // Browsers without Web Audio retain the original volume-based fade.
+      song.volume = 0;
+    }
     // Establish playback permission during the Play button gesture, before Laury speaks.
     if (s.music && !s.quiet) {
       void song.play().then(() => {
