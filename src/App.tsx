@@ -250,7 +250,7 @@ export default function App() {
       <canvas ref={canvasRef} aria-label="Game area: move your friend left and right to catch falling stars" role="img" />
 
       {(phase === "playing" || phase === "paused") && <Hud hud={hud} onPause={pause} onExit={home} />}
-      {phase === "playing" && settings.sound && <button type="button" onClick={() => playLaury(selectedGameRef.current)} aria-label="Hear Laury instructions again" className="absolute right-3 top-[max(5.75rem,calc(env(safe-area-inset-top)+5rem))] z-30 max-w-[44vw] rounded-full border-2 border-white bg-[#7750f7] px-3 py-2 text-center text-xs font-extrabold leading-tight text-white shadow-lg sm:left-4 sm:right-auto sm:top-28 sm:max-w-none sm:px-4 sm:text-sm">{laurySpeaking ? "🔊 Laury is speaking…" : "🔊 Hear Laury Again"}</button>}
+      {phase === "playing" && settings.sound && <button type="button" onClick={() => playLaury(selectedGameRef.current)} aria-label="Hear Laury instructions again" className="absolute right-3 top-[max(5.75rem,calc(env(safe-area-inset-top)+5rem))] z-30 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-[#7750f7] text-xl text-white shadow-lg sm:left-4 sm:right-auto sm:top-28 sm:h-auto sm:w-auto sm:px-4 sm:py-2 sm:text-sm"><span className="sm:hidden" aria-hidden="true">{laurySpeaking ? "🔈" : "🔊"}</span><span className="hidden sm:inline">{laurySpeaking ? "🔊 Laury is speaking…" : "🔊 Hear Laury Again"}</span></button>}
 
       {phase === "start" && (
         <StartScreen
