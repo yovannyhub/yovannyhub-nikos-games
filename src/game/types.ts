@@ -24,6 +24,7 @@ export interface Settings {
   music: boolean;
   calm: boolean; // no shake / flashes, fewer particles
   slow: boolean; // slower pace
+  quiet: boolean; // mute songs and effects, keep Laury's instructions
   playerName: string;
   friend: FriendKind;
   mode: GameMode;
