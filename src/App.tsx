@@ -250,7 +250,7 @@ export default function App() {
       <canvas ref={canvasRef} aria-label="Game area: move your friend left and right to catch falling stars" role="img" />
 
       {(phase === "playing" || phase === "paused") && <Hud hud={hud} onPause={pause} onExit={home} />}
-      {phase === "playing" && settings.sound && <button type="button" onClick={() => playLaury(selectedGameRef.current)} aria-label="Hear Laury instructions again" className="absolute bottom-5 left-1/2 z-30 -translate-x-1/2 rounded-full border-2 border-white bg-[#7750f7] px-5 py-3 text-sm font-extrabold text-white shadow-lg">{laurySpeaking ? "🔊 Laury is speaking…" : "🔊 Hear Laury Again"}</button>}
+      {phase === "playing" && settings.sound && <button type="button" onClick={() => playLaury(selectedGameRef.current)} aria-label="Hear Laury instructions again" className="absolute left-1/2 top-[max(5.5rem,calc(env(safe-area-inset-top)+4.75rem))] z-30 -translate-x-1/2 whitespace-nowrap rounded-full border-2 border-white bg-[#7750f7] px-3 py-1.5 text-xs font-extrabold text-white shadow-lg sm:top-24 sm:px-4 sm:py-2 sm:text-sm">{laurySpeaking ? "🔊 Laury is speaking…" : "🔊 Hear Laury Again"}</button>}
 
       {phase === "start" && (
         <StartScreen
