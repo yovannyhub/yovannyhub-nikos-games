@@ -53,10 +53,40 @@ export default function App() {
   const overAt = useRef(0);
   const lauryVoiceRef = useRef<HTMLAudioElement | null>(null);
   const songRef = useRef<HTMLAudioElement | null>(null);
-  const stopSong = () => { songRef.current?.pause(); songRef.current = null; };
+  const fadeFrameRef = useRef<number | null>(null);
+  const cancelFade = () => {
+    if (fadeFrameRef.current !== null) cancelAnimationFrame(fadeFrameRef.current);
+    fadeFrameRef.current = null;
+  };
+  const stopSong = () => {
+    cancelFade();
+    songRef.current?.pause();
+    songRef.current = null;
+  };
+  const fadeSong = (direction: "in" | "out", duration: number) => {
+    cancelFade();
+    const song = songRef.current;
+    if (!song) return;
+    if (direction === "in" && (!settingsRef.current.music || settingsRef.current.quiet || lauryVoiceRef.current)) return;
+    const from = song.volume;
+    const to = direction === "in" ? 0.18 : 0;
+    const start = performance.now();
+    if (direction === "in") void song.play().catch(() => {});
+    const tick = (now: number) => {
+      if (songRef.current !== song) return;
+      const t = Math.min(1, (now - start) / duration);
+      song.volume = Math.max(0, Math.min(1, from + (to - from) * t));
+      if (t < 1) fadeFrameRef.current = requestAnimationFrame(tick);
+      else {
+        fadeFrameRef.current = null;
+        if (direction === "out") song.pause();
+      }
+    };
+    fadeFrameRef.current = requestAnimationFrame(tick);
+  };
   const resumeSong = () => {
     if (songRef.current && settingsRef.current.music && !settingsRef.current.quiet && (phaseRef.current === "playing" || phaseRef.current === "color" || phaseRef.current === "shape") && !lauryVoiceRef.current)
-      void songRef.current.play().catch(() => {});
+      fadeSong("in", 2000);
   };
   const [laurySpeaking, setLaurySpeaking] = useState(false);
 
@@ -78,7 +108,7 @@ export default function App() {
       if (lauryVoiceRef.current !== clip) return;
       lauryVoiceRef.current = null;
       setLaurySpeaking(false);
-      if (songRef.current && settingsRef.current.music && !settingsRef.current.quiet && (phaseRef.current === "playing" || phaseRef.current === "color")) void songRef.current.play().catch(() => {});
+      if (songRef.current && settingsRef.current.music && !settingsRef.current.quiet && (phaseRef.current === "playing" || phaseRef.current === "color" || phaseRef.current === "shape")) fadeSong("in", 2000);
     };
     clip.onended = finish;
     clip.onerror = finish;
@@ -111,7 +141,7 @@ export default function App() {
             return next;
           });
         }
-        stopSong();
+        fadeSong("out", 3000);
         setResult(r);
         overAt.current = performance.now();
         setPhase("over");
@@ -139,7 +169,7 @@ export default function App() {
     audio.soundOn = settings.sound && !settings.quiet;
     audio.musicOn = settings.music && !settings.quiet;
     audio.stopMusic();
-    if (!settings.music || settings.quiet) songRef.current?.pause();
+    if (!settings.music || settings.quiet) { cancelFade(); songRef.current?.pause(); }
     else resumeSong();
   }, [settings]);
 
@@ -161,7 +191,7 @@ export default function App() {
     audio.stopMusic();
     const song = new Audio(`${import.meta.env.BASE_URL}audio/world-${String(game + 1).padStart(2, "0")}-music.mp3`);
     song.loop = true;
-    song.volume = 0.18;
+    song.volume = 0;
     songRef.current = song;
     // Establish playback permission during the Play button gesture, before Laury speaks.
     if (s.music && !s.quiet) {
@@ -283,7 +313,7 @@ export default function App() {
 
       {phase === "shape" && <ShapeFinderWorld settings={settings} onHome={home} onHearLaury={() => playLaury(1)} onInteract={resumeSong} onFinish={(score) => {
         stopLaury();
-        stopSong();
+        fadeSong("out", 3000);
         setAdventureStars(previous => {
           const next = awardAdventureStars(previous, 1, score);
           try { localStorage.setItem(STAR_KEY, JSON.stringify(next)); } catch { /* storage unavailable */ }
