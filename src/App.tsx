@@ -94,14 +94,14 @@ export default function App() {
       if (t < 1) fadeFrameRef.current = requestAnimationFrame(tick);
       else {
         fadeFrameRef.current = null;
-        if (direction === "out") song.pause();
+        if (direction === "out" && (phaseRef.current === "over" || phaseRef.current === "start" || phaseRef.current === "paused")) song.pause();
       }
     };
     fadeFrameRef.current = requestAnimationFrame(tick);
   };
   const resumeSong = () => {
     if (songRef.current && settingsRef.current.music && !settingsRef.current.quiet && (phaseRef.current === "playing" || phaseRef.current === "color" || phaseRef.current === "shape" || phaseRef.current === "galaxy" || phaseRef.current === "farm" || phaseRef.current === "forest" || phaseRef.current === "bamboo") && !lauryVoiceRef.current)
-      if (songRef.current.paused) fadeSong("in", 2000);
+      fadeSong("in", 2000);
   };
   const [laurySpeaking, setLaurySpeaking] = useState(false);
 
@@ -115,7 +115,8 @@ export default function App() {
     stopLaury();
     if (!settingsRef.current.sound) { resumeSong(); return; }
     audio.stopMusic();
-    songRef.current?.pause();
+    cancelFade();
+    setMusicLevel(0);
     const clip = new Audio(`${import.meta.env.BASE_URL}audio/world-${String(world + 1).padStart(2, "0")}-intro.mp3`);
     lauryVoiceRef.current = clip;
     setLaurySpeaking(true);
@@ -226,13 +227,8 @@ export default function App() {
       // Browsers without Web Audio retain the original volume-based fade.
       song.volume = 0;
     }
-    // Establish playback permission during the Play button gesture, before Laury speaks.
-    if (s.music && !s.quiet) {
-      void song.play().then(() => {
-        if (lauryVoiceRef.current || songRef.current !== song) song.pause();
-      }).catch(() => {});
-      song.pause();
-    }
+    // Start within the Play tap; stay silent until Laury finishes.
+    if (s.music && !s.quiet) void song.play().catch(() => {});
     setResult(null);
     // All choices on the new home screen use the original Relaxed catching game.
     e.setVisible(game > 5);
@@ -344,7 +340,7 @@ export default function App() {
       {(phase === "playing" || phase === "paused") && <Hud hud={hud} onPause={pause} onExit={home} />}
       {phase === "playing" && settings.sound && <button type="button" onClick={() => playLaury(selectedGameRef.current)} aria-label="Hear Laury instructions again" className="absolute right-3 top-[max(6.5rem,calc(env(safe-area-inset-top)+5.75rem))] z-30 flex h-14 w-14 items-center justify-center rounded-full border-2 border-white bg-[#7750f7] text-xl text-white shadow-lg sm:left-4 sm:right-auto sm:top-28 sm:h-auto sm:w-auto sm:px-4 sm:py-2 sm:text-sm"><span className="sm:hidden" aria-hidden="true">{laurySpeaking ? "🔈" : "🔊"}</span><span className="hidden sm:inline">{laurySpeaking ? "🔊 Laury is speaking…" : "🔊 Hear Laury Again"}</span></button>}
 
-      {phase === "bamboo" && <BambooListenWorld settings={settings} introPlaying={laurySpeaking} onQuestionAudioStart={() => { cancelFade(); songRef.current?.pause(); }} onQuestionAudioEnd={() => { if (settingsRef.current.music && !settingsRef.current.quiet && phaseRef.current === "bamboo") fadeSong("in", 1200); }} onHome={home} onHearLaury={() => playLaury(5)} onInteract={resumeSong} onFinalAnswer={() => fadeSong("out", 3000)} onFinish={(score) => {
+      {phase === "bamboo" && <BambooListenWorld settings={settings} introPlaying={laurySpeaking} onQuestionAudioStart={() => { cancelFade(); setMusicLevel(0); }} onQuestionAudioEnd={() => { if (settingsRef.current.music && !settingsRef.current.quiet && phaseRef.current === "bamboo") fadeSong("in", 1200); }} onHome={home} onHearLaury={() => playLaury(5)} onInteract={resumeSong} onFinalAnswer={() => fadeSong("out", 3000)} onFinish={(score) => {
         stopLaury();
         setAdventureStars(previous => {
           const next = awardAdventureStars(previous, 5, score);
