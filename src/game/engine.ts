@@ -1146,16 +1146,16 @@ export class GameEngine {
     if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 0) {
       ctx.fillStyle = "rgba(255,255,255,0.94)";
       ctx.beginPath();
-      ctx.roundRect(Math.max(8, W / 2 - 135), Math.min(104, H * 0.16), 270, 52, 22);
+      ctx.roundRect(Math.max(8, W / 2 - 135), (W > H ? Math.min(145, H * 0.29) : Math.min(104, H * 0.16)), 270, 52, 22);
       ctx.fill();
       ctx.fillStyle = ["#e33243", "#176be0", "#9b7400"][this.targetColor];
       ctx.font = "bold 22px sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText(`Catch ${["RED", "BLUE", "YELLOW"][this.targetColor]}!`, W / 2, Math.min(138, H * 0.16 + 34));
+      ctx.fillText(`Catch ${["RED", "BLUE", "YELLOW"][this.targetColor]}!`, W / 2, ((W > H ? Math.min(145, H * 0.29) : Math.min(104, H * 0.16)) + 34));
     }
 
     if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 1) {
-      const y = Math.min(104, H * 0.16);
+      const y = (W > H ? Math.min(145, H * 0.29) : Math.min(104, H * 0.16));
       ctx.fillStyle = "rgba(255,255,255,0.94)";
       ctx.beginPath();
       ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 52, 22);
@@ -1167,14 +1167,14 @@ export class GameEngine {
     }
 
     if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 2) {
-      const y = Math.min(104, H * 0.16);
+      const y = (W > H ? Math.min(145, H * 0.29) : Math.min(104, H * 0.16));
       ctx.fillStyle = "rgba(255,255,255,0.96)";
       ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 56, 22); ctx.fill();
       ctx.fillStyle = "#49357e"; ctx.font = "bold 21px sans-serif"; ctx.textAlign = "center";
       ctx.fillText(`Catch ${this.targetCount} stars!`, W / 2, y + 36);
     }
     if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 3) {
-      const y = Math.min(104, H * 0.16);
+      const y = (W > H ? Math.min(145, H * 0.29) : Math.min(104, H * 0.16));
       const pictures = ["☀️", "🌙", "⭐"];
       const showing = this.playT < this.memoryRevealUntil;
       ctx.fillStyle = "rgba(255,255,255,0.96)";
@@ -1186,21 +1186,21 @@ export class GameEngine {
       ctx.fillText(showing ? pictures[this.targetMemory] : "❓", W / 2, y + 57);
     }
     if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 4) {
-      const y = Math.min(104, H * 0.16);
+      const y = (W > H ? Math.min(145, H * 0.29) : Math.min(104, H * 0.16));
       ctx.fillStyle = "rgba(255,255,255,0.96)";
       ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 58, 22); ctx.fill();
       ctx.fillStyle = "#365947"; ctx.textAlign = "center"; ctx.font = "bold 21px sans-serif";
       ctx.fillText(`Find the ${["HAPPY", "SAD", "CALM"][this.targetFeeling]} face!`, W / 2, y + 36);
     }
     if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 5) {
-      const y = Math.min(104, H * 0.16);
+      const y = (W > H ? Math.min(145, H * 0.29) : Math.min(104, H * 0.16));
       ctx.fillStyle = "rgba(255,255,255,0.96)";
       ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 62, 22); ctx.fill();
       ctx.fillStyle = "#315c45"; ctx.textAlign = "center"; ctx.font = "bold 20px sans-serif";
       ctx.fillText(`Listen! Find the ${["BIRD", "CAT", "DOG"][this.targetSound]}!`, W / 2, y + 37);
     }
     if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 6) {
-      const y = Math.min(104, H * 0.16);
+      const y = (W > H ? Math.min(145, H * 0.29) : Math.min(104, H * 0.16));
       ctx.fillStyle = "rgba(255,255,255,0.97)";
       ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 66, 22); ctx.fill();
       ctx.fillStyle = "#375d85"; ctx.textAlign = "center"; ctx.font = "bold 19px sans-serif";
@@ -1209,7 +1209,7 @@ export class GameEngine {
       ctx.fillText("Catch the matching picture", W / 2, y + 49);
     }
     if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 7) {
-      const y = Math.min(104, H * 0.16);
+      const y = (W > H ? Math.min(145, H * 0.29) : Math.min(104, H * 0.16));
       ctx.fillStyle = "rgba(255,255,255,0.97)";
       ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 66, 22); ctx.fill();
       ctx.fillStyle = "#76532c"; ctx.textAlign = "center"; ctx.font = "bold 19px sans-serif";
@@ -1218,7 +1218,7 @@ export class GameEngine {
       ctx.fillText("Catch the matching picture", W / 2, y + 50);
     }
     if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 8) {
-      const y = Math.min(104, H * 0.16);
+      const y = (W > H ? Math.min(145, H * 0.29) : Math.min(104, H * 0.16));
       ctx.fillStyle = "rgba(255,255,255,0.97)";
       ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 65, 22); ctx.fill();
       ctx.fillStyle = "#5a4d87"; ctx.textAlign = "center"; ctx.font = "bold 20px sans-serif";
@@ -1228,7 +1228,7 @@ export class GameEngine {
     }
     if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 9) {
       const labels = ["RED", "BLUE", "YELLOW", "CIRCLE", "SQUARE", "TRIANGLE", "COW", "DUCK", "FROG"];
-      const y = Math.min(104, H * 0.16);
+      const y = (W > H ? Math.min(145, H * 0.29) : Math.min(104, H * 0.16));
       ctx.fillStyle = "rgba(255,255,255,0.97)";
       ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 66, 22); ctx.fill();
       ctx.fillStyle = "#7752a4"; ctx.textAlign = "center"; ctx.font = "bold 20px sans-serif";
