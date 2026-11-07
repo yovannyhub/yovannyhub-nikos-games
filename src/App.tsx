@@ -66,8 +66,9 @@ export default function App() {
 
   const playLaury = useCallback((world: number) => {
     stopLaury();
-    if (!settingsRef.current.sound) return;
+    if (!settingsRef.current.sound) { resumeSong(); return; }
     audio.stopMusic();
+    songRef.current?.pause();
     const clip = new Audio(`${import.meta.env.BASE_URL}audio/world-${String(world + 1).padStart(2, "0")}-intro.mp3`);
     lauryVoiceRef.current = clip;
     setLaurySpeaking(true);
@@ -75,7 +76,7 @@ export default function App() {
       if (lauryVoiceRef.current !== clip) return;
       lauryVoiceRef.current = null;
       setLaurySpeaking(false);
-      if (songRef.current && settingsRef.current.music && phaseRef.current === "playing") void songRef.current.play().catch(() => {});
+      if (songRef.current && settingsRef.current.music && !settingsRef.current.quiet && phaseRef.current === "playing") void songRef.current.play().catch(() => {});
     };
     clip.onended = finish;
     clip.onerror = finish;
@@ -266,7 +267,7 @@ export default function App() {
       <canvas ref={canvasRef} aria-label="Game area: move your friend left and right to catch falling stars" role="img" />
 
       {(phase === "playing" || phase === "paused") && <Hud hud={hud} onPause={pause} onExit={home} />}
-      {phase === "playing" && settings.sound && <button type="button" onClick={() => playLaury(selectedGameRef.current)} aria-label="Hear Laury instructions again" className="absolute right-3 top-[max(5.75rem,calc(env(safe-area-inset-top)+5rem))] z-30 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-[#7750f7] text-xl text-white shadow-lg sm:left-4 sm:right-auto sm:top-28 sm:h-auto sm:w-auto sm:px-4 sm:py-2 sm:text-sm"><span className="sm:hidden" aria-hidden="true">{laurySpeaking ? "🔈" : "🔊"}</span><span className="hidden sm:inline">{laurySpeaking ? "🔊 Laury is speaking…" : "🔊 Hear Laury Again"}</span></button>}
+      {phase === "playing" && settings.sound && <button type="button" onClick={() => playLaury(selectedGameRef.current)} aria-label="Hear Laury instructions again" className="absolute right-3 top-[max(6.5rem,calc(env(safe-area-inset-top)+5.75rem))] z-30 flex h-14 w-14 items-center justify-center rounded-full border-2 border-white bg-[#7750f7] text-xl text-white shadow-lg sm:left-4 sm:right-auto sm:top-28 sm:h-auto sm:w-auto sm:px-4 sm:py-2 sm:text-sm"><span className="sm:hidden" aria-hidden="true">{laurySpeaking ? "🔈" : "🔊"}</span><span className="hidden sm:inline">{laurySpeaking ? "🔊 Laury is speaking…" : "🔊 Hear Laury Again"}</span></button>}
 
       {phase === "start" && (
         <StartScreen
