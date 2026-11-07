@@ -262,15 +262,12 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
         </section>
 
         <Panel className="w-full !p-3">
-          <SettingsToggles settings={settings} onChange={onChange} />
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            <BigButton color="yellow" className="!min-h-[48px] !text-lg" onClick={() => setView("scores")}>
-              🏆 Star Board
-            </BigButton>
-            <BigButton color="white" className="!min-h-[48px] !text-lg" onClick={() => setView("grownups")}>
+          <SettingsToggles settings={settings} onChange={onChange} onStarBoard={() => setView("scores")} />
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <BigButton color="white" className="!min-h-[56px] !px-2 !text-sm sm:!text-lg" onClick={() => setView("grownups")}>
               👋 Grown-ups
             </BigButton>
-            <BigButton color="green" className="!min-h-[48px] !text-sm sm:!text-lg" onClick={toggleLaury} ariaLabel={lauryPlaying ? "Stop Laury's welcome" : "Meet Laury, play welcome audio"}>
+            <BigButton color="green" className="!min-h-[56px] !px-2 !text-sm sm:!text-lg" onClick={toggleLaury} ariaLabel={lauryPlaying ? "Stop Laury's welcome" : "Meet Laury, play welcome audio"}>
               {lauryPlaying ? "⏹ Stop Laury" : "🔊 Meet Laury"}
             </BigButton>
           </div>
