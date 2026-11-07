@@ -123,7 +123,7 @@ export default function App() {
       if (lauryVoiceRef.current !== clip) return;
       lauryVoiceRef.current = null;
       setLaurySpeaking(false);
-      if (songRef.current && settingsRef.current.music && !settingsRef.current.quiet && (phaseRef.current === "playing" || phaseRef.current === "color" || phaseRef.current === "shape")) fadeSong("in", 2000);
+      if (songRef.current && settingsRef.current.music && !settingsRef.current.quiet && (phaseRef.current === "playing" || phaseRef.current === "color" || phaseRef.current === "shape" || phaseRef.current === "galaxy" || phaseRef.current === "farm" || phaseRef.current === "forest" || phaseRef.current === "bamboo")) fadeSong("in", 2000);
     };
     clip.onended = finish;
     clip.onerror = finish;
@@ -241,7 +241,7 @@ export default function App() {
     e.setLearningGame(game);
     if (game > 5) e.start("relaxed");
     setPhase(game === 0 ? "color" : game === 1 ? "shape" : game === 2 ? "galaxy" : game === 3 ? "farm" : game === 4 ? "forest" : game === 5 ? "bamboo" : "playing");
-    phaseRef.current = game === 0 ? "color" : game === 1 ? "shape" : "playing";
+    phaseRef.current = game === 0 ? "color" : game === 1 ? "shape" : game === 2 ? "galaxy" : game === 3 ? "farm" : game === 4 ? "forest" : game === 5 ? "bamboo" : "playing";
     playLaury(game);
   }, [playLaury, stopLaury]);
 
@@ -344,7 +344,7 @@ export default function App() {
       {(phase === "playing" || phase === "paused") && <Hud hud={hud} onPause={pause} onExit={home} />}
       {phase === "playing" && settings.sound && <button type="button" onClick={() => playLaury(selectedGameRef.current)} aria-label="Hear Laury instructions again" className="absolute right-3 top-[max(6.5rem,calc(env(safe-area-inset-top)+5.75rem))] z-30 flex h-14 w-14 items-center justify-center rounded-full border-2 border-white bg-[#7750f7] text-xl text-white shadow-lg sm:left-4 sm:right-auto sm:top-28 sm:h-auto sm:w-auto sm:px-4 sm:py-2 sm:text-sm"><span className="sm:hidden" aria-hidden="true">{laurySpeaking ? "🔈" : "🔊"}</span><span className="hidden sm:inline">{laurySpeaking ? "🔊 Laury is speaking…" : "🔊 Hear Laury Again"}</span></button>}
 
-      {phase === "bamboo" && <BambooListenWorld settings={settings} onHome={home} onHearLaury={() => playLaury(5)} onInteract={resumeSong} onFinalAnswer={() => fadeSong("out", 3000)} onFinish={(score) => {
+      {phase === "bamboo" && <BambooListenWorld settings={settings} introPlaying={laurySpeaking} onQuestionAudioStart={() => { cancelFade(); songRef.current?.pause(); }} onQuestionAudioEnd={() => { if (settingsRef.current.music && !settingsRef.current.quiet && phaseRef.current === "bamboo") fadeSong("in", 1200); }} onHome={home} onHearLaury={() => playLaury(5)} onInteract={resumeSong} onFinalAnswer={() => fadeSong("out", 3000)} onFinish={(score) => {
         stopLaury();
         setAdventureStars(previous => {
           const next = awardAdventureStars(previous, 5, score);
