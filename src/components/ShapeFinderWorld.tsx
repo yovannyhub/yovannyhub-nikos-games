@@ -1,3 +1,4 @@
+import { WorldScenery } from "./WorldScenery";
 import { useEffect, useRef, useState } from "react";
 import type { Settings } from "../game/types";
 
@@ -38,14 +39,15 @@ export function ShapeFinderWorld({ settings, onFinish, onHome, onHearLaury, onIn
       else { setStep(v => v + 1); setFeedback(""); setBusy(false); }
     }, settings.calm ? 450 : 800);
   }
-  return <div className="absolute inset-0 z-20 overflow-y-auto bg-gradient-to-b from-[#a5e8fa] via-[#c9f5f1] to-[#7acbd8] px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] text-center text-[#23415b]">
-    <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col items-center justify-center gap-3 py-2">
+  return <div className="absolute inset-0 z-20 overflow-y-auto px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] text-center text-[#23415b]">
+    <WorldScenery world="ocean" calm={settings.calm} />
+    <div className="relative z-10 mx-auto flex min-h-full w-full max-w-3xl flex-col items-center justify-center gap-3 py-2">
       <div className="flex w-full items-center justify-between gap-2">
         <button type="button" className="min-h-12 rounded-full bg-white px-3 font-bold" onClick={() => confirmExit ? onHome() : setConfirmExit(true)}>{confirmExit ? "Tap again to exit" : "🏠 Home"}</button>
         <span className="rounded-full bg-white px-3 py-2 text-sm font-bold">🐠 Ocean World · {step + 1}/10</span>
         <button type="button" className="min-h-12 rounded-full bg-[#7750f7] px-3 font-bold text-white" onClick={onHearLaury}>🔊 Laury</button>
       </div>
-      <div className="w-full rounded-[2rem] border-4 border-white bg-white/90 p-4 shadow-lg sm:p-7">
+      <div className="w-full rounded-[2rem] border-4 border-white bg-white/95 p-4 shadow-lg sm:p-7">
         <div className="text-4xl" aria-hidden="true">🐠 🐢 🪸</div>
         <h2 className="mt-2 text-2xl font-extrabold sm:text-4xl">Shape Finder!</h2>
         <p className="mt-2 font-semibold">Find the shape that matches this picture:</p>
