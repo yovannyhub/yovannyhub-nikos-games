@@ -6,6 +6,7 @@ import { BigButton, Panel, SettingsToggles } from "./ui";
 
 interface Props {
   settings: Settings;
+  adventureStars: number[];
   onChange: (s: Partial<Settings>) => void;
   onPlay: (adventure: number) => void;
   scores: ScoreEntry[];
@@ -15,7 +16,7 @@ interface Props {
 const TITLE = "Niko's Games";
 const TITLE_COLORS = ["#ff7ab6", "#ffb000", "#3cc68a", "#4aa8ff", "#7c5cff"];
 
-export function StartScreen({ settings, onChange, onPlay, scores, onClearScores }: Props) {
+export function StartScreen({ settings, adventureStars, onChange, onPlay, scores, onClearScores }: Props) {
   const [view, setView] = useState<"main" | "scores" | "grownups">("main");
   const [confirmClear, setConfirmClear] = useState(false);
   const [selectedAdventure, setSelectedAdventure] = useState(0);
@@ -146,7 +147,7 @@ export function StartScreen({ settings, onChange, onPlay, scores, onClearScores 
                     type="button"
                     role="radio"
                     aria-checked={selected}
-                    aria-label={`World ${index + 1}: ${adventure.title}, ${adventure.world}`}
+                    aria-label={`World ${index + 1}: ${adventure.title}, ${adventure.world}, ${adventureStars[index] || 0} of 3 stars earned`}
                     onClick={() => {
                       setSelectedAdventure(index);
                       onChange({ mode: "relaxed", friend: index === 1 ? "fish" : "kitty" });
@@ -160,6 +161,7 @@ export function StartScreen({ settings, onChange, onPlay, scores, onClearScores 
                     <span className="text-5xl drop-shadow-sm sm:text-6xl" aria-hidden="true">{adventure.icon}</span>
                     <span className="mt-1 text-sm font-extrabold leading-tight text-[#3b2f4a]">{adventure.title}</span>
                     <span className="text-[11px] font-semibold text-[#695a7a]">{adventure.world}</span>
+                    <span className="mt-1 text-base font-extrabold tracking-wide" aria-hidden="true">{Array.from({ length: 3 }, (_, star) => star < (adventureStars[index] || 0) ? "⭐" : "☆").join("")}</span>
                     {selected && <span className="mt-1 rounded-full bg-[#7750f7] px-2 py-0.5 text-[10px] font-bold text-white">SELECTED ✓</span>}
                   </button>
                 );
