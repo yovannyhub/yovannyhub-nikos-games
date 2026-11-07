@@ -48,16 +48,17 @@ export function BigButton({
   );
 }
 
-const TOGGLES: { key: "sound" | "music" | "calm" | "slow"; on: string; off: string; label: string; help: string }[] = [
+const TOGGLES: { key: "sound" | "music" | "calm" | "slow" | "quiet"; on: string; off: string; label: string; help: string }[] = [
   { key: "sound", on: "🔊", off: "🔈", label: "Sounds", help: "Gentle sound effects" },
   { key: "music", on: "🎵", off: "🎵", label: "Music", help: "Soft background music" },
   { key: "calm", on: "🌙", off: "✨", label: "Calm", help: "No shaking, fewer sparkles" },
   { key: "slow", on: "🐢", off: "🐇", label: "Slow", help: "Everything falls slower" },
+  { key: "quiet", on: "🤫", off: "🎶", label: "Quiet", help: "Mute songs and game effects, but keep Laury speaking" },
 ];
 
 export function SettingsToggles({ settings, onChange }: { settings: Settings; onChange: (s: Partial<Settings>) => void }) {
   return (
-    <div className="grid grid-cols-4 gap-2" role="group" aria-label="Settings">
+    <div className="grid grid-cols-3 gap-2 sm:grid-cols-5" role="group" aria-label="Settings">
       {TOGGLES.map((t) => {
         const on = settings[t.key];
         return (
@@ -70,7 +71,7 @@ export function SettingsToggles({ settings, onChange }: { settings: Settings; on
             title={t.help}
             onClick={() => {
               onChange({ [t.key]: !on });
-              audio.click();
+              if (!settings.quiet && t.key !== "quiet") audio.click();
             }}
             className={`flex min-h-[64px] cursor-pointer flex-col items-center justify-center rounded-2xl border-4 px-1 py-1 text-sm font-semibold transition-colors ${
               on ? "border-[#7c5cff] bg-[#efeaff] text-[#3b2f4a]" : "border-[#eee] bg-white text-[#9a92a8]"
