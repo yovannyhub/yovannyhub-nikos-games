@@ -53,7 +53,7 @@ export default function App() {
   const songRef = useRef<HTMLAudioElement | null>(null);
   const stopSong = () => { songRef.current?.pause(); songRef.current = null; };
   const resumeSong = () => {
-    if (songRef.current && settingsRef.current.music && phaseRef.current === "playing" && !lauryVoiceRef.current)
+    if (songRef.current && settingsRef.current.music && !settingsRef.current.quiet && phaseRef.current === "playing" && !lauryVoiceRef.current)
       void songRef.current.play().catch(() => {});
   };
   const [laurySpeaking, setLaurySpeaking] = useState(false);
@@ -133,10 +133,10 @@ export default function App() {
       e.setFriend(settings.friend);
       e.setOptions({ calm: settings.calm, slow: settings.slow });
     }
-    audio.soundOn = settings.sound;
-    audio.musicOn = settings.music;
+    audio.soundOn = settings.sound && !settings.quiet;
+    audio.musicOn = settings.music && !settings.quiet;
     audio.stopMusic();
-    if (!settings.music) songRef.current?.pause();
+    if (!settings.music || settings.quiet) songRef.current?.pause();
     else resumeSong();
   }, [settings]);
 
@@ -151,8 +151,8 @@ export default function App() {
     if (!e) return;
     const s = settingsRef.current;
     audio.unlock();
-    audio.soundOn = s.sound;
-    audio.musicOn = s.music;
+    audio.soundOn = s.sound && !s.quiet;
+    audio.musicOn = s.music && !s.quiet;
     stopLaury();
     stopSong();
     audio.stopMusic();
@@ -189,7 +189,7 @@ export default function App() {
     if (phaseRef.current !== "paused") return;
     engineRef.current?.resume();
     setPhase("playing");
-    if (settingsRef.current.music && songRef.current) void songRef.current.play().catch(() => {});
+    if (settingsRef.current.music && !settingsRef.current.quiet && songRef.current) void songRef.current.play().catch(() => {});
   }, []);
 
   const home = useCallback(() => {
