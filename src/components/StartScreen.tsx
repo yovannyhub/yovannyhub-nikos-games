@@ -61,37 +61,61 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
   }
 
   if (view === "grownups") {
+    const worldGuides = [
+      ["🌈", "1 · Sunny Meadow", "Match colors by tapping the correct choice."],
+      ["🔷", "2 · Ocean World", "Find and tap the matching shape."],
+      ["🚀", "3 · Galaxy", "Practice counting in a space-themed activity."],
+      ["🐷", "4 · Happy Farm", "Remember and match pictures."],
+      ["🦊", "5 · Forest", "Explore feelings and facial expressions."],
+      ["🐼", "6 · Bamboo Forest", "Listen to Laury and find the named animal."],
+      ["❄️", "7 · Snow World", "Catch matching pictures for water, food, and help."],
+      ["☀️", "8 · Savanna", "Match daily routines like waking up and brushing teeth."],
+      ["🐉", "9 · Dragon Valley", "Catch the matching animal: cow, duck, or frog."],
+      ["🏰", "10 · Magic Kingdom", "A final matching challenge with colors, shapes, and animals."],
+    ];
     return (
       <Overlay>
-        <Panel className="w-full max-w-md">
-          <h2 className="mb-1 text-center text-2xl font-bold">👋 For grown-ups</h2>
-          <p className="mb-3 text-center text-sm font-semibold text-[#8a809a]">Niko&apos;s Games · made for little hands and busy minds</p>
-          <div className="space-y-4 text-sm leading-relaxed text-[#4a3f5c] sm:text-base">
+        <Panel className="w-full max-w-2xl">
+          <div className="text-center">
+            <p className="text-sm font-bold text-[#7c5cff]">A GUIDE FOR PARENTS & CAREGIVERS</p>
+            <h2 className="mt-1 text-3xl font-extrabold text-[#48316e]">👋 Welcome, grown-ups!</h2>
+            <p className="mt-2 text-sm font-medium leading-relaxed text-[#6b6080]">Niko's Great Adventure is a gentle, replayable journey through 10 learning worlds. Play alongside your child, celebrate trying, and go at their pace.</p>
+          </div>
+          <div className="mt-5 space-y-4 text-sm leading-relaxed text-[#4a3f5c] sm:text-base">
             <section className="rounded-2xl bg-[#f6f2ff] p-4">
-              <h3 className="mb-2 text-lg font-extrabold text-[#48316e]">🎮 How to play today</h3>
-              <p>Choose an unlocked world on the home screen, then tap <b>Play World</b>. <b>World 1 — Color Match</b> and <b>World 2 — Shape Finder</b> are tap-to-match activities with 10 rounds each and no timer. Worlds 3–10 currently use the catching activity: move Niko's friend left and right to catch matching falling objects in a round of about <b>90 seconds</b>. Each world has its own theme, song and spoken introduction.</p>
-              <p className="mt-2">In Worlds 1 and 2, tap the matching color or shape. In Worlds 3–10, touch and slide to move on a phone or tablet; on a computer, use the left/right arrow keys or A/D. Tap <b>Hear Laury Again</b> during a round to repeat the introduction.</p>
-            </section>
-            <section className="rounded-2xl bg-[#effaf4] p-4">
-              <h3 className="mb-2 text-lg font-extrabold text-[#26734e]">⭐ Stars and unlocking worlds</h3>
-              <p>Finishing a world earns <b>1 to 3 stars</b> based on points. Worlds 1 and 2 award points for correct matches; the remaining worlds award points for catches. Even a low score earns a star. Completing a world unlocks the next one. Your best star result for each world stays saved on this device.</p>
-              <p className="mt-2">After a round, choose <b>Next World</b>, <b>Play Again</b>, or <b>Home</b>. The home screen also offers <b>Continue Adventure</b> once a world has been completed.</p>
-            </section>
-            <section className="rounded-2xl bg-[#fff7e5] p-4">
-              <h3 className="mb-2 text-lg font-extrabold text-[#795514]">🌙 Sensory-friendly choices</h3>
-              <p><b>Quiet</b> turns off music and game effects while keeping Laury's recorded instructions. <b>Music</b> controls world songs. <b>Sounds</b> controls effects and the Laury instruction button. <b>Calm</b> reduces decorative movement and celebration effects. <b>Slow</b> slows the falling objects.</p>
-              <p className="mt-2">You can change these options on the home screen or while paused. They are remembered on this device. If your child needs a break, use the pause button during play.</p>
+              <h3 className="mb-2 text-lg font-extrabold text-[#48316e]">🗺️ Explore the 10 worlds</h3>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {worldGuides.map(([icon, title, description]) => (
+                  <div key={title} className="rounded-xl bg-white/85 p-3">
+                    <p className="font-extrabold text-[#48316e]">{icon} {title}</p>
+                    <p className="mt-1 text-sm text-[#665a75]">{description}</p>
+                  </div>
+                ))}
+              </div>
             </section>
             <section className="rounded-2xl bg-[#eef6ff] p-4">
-              <h3 className="mb-2 text-lg font-extrabold text-[#315c8e]">👨‍👩‍👧 Helpful notes for parents</h3>
-              <p>Children can repeat worlds as often as they like. Encourage exploration rather than focusing on points. For very young children, play together and demonstrate sliding left and right.</p>
-              <p className="mt-2">The <b>Star Board</b> stores local scores. <b>Reset adventure progress</b> below clears earned stars and world unlocks, but keeps the Star Board. The reset requires confirmation.</p>
-              <p className="mt-2">The world names preview future learning themes. Worlds 1 and 2 now have dedicated color and shape matching activities. Dedicated counting, memory, feelings and communication activities for later worlds are still planned. Niko's Games is educational play, not a medical treatment or therapy.</p>
+              <h3 className="mb-2 text-lg font-extrabold text-[#315c8e]">🎮 How to play</h3>
+              <p>Choose an unlocked world on the home screen and tap <b>Play World</b>. For matching activities, tap the answer. For catching activities, move left and right by touching and sliding on a phone or tablet, or using the arrow keys or A/D on a computer.</p>
+              <p className="mt-2">Laury's prerecorded voice introduces each world. Use <b>Hear Laury Again</b> when available to repeat the instructions. Children can retry worlds as often as they wish.</p>
+            </section>
+            <section className="rounded-2xl bg-[#effaf4] p-4">
+              <h3 className="mb-2 text-lg font-extrabold text-[#26734e]">⭐ Stars and progress</h3>
+              <p>Completing a world earns <b>1–3 stars</b> based on points and unlocks the next world. The best stars earned in each world are saved on this device. Use <b>Continue Adventure</b> to pick up where your child left off, or replay a favorite world.</p>
+              <p className="mt-2">The <b>Star Board</b> stores scores locally on this device. Progress and scores are separate: resetting the adventure below does not clear the Star Board.</p>
+            </section>
+            <section className="rounded-2xl bg-[#fff7e5] p-4">
+              <h3 className="mb-2 text-lg font-extrabold text-[#795514]">🌙 Make play comfortable</h3>
+              <p><b>Quiet</b> removes background music and game effects while keeping spoken guidance. <b>Music</b> and <b>Sounds</b> offer more audio control. <b>Calm</b> reduces decorative movement and celebration effects; <b>Slow</b> slows falling objects in catching worlds.</p>
+              <p className="mt-2">Adjust settings on the home screen or when paused. They are remembered on this device. Take breaks whenever needed, and try playing together if your child wants extra support.</p>
+            </section>
+            <section className="rounded-2xl bg-[#fff1f5] p-4">
+              <h3 className="mb-2 text-lg font-extrabold text-[#8d3f62]">💛 A note for families</h3>
+              <p>Every child learns differently. There is no need to rush, chase high scores, or finish every world in one sitting. Niko's Games supports playful practice; it is <b>not a medical treatment, diagnostic tool, or replacement for professional therapy</b>.</p>
             </section>
           </div>
-          <button type="button" className="mt-4 w-full rounded-2xl border-2 border-[#d6c4f5] bg-[#f7f0ff] px-3 py-3 text-sm font-bold text-[#65428c]" onClick={() => { if (confirmResetAdventure) { onResetAdventure(); setSelectedAdventure(0); setConfirmResetAdventure(false); setView("main"); } else setConfirmResetAdventure(true); }}>{confirmResetAdventure ? "Confirm: reset stars and unlocks (keep Star Board)" : "🔄 Reset adventure progress (grown-ups)"}</button>
+          <button type="button" className="mt-5 w-full rounded-2xl border-2 border-[#d6c4f5] bg-[#f7f0ff] px-3 py-3 text-sm font-bold text-[#65428c]" onClick={() => { if (confirmResetAdventure) { onResetAdventure(); setSelectedAdventure(0); setConfirmResetAdventure(false); setView("main"); } else setConfirmResetAdventure(true); }}>{confirmResetAdventure ? "Confirm: reset stars and unlocks (keep Star Board)" : "🔄 Reset adventure progress (grown-ups)"}</button>
           <BigButton color="purple" className="mt-4 w-full" onClick={() => setView("main")} autoFocus>
-            ← Back
+            ← Back to adventure
           </BigButton>
         </Panel>
       </Overlay>
