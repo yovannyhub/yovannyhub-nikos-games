@@ -25,6 +25,9 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
   const lastCompleted = adventureStars.reduce((last, value, index) => value > 0 ? index : last, -1);
   const unlockedThrough = Math.min(9, lastCompleted + 1);
   const playableSelection = Math.min(selectedAdventure, unlockedThrough);
+  const completedCount = adventureStars.filter(stars => stars > 0).length;
+  const nextWorld = adventureStars.findIndex(stars => stars === 0);
+  const continueWorld = nextWorld < 0 ? 9 : Math.min(nextWorld, unlockedThrough);
 
   if (view === "scores") {
     return (
@@ -169,6 +172,7 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
                     <span className="text-5xl drop-shadow-sm sm:text-6xl" aria-hidden="true">{adventure.icon}</span>
                     <span className="mt-1 text-sm font-extrabold leading-tight text-[#3b2f4a]">{adventure.title}</span>
                     <span className="text-[11px] font-semibold text-[#695a7a]">{adventure.world}</span>
+                    {(adventureStars[index] || 0) > 0 && <span className="absolute right-2 top-1 rounded-full bg-white px-1.5 py-0.5 text-sm font-extrabold text-[#24845b]" aria-label="Completed">✓</span>}
                     {!unlocked && <span className="absolute right-2 top-1 rounded-full bg-white px-1.5 py-0.5 text-sm" aria-hidden="true">🔒</span>}
                     <span className="mt-1 text-base font-extrabold tracking-wide" aria-hidden="true">{Array.from({ length: 3 }, (_, star) => star < (adventureStars[index] || 0) ? "⭐" : "☆").join("")}</span>
                     {selected && <span className="mt-1 rounded-full bg-[#7750f7] px-2 py-0.5 text-[10px] font-bold text-white">SELECTED ✓</span>}
@@ -179,6 +183,9 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
           </div>
           <div className="mx-auto mt-4 flex max-w-xl flex-col items-center gap-3">
             <p className="text-center text-sm font-bold text-[#655478]">🔓 {unlockedThrough + 1} of 10 worlds unlocked · Finish a world to open the next!</p>
+            {completedCount > 0 && <BigButton color="green" onClick={() => onPlay(continueWorld)} className="w-full py-3 text-xl" ariaLabel={completedCount === 10 ? "Replay final world" : `Continue adventure at world ${continueWorld + 1}`}>
+              {completedCount === 10 ? "🌟 Replay the Final World" : `✨ Continue Adventure · World ${continueWorld + 1}`}
+            </BigButton>}
             <BigButton color="pink" onClick={() => onPlay(playableSelection)} className="w-full py-4 text-2xl" ariaLabel={`Play world ${playableSelection + 1}`}>
               ▶ Play World {playableSelection + 1}!
             </BigButton>
