@@ -13,8 +13,8 @@ function Shape({ index, size = 84 }: { index: number; size?: number }) {
   const shape = SHAPES[index];
   return <svg width={size} height={size} viewBox="0 0 100 100" role="img" aria-label={shape.name.toLowerCase()}><path d={shape.path} fill={shape.color} stroke="#ffffff" strokeWidth="5" strokeLinejoin="round" /></svg>;
 }
-export function ShapeFinderWorld({ settings, onFinish, onHome, onHearLaury }: {
-  settings: Settings; onFinish: (score: number) => void; onHome: () => void; onHearLaury: () => void;
+export function ShapeFinderWorld({ settings, onFinish, onHome, onHearLaury, onInteract }: {
+  settings: Settings; onFinish: (score: number) => void; onHome: () => void; onHearLaury: () => void; onInteract: () => void;
 }) {
   const [step, setStep] = useState(0);
   const [correct, setCorrect] = useState(0);
@@ -27,6 +27,7 @@ export function ShapeFinderWorld({ settings, onFinish, onHome, onHearLaury }: {
   const choices = [target, (target + 1) % 5, (target + 3) % 5];
   const ordered = step % 3 === 0 ? choices : step % 3 === 1 ? [choices[1], choices[0], choices[2]] : [choices[2], choices[1], choices[0]];
   function choose(index: number) {
+    onInteract();
     if (busy) return;
     if (index !== target) { setFeedback("Good try! Look for the " + SHAPES[target].name.toLowerCase() + "."); return; }
     setBusy(true);
