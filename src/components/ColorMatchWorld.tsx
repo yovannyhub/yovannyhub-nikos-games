@@ -12,8 +12,8 @@ const COLORS = [
 ];
 const TARGETS = [0, 1, 2, 3, 4, 5, 1, 3, 0, 2];
 
-export function ColorMatchWorld({ settings, onFinish, onHome, onHearLaury }: {
-  settings: Settings; onFinish: (score: number) => void; onHome: () => void; onHearLaury: () => void;
+export function ColorMatchWorld({ settings, onFinish, onHome, onHearLaury, onFinalAnswer }: {
+  settings: Settings; onFinish: (score: number) => void; onHome: () => void; onHearLaury: () => void; onFinalAnswer: () => void;
 }) {
   const [step, setStep] = useState(0);
   const [correct, setCorrect] = useState(0);
@@ -26,12 +26,13 @@ export function ColorMatchWorld({ settings, onFinish, onHome, onHearLaury }: {
     if (busy) return;
     if (name !== target.name) { setFeedback("Good try! Find " + target.name.toLowerCase() + "."); return; }
     setBusy(true);
+    if (step === TARGETS.length - 1) onFinalAnswer();
     setFeedback("Wonderful! That's " + target.name.toLowerCase() + "! ⭐");
     setCorrect(c => c + 1);
     window.setTimeout(() => {
       if (step === TARGETS.length - 1) onFinish((correct + 1) * 100);
       else { setStep(v => v + 1); setFeedback(""); setBusy(false); }
-    }, settings.calm ? 450 : 800);
+    }, step === TARGETS.length - 1 ? 3500 : settings.calm ? 450 : 800);
   }
   return (
     <div className="absolute inset-0 z-20 overflow-y-auto px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] text-center text-[#3b2f4a]">
