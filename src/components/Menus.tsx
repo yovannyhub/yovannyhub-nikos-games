@@ -60,8 +60,16 @@ export function GameOver({
   playerName,
   onRestart,
   onHome,
+  onNextWorld,
+  worldNumber,
+  earnedStars,
+  calm,
 }: {
   result: GameResult;
+  onNextWorld: (() => void) | null;
+  worldNumber: number;
+  earnedStars: number;
+  calm: boolean;
   scores: ScoreEntry[];
   highlightId: string | null;
   rank: number;
@@ -78,10 +86,12 @@ export function GameOver({
         <div className="anim-floaty flex justify-center">
           <FriendPreview kind={result.friend} size={104} basket />
         </div>
-        <h2 className="text-3xl font-bold sm:text-4xl">Hooray, {who}!</h2>
+        <h2 className="text-3xl font-bold sm:text-4xl">Wonderful job, {who}!</h2>
+        <p className="text-sm font-bold text-[#6b6080]">World {worldNumber} complete · You did it!</p>
         <p className="text-lg font-semibold text-[#7c5cff]">{headline}</p>
         <div className="my-2">
-          <StarRating count={starsFor(result.score)} />
+          <StarRating count={earnedStars || starsFor(result.score)} />
+          <p className="mt-2 text-sm font-semibold text-[#6b6080]">{calm ? "A peaceful finish. Well done!" : "Every step is something to celebrate! 🌟"}</p>
         </div>
         <div className="mx-auto mb-3 inline-flex items-baseline gap-2 rounded-full bg-[#fff6d6] px-6 py-1">
           <span className="text-5xl font-bold tabular-nums text-[#ff9f00]">{result.score}</span>
@@ -93,6 +103,7 @@ export function GameOver({
           <Stat icon="🗺️" value={result.worldsVisited} label={result.worldsVisited === 1 ? "world" : "worlds"} />
         </div>
         <div className="flex flex-col gap-3">
+          {onNextWorld && <BigButton color="green" onClick={onNextWorld} className="py-4 text-2xl">✨ Next World →</BigButton>}
           <BigButton color="pink" onClick={onRestart} autoFocus className="py-4 text-2xl">
             ↻ Play again!
           </BigButton>
