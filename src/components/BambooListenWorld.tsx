@@ -47,6 +47,8 @@ export function BambooListenWorld({settings,onFinish,onHome,onHearLaury,onIntera
  const voice=useRef<HTMLAudioElement|null>(null);
  const speaking=useRef(false);
  const [replay,setReplay]=useState(0);
+ const audioCallbacks=useRef({start:onQuestionAudioStart,end:onQuestionAudioEnd});
+ audioCallbacks.current={start:onQuestionAudioStart,end:onQuestionAudioEnd};
  const target=FRIENDS[round];
  useEffect(()=>()=>{if(timer.current!==null)window.clearTimeout(timer.current);voice.current?.pause();if("speechSynthesis" in window)window.speechSynthesis.cancel();},[]);
  const friends=[round,(round+3)%10,(round+6)%10,(round+8)%10];
@@ -57,8 +59,8 @@ export function BambooListenWorld({settings,onFinish,onHome,onHearLaury,onIntera
    voice.current?.pause();
    if("speechSynthesis" in window)window.speechSynthesis.cancel();
    speaking.current=true;
-   onQuestionAudioStart();
-   const finish=()=>{if(cancelled)return;speaking.current=false;onQuestionAudioEnd();};
+   audioCallbacks.current.start();
+   const finish=()=>{if(cancelled)return;speaking.current=false;audioCallbacks.current.end();};
    const clip=new Audio(`${import.meta.env.BASE_URL}audio/bamboo-question-${String(round+1).padStart(2,"0")}.mp3`);
    voice.current=clip;
    clip.onended=finish;
