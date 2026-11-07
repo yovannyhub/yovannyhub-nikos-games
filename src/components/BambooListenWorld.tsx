@@ -35,8 +35,8 @@ function BambooScene(){
     </svg>
   </div>;
 }
-export function BambooListenWorld({settings,onFinish,onHome,onHearLaury,onInteract,onFinalAnswer}:{
- settings:Settings;onFinish:(score:number)=>void;onHome:()=>void;onHearLaury:()=>void;onInteract:()=>void;onFinalAnswer:()=>void;
+export function BambooListenWorld({settings,onFinish,onHome,onHearLaury,onInteract,onFinalAnswer,onQuestionAudioStart,onQuestionAudioEnd,introPlaying}:{
+ settings:Settings;onFinish:(score:number)=>void;onHome:()=>void;onHearLaury:()=>void;onInteract:()=>void;onFinalAnswer:()=>void;onQuestionAudioStart:()=>void;onQuestionAudioEnd:()=>void;introPlaying:boolean;
 }){
  const [round,setRound]=useState(0);
  const [found,setFound]=useState(false);
@@ -44,23 +44,43 @@ export function BambooListenWorld({settings,onFinish,onHome,onHearLaury,onIntera
  const [hint,setHint]=useState(false);
  const [exit,setExit]=useState(false);
  const timer=useRef<number|null>(null);
+ const voice=useRef<HTMLAudioElement|null>(null);
+ const speaking=useRef(false);
+ const [replay,setReplay]=useState(0);
  const target=FRIENDS[round];
- useEffect(()=>()=>{if(timer.current!==null)window.clearTimeout(timer.current);},[]);
+ useEffect(()=>()=>{if(timer.current!==null)window.clearTimeout(timer.current);voice.current?.pause();if("speechSynthesis" in window)window.speechSynthesis.cancel();},[]);
  const friends=[round,(round+3)%10,(round+6)%10,(round+8)%10];
  const positions=friends.map((index,i)=>({index,spot:SPOTS[(i+round)%SPOTS.length]}));
- function speak(){
-   onInteract();
-   if(settings.quiet||!settings.sound)return;
-   if(!("speechSynthesis" in window))return;
-   window.speechSynthesis.cancel();
-   const u=new SpeechSynthesisUtterance("Can you find the "+target.name+"?");
-   u.rate=settings.slow?.75:.9;u.pitch=1.1;u.volume=.85;
-   window.speechSynthesis.speak(u);
- }
- function choose(index:number){
+ useEffect(()=>{
+   if(introPlaying||!settings.sound||settings.quiet||found)return;
+   let cancelled=false;
+   voice.current?.pause();
+   if("speechSynthesis" in window)window.speechSynthesis.cancel();
+   speaking.current=true;
+   onQuestionAudioStart();
+   const finish=()=>{if(cancelled)return;speaking.current=false;onQuestionAudioEnd();};
+   const clip=new Audio(`${import.meta.env.BASE_URL}audio/bamboo-question-${String(round+1).padStart(2,"0")}.mp3`);
+   voice.current=clip;
+   clip.onended=finish;
+   clip.onerror=()=>{
+     if(cancelled)return;
+     if(!("speechSynthesis" in window)){finish();return;}
+     const utterance=new SpeechSynthesisUtterance("Can you find the "+target.name+"?");
+     utterance.rate=settings.slow?.75:.9;
+     utterance.onend=finish;
+     utterance.onerror=finish;
+     window.speechSynthesis.speak(utterance);
+   };
+   void clip.play().catch(()=>clip.onerror?.(new Event("error")));
+   return ()=>{cancelled=true;clip.pause();if("speechSynthesis" in window)window.speechSynthesis.cancel();if(speaking.current){speaking.current=false;onQuestionAudioEnd();}};
+ },[round,replay,introPlaying,settings.sound,settings.quiet,settings.slow,found]);
+ function speak(){onInteract();setReplay(n=>n+1);}
+  function choose(index:number){
    onInteract();
    if(found)return;
    if(index!==round){setFeedback("That's a "+FRIENDS[index].name+". Keep looking!");return;}
+   voice.current?.pause();
+   if("speechSynthesis" in window)window.speechSynthesis.cancel();
    setFound(true);
    setFeedback("You found the "+target.name+"! ⭐");
    if(round===9)onFinalAnswer();
@@ -81,7 +101,7 @@ export function BambooListenWorld({settings,onFinish,onHome,onHearLaury,onIntera
        <h2 className="text-xl font-extrabold sm:text-2xl">🔎 Listen & Find!</h2>
        <p className="text-lg font-bold">Find the {target.name}!</p>
        <div className="flex gap-2">
-         <button type="button" onClick={speak} className="min-h-11 rounded-full bg-[#7750f7] px-4 font-bold text-white">🔊 Hear question</button>
+         <button type="button" onClick={speak} className="min-h-11 rounded-full bg-[#7750f7] px-4 font-bold text-white">🔊 Repeat question</button>
          <button type="button" onClick={()=>setHint(true)} className="min-h-11 rounded-full bg-[#e3f4d6] px-4 font-bold">💡 Hint</button>
        </div>
        {hint&&<p className="text-sm font-bold">{target.hint}</p>}
