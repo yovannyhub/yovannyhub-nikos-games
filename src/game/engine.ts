@@ -1252,11 +1252,15 @@ export class GameEngine {
     if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 8) {
       const y = (W > H ? Math.min(145, H * 0.29) : Math.min(104, H * 0.16));
       ctx.fillStyle = "rgba(255,255,255,0.97)";
-      ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 65, 22); ctx.fill();
-      ctx.fillStyle = "#5a4d87"; ctx.textAlign = "center"; ctx.font = "bold 20px sans-serif";
-      ctx.fillText(`Find the ${["COW", "DUCK", "FROG"][this.targetAnimal]}!`, W / 2, y + 27);
-      ctx.font = "bold 14px sans-serif";
-      ctx.fillText("Catch the matching animal", W / 2, y + 50);
+      ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 100, 22); ctx.fill();
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.font = '39px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+      ctx.fillText(["🐮", "🦆", "🐸"][this.targetAnimal], W / 2, y + 30);
+      ctx.fillStyle = "#5a4d87"; ctx.font = "bold 18px sans-serif";
+      ctx.fillText(`Find the ${["COW", "DUCK", "FROG"][this.targetAnimal]}!`, W / 2, y + 65);
+      ctx.font = "bold 13px sans-serif";
+      ctx.fillText("Catch the matching animal", W / 2, y + 86);
+      ctx.textBaseline = "alphabetic";
     }
     if (this.state === "playing" && this.mode === "relaxed" && this.learningGame === 9) {
       const labels = ["RED", "BLUE", "YELLOW", "CIRCLE", "SQUARE", "TRIANGLE", "COW", "DUCK", "FROG"];
