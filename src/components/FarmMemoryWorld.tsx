@@ -64,7 +64,7 @@ export function FarmMemoryWorld({settings,onFinish,onHome,onHearLaury,onInteract
         <button type="button" className="min-h-12 rounded-full bg-[#7750f7] px-3 font-bold text-white" onClick={onHearLaury}>🔊 Laury</button>
       </div>
       <div className="w-full rounded-[2rem] border-4 border-white bg-white/95 p-4 shadow-lg sm:p-7">
-        <div className="text-4xl" aria-hidden="true">🐷 🐮 🐥</div>
+        <div className="text-5xl" aria-hidden="true">{ANIMALS[target].emoji}</div>
         <h2 className="mt-2 text-2xl font-extrabold sm:text-4xl">Farm Animal Friends!</h2>
         <p className="mt-2 text-xl font-extrabold text-[#6c43aa]">Which one is the {ANIMALS[target].name}?</p>
         <p className="mt-1 text-sm font-semibold">Tap the correct animal.</p>
