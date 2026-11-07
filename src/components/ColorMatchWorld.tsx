@@ -1,3 +1,4 @@
+import { WorldScenery } from "./WorldScenery";
 import { useState } from "react";
 import type { Settings } from "../game/types";
 
@@ -33,14 +34,15 @@ export function ColorMatchWorld({ settings, onFinish, onHome, onHearLaury }: {
     }, settings.calm ? 450 : 800);
   }
   return (
-    <div className="absolute inset-0 z-20 overflow-y-auto bg-gradient-to-b from-[#c9ecff] via-[#e9f7d9] to-[#bde9a6] px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] text-center text-[#3b2f4a]">
-      <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col items-center justify-center gap-3 py-2">
+    <div className="absolute inset-0 z-20 overflow-y-auto px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] text-center text-[#3b2f4a]">
+      <WorldScenery world="meadow" calm={settings.calm} />
+      <div className="relative z-10 mx-auto flex min-h-full w-full max-w-3xl flex-col items-center justify-center gap-3 py-2">
         <div className="flex w-full items-center justify-between gap-2">
           <button type="button" className="min-h-12 rounded-full bg-white px-3 font-bold" onClick={() => confirmExit ? onHome() : setConfirmExit(true)}>{confirmExit ? "Tap again to exit" : "🏠 Home"}</button>
           <span className="rounded-full bg-white px-3 py-2 text-sm font-bold">🌼 World 1 · {step + 1}/10</span>
           <button type="button" className="min-h-12 rounded-full bg-[#7750f7] px-3 font-bold text-white" onClick={onHearLaury}>🔊 Laury</button>
         </div>
-        <div className="w-full rounded-[2rem] border-4 border-white bg-white/90 p-4 shadow-lg sm:p-7">
+        <div className="w-full rounded-[2rem] border-4 border-white bg-white/95 p-4 shadow-lg sm:p-7">
           <div className="text-4xl" aria-hidden="true">🐱 🌷 🦋</div>
           <h2 className="mt-2 text-2xl font-extrabold sm:text-4xl">Find the matching color!</h2>
           <p className="mt-2 font-semibold">Tap the color that matches:</p>
