@@ -208,7 +208,7 @@ export function Overlay({ children, dim = false }: { children: ReactNode; dim?: 
       className={`absolute inset-0 z-20 flex justify-center overflow-y-auto px-4 py-6 ${dim ? "bg-[#3b2f4a]/35" : ""}`}
       style={{ paddingTop: "max(1.5rem, env(safe-area-inset-top))", paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
     >
-      <div className="my-auto flex w-full justify-center">{children}</div>
+      <div className="my-auto flex min-w-0 w-full justify-center">{children}</div>
     </div>
   );
 }
