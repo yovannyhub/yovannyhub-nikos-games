@@ -20,6 +20,9 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
   const [view, setView] = useState<"main" | "scores" | "grownups">("main");
   const [confirmClear, setConfirmClear] = useState(false);
   const [selectedAdventure, setSelectedAdventure] = useState(0);
+  const lastCompleted = adventureStars.reduce((last, value, index) => value > 0 ? index : last, -1);
+  const unlockedThrough = Math.min(9, lastCompleted + 1);
+  const playableSelection = Math.min(selectedAdventure, unlockedThrough);
 
   if (view === "scores") {
     return (
@@ -140,27 +143,30 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
                 { icon: "🐉", title: "Animal Friends", world: "Dragon World", color: "#e1d0ff" },
                 { icon: "🦄", title: "Big Challenge", world: "Magic World", color: "#ffd6f2" },
               ].map((adventure, index) => {
-                const selected = selectedAdventure === index;
+                const selected = playableSelection === index;
+                const unlocked = index <= unlockedThrough;
                 return (
                   <button
                     key={adventure.title}
                     type="button"
                     role="radio"
                     aria-checked={selected}
-                    aria-label={`World ${index + 1}: ${adventure.title}, ${adventure.world}, ${adventureStars[index] || 0} of 3 stars earned`}
+                    disabled={!unlocked}
+                    aria-label={`World ${index + 1}: ${adventure.title}, ${adventure.world}, ${adventureStars[index] || 0} of 3 stars earned${unlocked ? "" : ", locked"}`}
                     onClick={() => {
                       setSelectedAdventure(index);
                       onChange({ mode: "relaxed", friend: index === 1 ? "fish" : "kitty" });
                       audio.unlock();
                       audio.click();
                     }}
-                    className={`relative z-10 flex min-h-[140px] flex-col items-center justify-center rounded-[1.5rem] border-[3px] p-2 text-center shadow-md transition-transform hover:-translate-y-1 sm:min-h-[155px] ${selected ? "border-[#7750f7] ring-4 ring-[#ac94ff] scale-[1.03]" : "border-white"}`}
+                    className={`relative z-10 flex min-h-[140px] flex-col items-center justify-center rounded-[1.5rem] border-[3px] p-2 text-center shadow-md transition-transform hover:-translate-y-1 sm:min-h-[155px] ${selected ? "border-[#7750f7] ring-4 ring-[#ac94ff] scale-[1.03]" : unlocked ? "border-white" : "border-white opacity-55 grayscale"}`}
                     style={{backgroundColor:adventure.color}}
                   >
                     <span className="absolute left-2 top-1 rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-extrabold text-[#58436d]">{index + 1}</span>
                     <span className="text-5xl drop-shadow-sm sm:text-6xl" aria-hidden="true">{adventure.icon}</span>
                     <span className="mt-1 text-sm font-extrabold leading-tight text-[#3b2f4a]">{adventure.title}</span>
                     <span className="text-[11px] font-semibold text-[#695a7a]">{adventure.world}</span>
+                    {!unlocked && <span className="absolute right-2 top-1 rounded-full bg-white px-1.5 py-0.5 text-sm" aria-hidden="true">🔒</span>}
                     <span className="mt-1 text-base font-extrabold tracking-wide" aria-hidden="true">{Array.from({ length: 3 }, (_, star) => star < (adventureStars[index] || 0) ? "⭐" : "☆").join("")}</span>
                     {selected && <span className="mt-1 rounded-full bg-[#7750f7] px-2 py-0.5 text-[10px] font-bold text-white">SELECTED ✓</span>}
                   </button>
@@ -169,9 +175,9 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
             </div>
           </div>
           <div className="mx-auto mt-4 flex max-w-xl flex-col items-center gap-3">
-            <p className="text-center text-sm font-bold text-[#655478]">✨ All 10 worlds are ready to explore!</p>
-            <BigButton color="pink" onClick={() => onPlay(selectedAdventure)} className="w-full py-4 text-2xl" ariaLabel={`Play world ${selectedAdventure + 1}`}>
-              ▶ Play World {selectedAdventure + 1}!
+            <p className="text-center text-sm font-bold text-[#655478]">🔓 {unlockedThrough + 1} of 10 worlds unlocked · Finish a world to open the next!</p>
+            <BigButton color="pink" onClick={() => onPlay(playableSelection)} className="w-full py-4 text-2xl" ariaLabel={`Play world ${playableSelection + 1}`}>
+              ▶ Play World {playableSelection + 1}!
             </BigButton>
           </div>
         </section>
