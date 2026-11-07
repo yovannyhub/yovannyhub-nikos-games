@@ -14,8 +14,8 @@ function Shape({ index, size = 84 }: { index: number; size?: number }) {
   const shape = SHAPES[index];
   return <svg width={size} height={size} viewBox="0 0 100 100" role="img" aria-label={shape.name.toLowerCase()}><path d={shape.path} fill={shape.color} stroke="#ffffff" strokeWidth="5" strokeLinejoin="round" /></svg>;
 }
-export function ShapeFinderWorld({ settings, onFinish, onHome, onHearLaury, onInteract }: {
-  settings: Settings; onFinish: (score: number) => void; onHome: () => void; onHearLaury: () => void; onInteract: () => void;
+export function ShapeFinderWorld({ settings, onFinish, onHome, onHearLaury, onInteract, onFinalAnswer }: {
+  settings: Settings; onFinish: (score: number) => void; onHome: () => void; onHearLaury: () => void; onInteract: () => void; onFinalAnswer: () => void;
 }) {
   const [step, setStep] = useState(0);
   const [correct, setCorrect] = useState(0);
@@ -32,12 +32,13 @@ export function ShapeFinderWorld({ settings, onFinish, onHome, onHearLaury, onIn
     if (busy) return;
     if (index !== target) { setFeedback("Good try! Look for the " + SHAPES[target].name.toLowerCase() + "."); return; }
     setBusy(true);
+    if (step === TARGETS.length - 1) onFinalAnswer();
     setCorrect(v => v + 1);
     setFeedback("You found the " + SHAPES[target].name.toLowerCase() + "! ⭐");
     timer.current = window.setTimeout(() => {
       if (step === TARGETS.length - 1) onFinish((correct + 1) * 100);
       else { setStep(v => v + 1); setFeedback(""); setBusy(false); }
-    }, settings.calm ? 450 : 800);
+    }, step === TARGETS.length - 1 ? 3500 : settings.calm ? 450 : 800);
   }
   return <div className="absolute inset-0 z-20 overflow-y-auto px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] text-center text-[#23415b]">
     <WorldScenery world="ocean" calm={settings.calm} />
