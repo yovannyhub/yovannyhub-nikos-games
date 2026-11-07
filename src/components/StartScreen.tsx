@@ -66,34 +66,28 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
         <Panel className="w-full max-w-md">
           <h2 className="mb-1 text-center text-2xl font-bold">👋 For grown-ups</h2>
           <p className="mb-3 text-center text-sm font-semibold text-[#8a809a]">Niko&apos;s Games · made for little hands and busy minds</p>
-          <ul className="flex list-none flex-col gap-2 text-base leading-snug text-[#4a3f5c]">
-            <li>🌈 <b>Relaxed</b> mode has no obstacles and no losing — just a 90-second round of catching treats.</li>
-            <li>⛰️ <b>Adventure</b> adds slow grumpy clouds to dodge, with 3 hearts and heart refills.</li>
-            <li>🎶 <b>Music Meadow</b> practises listening and naming without any &quot;wrong notes&quot;. Niko asks for an instrument — guitar, piano, trumpet, drum, violin or bell — and your child finds it on the board and taps it to hear its true sound (a plucked guitar, a mellow trumpet, a soft drum and more, all gently synthesised). Each instrument is found once across six turns. <b>Hear it</b> plays the sound as a listening hint, <b>Show me</b> pulses the right one, and <b>Say it</b> speaks the name. A <b>Free jam</b> tab is pure open-ended play. Keys 1–6 also work. There is no timer, no score and no fail — a tap that isn&apos;t it gently wobbles and can be retried.</li>
-            <li>🔍 <b>Find a Friend</b> is a calm hidden-picture search across Berry Garden, Butterfly Meadow and Moonlight Party. Niko asks for three things at a time from a preview card; correct finds fade with a soft chime, and wrong taps only say &quot;Look again&quot;. There is a hint that glows around the answer, an optional spoken prompt, and timer choices for older players — with no lost points at any setting, and no ending that says they failed.</li>
-            <li>🤝 <b>Together Time</b> is a cooperative turn-taking game for your child and a grown-up (or Niko, for solo play). A clear, colour-coded card shows whose turn it is and asks the waiting player to tap to pass the device. Each turn is one big spin, then the pal hops 1–3 stones; both pals must reach the picnic, and nobody loses. There is no timer, so pauses are always fine. This is practice in waiting and shared attention, not a test.</li>
-            <li>🎨 <b>Cozy Creator</b> is open-ended colouring with no right answer. Choose a garden, meadow, moonlit glade or pond, choose a colour and tap any flower, butterfly, mushroom or cloud. Shapes keep soft outlines so the picture stays readable, and undo and fresh-page buttons are always one tap away. Palettes use calm, fixed colours with no flashing. Co-use with an adult works well (&quot;I want the blue one&quot;).</li>
-            <li>🛤️ <b>Pattern Path</b> asks &quot;what comes next?&quot; Two or three large picture choices continue a simple pattern, and each correct step walks the chosen pal closer to a picnic. Easy patterns repeat two or three pictures; Tricky patterns use three or four, including AABB. There is no timer and no penalty: a guess that doesn&apos;t fit gently wobbles and can be retried. <b>Say it</b> reads the pattern aloud.</li>
-            <li>🔢 <b>Count With Niko</b> practises counting and one-to-one matching. Niko asks for a number of strawberries (or berries, stars and hearts); your child taps one at a time and the dots and number fill in. Choose 1–5 or 6–10. There is no timer, no wrong answer and no lost point; <i>Take one out</i> lets them correct themselves. The <b>Say it</b> button uses the device&apos;s own voice and only speaks when tapped.</li>
-            <li>🍃 <b>Calm Cove</b> has no score, no timer and no losing. Tap or drag to grow flowers, make ripples and wake fireflies. The friend can be tickled. Leave whenever you like with <b>Done</b>.</li>
-            <li>🌙 <b>Calm</b> turns off screen shake and flashes, softens motion and reduces sparkles. It&apos;s on automatically if the device asks for reduced motion.</li>
-            <li>🐢 <b>Slow</b> makes everything fall slower and less often.</li>
-            <li>🔊 Sounds are soft, rounded tones with no sudden loud noises. Music and sounds can be switched off separately. Each count gives a gentle rising note.</li>
-            <li>🎮 One simple action: move left and right. Arrow keys / A-D, or touch and slide anywhere. Calm Cove needs only a tap.</li>
-            <li>🏆 The counting, pattern, art, music, search and together games have no score and no Star Board entry — finishing is its own reward. Pause is not needed because nothing is timed.</li>
-            <li>⏸️ Pause any time (P or Esc) in the catching games. Missing a treat never takes points away.</li>
-            <li>🔒 No ads, no accounts. Scores are only saved on this device.</li>
-          </ul>
-
-          <div className="mt-3 rounded-2xl bg-[#f6f2ff] p-3 text-sm leading-snug text-[#4a3f5c]">
-            <p className="mb-1 font-bold text-[#3b2f4a]">🌱 Ideas we&apos;re exploring next</p>
-            <p>🧺 <b>Match &amp; Make</b> — sort everyday things into two or three hoops.</p>
-            <p>🎨 <b>Pattern Parade</b> — continue gentle AB or AAB patterns.</p>
-            <p>😊 <b>Feelings Friends</b> — short stories with a choice of helpful actions.</p>
-            <p>🔍 <b>Find It</b> — search a calm picture for named friends.</p>
-            <p>📖 <b>Story Path</b> — put daily-routine pictures in order.</p>
-            <p>🤝 <b>Turn-Taking Board</b> — a cooperative game played with a grown-up.</p>
-            <p className="mt-2 text-xs text-[#8a809a]">These are play ideas, not therapy or a medical claim. Best built with speech therapists, occupational therapists, teachers and autistic children themselves.</p>
+          <div className="space-y-4 text-sm leading-relaxed text-[#4a3f5c] sm:text-base">
+            <section className="rounded-2xl bg-[#f6f2ff] p-4">
+              <h3 className="mb-2 text-lg font-extrabold text-[#48316e]">🎮 How to play today</h3>
+              <p>Choose an unlocked world on the home screen, then tap <b>Play World</b>. Your child moves Niko's friend left and right to catch falling treats. The round lasts about <b>90 seconds</b>. Each world has a different theme, song and spoken introduction, but the catching activity is currently the same core game.</p>
+              <p className="mt-2">On a phone or tablet, touch and slide to move. On a computer, use the left/right arrow keys or A/D. Tap <b>Hear Laury Again</b> during a round to repeat the introduction.</p>
+            </section>
+            <section className="rounded-2xl bg-[#effaf4] p-4">
+              <h3 className="mb-2 text-lg font-extrabold text-[#26734e]">⭐ Stars and unlocking worlds</h3>
+              <p>Finishing a round earns <b>1 to 3 stars</b> based on points. Even a low score earns a star. Completing a world unlocks the next one. Your best star result for each world stays saved on this device.</p>
+              <p className="mt-2">After a round, choose <b>Next World</b>, <b>Play Again</b>, or <b>Home</b>. The home screen also offers <b>Continue Adventure</b> once a world has been completed.</p>
+            </section>
+            <section className="rounded-2xl bg-[#fff7e5] p-4">
+              <h3 className="mb-2 text-lg font-extrabold text-[#795514]">🌙 Sensory-friendly choices</h3>
+              <p><b>Quiet</b> turns off music and game effects while keeping Laury's recorded instructions. <b>Music</b> controls world songs. <b>Sounds</b> controls effects and the Laury instruction button. <b>Calm</b> reduces decorative movement and celebration effects. <b>Slow</b> slows the falling objects.</p>
+              <p className="mt-2">You can change these options on the home screen or while paused. They are remembered on this device. If your child needs a break, use the pause button during play.</p>
+            </section>
+            <section className="rounded-2xl bg-[#eef6ff] p-4">
+              <h3 className="mb-2 text-lg font-extrabold text-[#315c8e]">👨‍👩‍👧 Helpful notes for parents</h3>
+              <p>Children can repeat worlds as often as they like. Encourage exploration rather than focusing on points. For very young children, play together and demonstrate sliding left and right.</p>
+              <p className="mt-2">The <b>Star Board</b> stores local scores. <b>Reset adventure progress</b> below clears earned stars and world unlocks, but keeps the Star Board. The reset requires confirmation.</p>
+              <p className="mt-2">The world names preview future learning themes. Distinct color, shape, counting, memory, feelings and communication activities are planned; they are <b>not yet separate gameplay modes</b> in this adventure. Niko's Games is educational play, not a medical treatment or therapy.</p>
+            </section>
           </div>
           <button type="button" className="mt-4 w-full rounded-2xl border-2 border-[#d6c4f5] bg-[#f7f0ff] px-3 py-3 text-sm font-bold text-[#65428c]" onClick={() => { if (confirmResetAdventure) { onResetAdventure(); setSelectedAdventure(0); setConfirmResetAdventure(false); setView("main"); } else setConfirmResetAdventure(true); }}>{confirmResetAdventure ? "Confirm: reset stars and unlocks (keep Star Board)" : "🔄 Reset adventure progress (grown-ups)"}</button>
           <BigButton color="purple" className="mt-4 w-full" onClick={() => setView("main")} autoFocus>
