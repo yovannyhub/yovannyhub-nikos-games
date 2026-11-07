@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { FRIENDS, type GameResult, type ScoreEntry, type Settings } from "../game/types";
 import { FriendPreview } from "./FriendPreview";
 import { ScoreTable } from "./ScoreTable";
@@ -17,6 +18,7 @@ export function PauseMenu({
   onRestart: () => void;
   onHome: () => void;
 }) {
+  const [confirmHome, setConfirmHome] = useState(false);
   return (
     <Overlay dim>
       <Panel className="w-full max-w-sm text-center">
@@ -32,9 +34,10 @@ export function PauseMenu({
           <BigButton color="yellow" onClick={onRestart}>
             ↻ Start over
           </BigButton>
-          <BigButton color="white" onClick={onHome}>
-            🏠 Home
+          <BigButton color="white" onClick={() => { if (confirmHome) onHome(); else setConfirmHome(true); }}>
+            {confirmHome ? "Tap again to leave game" : "🏠 Home"}
           </BigButton>
+          {confirmHome && <p className="text-sm font-semibold text-[#6b6080]">Your finished worlds and stars will stay saved.</p>}
         </div>
         <div className="mt-4">
           <SettingsToggles settings={settings} onChange={onChange} />
