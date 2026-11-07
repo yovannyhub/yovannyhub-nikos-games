@@ -45,12 +45,32 @@ export function BambooListenWorld({settings,onFinish,onHome,onHearLaury,onIntera
  const [exit,setExit]=useState(false);
  const timer=useRef<number|null>(null);
  const voice=useRef<HTMLAudioElement|null>(null);
+ const context=useRef<AudioContext|null>(null);
+ const buffers=useRef<(AudioBuffer|null)[]>(Array(10).fill(null));
+ const source=useRef<AudioBufferSourceNode|null>(null);
  const speaking=useRef(false);
  const [replay,setReplay]=useState(0);
  const audioCallbacks=useRef({start:onQuestionAudioStart,end:onQuestionAudioEnd});
  audioCallbacks.current={start:onQuestionAudioStart,end:onQuestionAudioEnd};
  const target=FRIENDS[round];
- useEffect(()=>()=>{if(timer.current!==null)window.clearTimeout(timer.current);voice.current?.pause();if("speechSynthesis" in window)window.speechSynthesis.cancel();},[]);
+ useEffect(()=>{
+   let cancelled=false;
+   const ctx=new AudioContext();
+   context.current=ctx;
+   void Promise.all(FRIENDS.map(async (_,i)=>{
+     try{
+       const response=await fetch(`${import.meta.env.BASE_URL}audio/bamboo-question-${String(i+1).padStart(2,"0")}.mp3`);
+       if(!response.ok)throw new Error("Missing question audio");
+       const buffer=await ctx.decodeAudioData(await response.arrayBuffer());
+       if(!cancelled)buffers.current[i]=buffer;
+     }catch{ /* HTML audio remains a fallback */ }
+   }));
+   return ()=>{cancelled=true;if(timer.current!==null)window.clearTimeout(timer.current);source.current?.stop();voice.current?.pause();void ctx.close();if("speechSynthesis" in window)window.speechSynthesis.cancel();};
+ },[]);
+ function unlockAudio(){
+   const ctx=context.current;
+   if(ctx&&ctx.state==="suspended")void ctx.resume().catch(()=>{});
+ }
  const friends=[round,(round+3)%10,(round+6)%10,(round+8)%10];
  const positions=friends.map((index,i)=>({index,spot:SPOTS[(i+round)%SPOTS.length]}));
  useEffect(()=>{
@@ -61,28 +81,32 @@ export function BambooListenWorld({settings,onFinish,onHome,onHearLaury,onIntera
    speaking.current=true;
    audioCallbacks.current.start();
    const finish=()=>{if(cancelled)return;speaking.current=false;audioCallbacks.current.end();};
-   const clip=new Audio(`${import.meta.env.BASE_URL}audio/bamboo-question-${String(round+1).padStart(2,"0")}.mp3`);
-   voice.current=clip;
-   clip.onended=finish;
-   clip.onerror=()=>{
-     if(cancelled)return;
-     if(!("speechSynthesis" in window)){finish();return;}
-     const utterance=new SpeechSynthesisUtterance("Can you find the "+target.name+"?");
-     utterance.rate=settings.slow?.75:.9;
-     utterance.onend=finish;
-     utterance.onerror=finish;
-     window.speechSynthesis.speak(utterance);
-   };
-   void clip.play().catch(()=>clip.onerror?.(new Event("error")));
-   return ()=>{cancelled=true;clip.pause();if("speechSynthesis" in window)window.speechSynthesis.cancel();if(speaking.current){speaking.current=false;onQuestionAudioEnd();}};
+   const ctx=context.current;
+   const buffer=buffers.current[round];
+   if(ctx&&buffer&&ctx.state==="running"){
+     const node=ctx.createBufferSource();
+     node.buffer=buffer;
+     node.connect(ctx.destination);
+     source.current=node;
+     node.onended=finish;
+     node.start();
+   }else{
+     const clip=new Audio(`${import.meta.env.BASE_URL}audio/bamboo-question-${String(round+1).padStart(2,"0")}.mp3`);
+     voice.current=clip;
+     clip.onended=finish;
+     clip.onerror=finish;
+     void clip.play().catch(finish);
+   }
+   return ()=>{cancelled=true;voice.current?.pause();if(source.current){source.current.onended=null;try{source.current.stop();}catch{}source.current=null;}if(speaking.current){speaking.current=false;audioCallbacks.current.end();}};
  },[round,replay,introPlaying,settings.sound,settings.quiet,settings.slow,found]);
- function speak(){onInteract();setReplay(n=>n+1);}
+ function speak(){unlockAudio();onInteract();setReplay(n=>n+1);}
   function choose(index:number){
+   unlockAudio();
    onInteract();
    if(found)return;
    if(index!==round){setFeedback("That's a "+FRIENDS[index].name+". Keep looking!");return;}
    voice.current?.pause();
-   if("speechSynthesis" in window)window.speechSynthesis.cancel();
+   if(source.current){source.current.onended=null;try{source.current.stop();}catch{}source.current=null;}
    setFound(true);
    setFeedback("You found the "+target.name+"! ⭐");
    if(round===9)onFinalAnswer();
