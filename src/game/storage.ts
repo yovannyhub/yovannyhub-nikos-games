@@ -18,6 +18,7 @@ export function loadSettings(): Settings {
     music: true,
     calm: prefersReducedMotion(),
     slow: false,
+    quiet: false,
     playerName: "",
     friend: "niko",
     mode: "relaxed",
