@@ -86,7 +86,7 @@ export default function App() {
   };
   const resumeSong = () => {
     if (songRef.current && settingsRef.current.music && !settingsRef.current.quiet && (phaseRef.current === "playing" || phaseRef.current === "color" || phaseRef.current === "shape") && !lauryVoiceRef.current)
-      fadeSong("in", 2000);
+      if (songRef.current.paused) fadeSong("in", 2000);
   };
   const [laurySpeaking, setLaurySpeaking] = useState(false);
 
@@ -311,9 +311,8 @@ export default function App() {
       {(phase === "playing" || phase === "paused") && <Hud hud={hud} onPause={pause} onExit={home} />}
       {phase === "playing" && settings.sound && <button type="button" onClick={() => playLaury(selectedGameRef.current)} aria-label="Hear Laury instructions again" className="absolute right-3 top-[max(6.5rem,calc(env(safe-area-inset-top)+5.75rem))] z-30 flex h-14 w-14 items-center justify-center rounded-full border-2 border-white bg-[#7750f7] text-xl text-white shadow-lg sm:left-4 sm:right-auto sm:top-28 sm:h-auto sm:w-auto sm:px-4 sm:py-2 sm:text-sm"><span className="sm:hidden" aria-hidden="true">{laurySpeaking ? "🔈" : "🔊"}</span><span className="hidden sm:inline">{laurySpeaking ? "🔊 Laury is speaking…" : "🔊 Hear Laury Again"}</span></button>}
 
-      {phase === "shape" && <ShapeFinderWorld settings={settings} onHome={home} onHearLaury={() => playLaury(1)} onInteract={resumeSong} onFinish={(score) => {
+      {phase === "shape" && <ShapeFinderWorld settings={settings} onHome={home} onHearLaury={() => playLaury(1)} onInteract={resumeSong} onFinalAnswer={() => fadeSong("out", 3000)} onFinish={(score) => {
         stopLaury();
-        fadeSong("out", 3000);
         setAdventureStars(previous => {
           const next = awardAdventureStars(previous, 1, score);
           try { localStorage.setItem(STAR_KEY, JSON.stringify(next)); } catch { /* storage unavailable */ }
@@ -326,7 +325,7 @@ export default function App() {
         setPhase("over");
       }} />}
 
-      {phase === "color" && <ColorMatchWorld settings={settings} onHome={home} onHearLaury={() => playLaury(0)} onFinish={(score) => {
+      {phase === "color" && <ColorMatchWorld settings={settings} onHome={home} onHearLaury={() => playLaury(0)} onFinalAnswer={() => fadeSong("out", 3000)} onFinish={(score) => {
         stopLaury();
         stopSong();
         setAdventureStars(previous => {
