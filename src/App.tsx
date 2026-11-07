@@ -49,6 +49,32 @@ export default function App() {
   const [lastId, setLastId] = useState<string | null>(null);
   const [rank, setRank] = useState(-1);
   const overAt = useRef(0);
+  const lauryVoiceRef = useRef<HTMLAudioElement | null>(null);
+  const [laurySpeaking, setLaurySpeaking] = useState(false);
+
+  const stopLaury = useCallback(() => {
+    const clip = lauryVoiceRef.current;
+    if (clip) { clip.pause(); clip.onended = null; clip.onerror = null; lauryVoiceRef.current = null; }
+    setLaurySpeaking(false);
+  }, []);
+
+  const playLaury = useCallback((world: number) => {
+    stopLaury();
+    if (!settingsRef.current.sound) return;
+    audio.stopMusic();
+    const clip = new Audio(`${import.meta.env.BASE_URL}audio/world-${String(world + 1).padStart(2, "0")}-intro.mp3`);
+    lauryVoiceRef.current = clip;
+    setLaurySpeaking(true);
+    const finish = () => {
+      if (lauryVoiceRef.current !== clip) return;
+      lauryVoiceRef.current = null;
+      setLaurySpeaking(false);
+      if (phaseRef.current === "playing" && settingsRef.current.music) audio.startMusic();
+    };
+    clip.onended = finish;
+    clip.onerror = finish;
+    void clip.play().catch(finish);
+  }, [stopLaury]);
 
   // --- engine lifecycle
   useEffect(() => {
@@ -118,17 +144,18 @@ export default function App() {
     audio.unlock();
     audio.soundOn = s.sound;
     audio.musicOn = s.music;
+    stopLaury();
     audio.stopMusic();
     setResult(null);
     // All choices on the new home screen use the original Relaxed catching game.
     e.setVisible(true);
-    if (s.music) audio.startMusic();
     e.setFriend(game === 1 ? "fish" : "kitty");
     e.setOptions({ calm: s.calm, slow: s.slow });
     e.setLearningGame(game);
     e.start("relaxed");
     setPhase("playing");
-  }, []);
+    playLaury(game);
+  }, [playLaury, stopLaury]);
 
   const restartFromOver = useCallback(() => {
     if (performance.now() - overAt.current < 450) return; // avoid accidental taps carried over from gameplay
@@ -138,9 +165,10 @@ export default function App() {
   const pause = useCallback(() => {
     if (phaseRef.current !== "playing") return;
     engineRef.current?.pause();
+    stopLaury();
     audio.stopMusic();
     setPhase("paused");
-  }, []);
+  }, [stopLaury]);
 
   const resume = useCallback(() => {
     if (phaseRef.current !== "paused") return;
@@ -152,10 +180,11 @@ export default function App() {
   const home = useCallback(() => {
     engineRef.current?.goHome();
     engineRef.current?.setVisible(true);
+    stopLaury();
     audio.stopMusic();
     setScores(loadScores());
     setPhase("start");
-  }, []);
+  }, [stopLaury]);
 
   // --- global keyboard shortcuts
   useEffect(() => {
@@ -221,6 +250,7 @@ export default function App() {
       <canvas ref={canvasRef} aria-label="Game area: move your friend left and right to catch falling stars" role="img" />
 
       {(phase === "playing" || phase === "paused") && <Hud hud={hud} onPause={pause} onExit={home} />}
+      {phase === "playing" && settings.sound && <button type="button" onClick={() => playLaury(selectedGameRef.current)} aria-label="Hear Laury instructions again" className="absolute bottom-5 left-1/2 z-30 -translate-x-1/2 rounded-full border-2 border-white bg-[#7750f7] px-5 py-3 text-sm font-extrabold text-white shadow-lg">{laurySpeaking ? "🔊 Laury is speaking…" : "🔊 Hear Laury Again"}</button>}
 
       {phase === "start" && (
         <StartScreen
