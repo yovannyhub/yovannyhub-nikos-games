@@ -69,12 +69,12 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
           <div className="space-y-4 text-sm leading-relaxed text-[#4a3f5c] sm:text-base">
             <section className="rounded-2xl bg-[#f6f2ff] p-4">
               <h3 className="mb-2 text-lg font-extrabold text-[#48316e]">🎮 How to play today</h3>
-              <p>Choose an unlocked world on the home screen, then tap <b>Play World</b>. <b>World 1 — Color Match</b> is a tap-to-match activity with 10 colors to find and no timer. Worlds 2–10 currently use the catching activity: move Niko's friend left and right to catch matching falling objects in a round of about <b>90 seconds</b>. Each world has its own theme, song and spoken introduction.</p>
-              <p className="mt-2">In World 1, tap a matching color choice. In Worlds 2–10, touch and slide to move on a phone or tablet; on a computer, use the left/right arrow keys or A/D. Tap <b>Hear Laury Again</b> during a round to repeat the introduction.</p>
+              <p>Choose an unlocked world on the home screen, then tap <b>Play World</b>. <b>World 1 — Color Match</b> and <b>World 2 — Shape Finder</b> are tap-to-match activities with 10 rounds each and no timer. Worlds 3–10 currently use the catching activity: move Niko's friend left and right to catch matching falling objects in a round of about <b>90 seconds</b>. Each world has its own theme, song and spoken introduction.</p>
+              <p className="mt-2">In Worlds 1 and 2, tap the matching color or shape. In Worlds 3–10, touch and slide to move on a phone or tablet; on a computer, use the left/right arrow keys or A/D. Tap <b>Hear Laury Again</b> during a round to repeat the introduction.</p>
             </section>
             <section className="rounded-2xl bg-[#effaf4] p-4">
               <h3 className="mb-2 text-lg font-extrabold text-[#26734e]">⭐ Stars and unlocking worlds</h3>
-              <p>Finishing a world earns <b>1 to 3 stars</b> based on points. World 1 awards points for correct matches; other worlds award points for catches. Even a low score earns a star. Completing a world unlocks the next one. Your best star result for each world stays saved on this device.</p>
+              <p>Finishing a world earns <b>1 to 3 stars</b> based on points. Worlds 1 and 2 award points for correct matches; the remaining worlds award points for catches. Even a low score earns a star. Completing a world unlocks the next one. Your best star result for each world stays saved on this device.</p>
               <p className="mt-2">After a round, choose <b>Next World</b>, <b>Play Again</b>, or <b>Home</b>. The home screen also offers <b>Continue Adventure</b> once a world has been completed.</p>
             </section>
             <section className="rounded-2xl bg-[#fff7e5] p-4">
@@ -86,7 +86,7 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
               <h3 className="mb-2 text-lg font-extrabold text-[#315c8e]">👨‍👩‍👧 Helpful notes for parents</h3>
               <p>Children can repeat worlds as often as they like. Encourage exploration rather than focusing on points. For very young children, play together and demonstrate sliding left and right.</p>
               <p className="mt-2">The <b>Star Board</b> stores local scores. <b>Reset adventure progress</b> below clears earned stars and world unlocks, but keeps the Star Board. The reset requires confirmation.</p>
-              <p className="mt-2">The world names preview future learning themes. World 1 now has its own color-matching activity. Dedicated shape, counting, memory, feelings and communication activities for the other worlds are still planned. Niko's Games is educational play, not a medical treatment or therapy.</p>
+              <p className="mt-2">The world names preview future learning themes. Worlds 1 and 2 now have dedicated color and shape matching activities. Dedicated counting, memory, feelings and communication activities for later worlds are still planned. Niko's Games is educational play, not a medical treatment or therapy.</p>
             </section>
           </div>
           <button type="button" className="mt-4 w-full rounded-2xl border-2 border-[#d6c4f5] bg-[#f7f0ff] px-3 py-3 text-sm font-bold text-[#65428c]" onClick={() => { if (confirmResetAdventure) { onResetAdventure(); setSelectedAdventure(0); setConfirmResetAdventure(false); setView("main"); } else setConfirmResetAdventure(true); }}>{confirmResetAdventure ? "Confirm: reset stars and unlocks (keep Star Board)" : "🔄 Reset adventure progress (grown-ups)"}</button>
