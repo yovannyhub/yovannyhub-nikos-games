@@ -226,6 +226,12 @@ export default function App() {
         <StartScreen
           settings={settings}
           adventureStars={adventureStars}
+          onResetAdventure={() => {
+            const empty = Array(10).fill(0);
+            try { localStorage.setItem(STAR_KEY, JSON.stringify(empty)); } catch { /* storage unavailable */ }
+            setAdventureStars(empty);
+            selectedGameRef.current = 0;
+          }}
           onChange={updateSettings}
           onPlay={(adventure) => play(adventure)}
           scores={scores}
