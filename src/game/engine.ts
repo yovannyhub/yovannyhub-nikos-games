@@ -126,6 +126,29 @@ const ITEM_POINTS: Record<ItemKind, number> = { star: 10, berry: 15, blue: 10, r
 
 const COMBO_WORDS: Record<number, string> = { 5: "Nice!", 10: "Super!", 15: "Wow!", 20: "Amazing!", 30: "Superstar!" };
 
+// Canvas-drawn toothbrush avoids missing emoji glyphs on iOS and desktop.
+function drawToothbrush(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(-Math.PI / 5);
+  const k = size / 60;
+  ctx.scale(k, k);
+  ctx.fillStyle = "#268de0";
+  ctx.beginPath(); ctx.roundRect(-6, -5, 12, 41, 5); ctx.fill();
+  ctx.fillStyle = "#e7f7ff";
+  ctx.beginPath(); ctx.roundRect(-11, -29, 22, 27, 5); ctx.fill();
+  ctx.fillStyle = "#38a9e9";
+  ctx.beginPath(); ctx.roundRect(-10, -30, 20, 8, 3); ctx.fill();
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 2.5;
+  for (let bx = -7; bx <= 7; bx += 4.7) {
+    ctx.beginPath(); ctx.moveTo(bx, -29); ctx.lineTo(bx, -37); ctx.stroke();
+  }
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath(); ctx.arc(0, 26, 2.5, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
 export class GameEngine {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
@@ -1218,7 +1241,8 @@ export class GameEngine {
       ctx.beginPath(); ctx.roundRect(Math.max(8, W / 2 - 145), y, 290, 100, 22); ctx.fill();
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.font = '39px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
-      ctx.fillText(["🌅", "🪥", "🛏️"][this.targetRoutine], W / 2, y + 30);
+      if (this.targetRoutine === 1) drawToothbrush(ctx, W / 2, y + 30, 49);
+      else ctx.fillText(["🌅", "", "🛏️"][this.targetRoutine], W / 2, y + 30);
       ctx.fillStyle = "#76532c"; ctx.font = "bold 18px sans-serif";
       ctx.fillText(`Find ${["WAKE UP", "BRUSH TEETH", "BEDTIME"][this.targetRoutine]}!`, W / 2, y + 65);
       ctx.font = "bold 13px sans-serif";
@@ -1260,10 +1284,12 @@ export class GameEngine {
         case "routineWake":
         case "routineBrush":
         case "routineSleep": {
-          const picture = it.kind === "routineWake" ? "🌅" : it.kind === "routineBrush" ? "🪥" : "🛏️";
+          const picture = it.kind === "routineWake" ? "🌅" : "🛏️";
           ctx.save(); ctx.textAlign = "center"; ctx.textBaseline = "middle";
           ctx.font = `${Math.round(r * 1.8)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
-          ctx.fillText(picture, it.x, it.y); ctx.restore(); break;
+          if (it.kind === "routineBrush") drawToothbrush(ctx, it.x, it.y, r * 2.05);
+          else ctx.fillText(picture, it.x, it.y);
+          ctx.restore(); break;
         }
         case "communicateWater":
         case "communicateFood":
