@@ -81,6 +81,22 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
             <h2 className="mt-1 text-3xl font-extrabold text-[#48316e]">👋 Welcome, grown-ups!</h2>
             <p className="mt-2 text-sm font-medium leading-relaxed text-[#6b6080]">Niko's Great Adventure is a gentle, replayable journey through 10 learning worlds. Play alongside your child, celebrate trying, and go at their pace.</p>
           </div>
+          <section className="mt-5 rounded-2xl border-2 border-[#e4d6ff] bg-gradient-to-br from-[#f7f1ff] to-[#fff5fb] p-4 text-[#4a3f5c] sm:p-5" aria-labelledby="meet-laury-heading">
+            <div className="flex items-center gap-3">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-2 border-white bg-[#e6d8ff] text-5xl shadow-sm" role="img" aria-label="Illustrated avatar placeholder for Laury">👩‍🏫</div>
+              <div>
+                <h3 id="meet-laury-heading" className="text-xl font-extrabold text-[#48316e]">💜 Meet Laury</h3>
+                <p className="text-sm font-bold text-[#71509d]">Teacher Assistant · 17 Years in Education</p>
+                <p className="text-xs font-semibold text-[#80708e]">Frisco, Texas</p>
+              </div>
+            </div>
+            <div className="mt-3 space-y-2 text-sm leading-relaxed sm:text-base">
+              <p>Laury is an experienced teacher assistant working in Frisco, Texas. For 17 years, she has supported students from kindergarten through 12th grade, including children receiving special education services.</p>
+              <p>What she enjoys most is helping students understand their school materials and seeing the happiness that comes with their progress.</p>
+              <p>As Niko's friendly learning guide, Laury welcomes children into each adventure with a warm, encouraging voice. She believes in patience, kindness, and giving every child room to learn at their own pace.</p>
+            </div>
+            <blockquote className="mt-3 rounded-xl bg-white/85 p-3 text-sm italic leading-relaxed text-[#634e7b]">“One of the most rewarding parts of my work is seeing children make progress and how happy they become when they discover what they can do.” <span className="not-italic font-semibold">— A message inspired by Laury's motivation</span></blockquote>
+          </section>
           <div className="mt-5 space-y-4 text-sm leading-relaxed text-[#4a3f5c] sm:text-base">
             <section className="rounded-2xl bg-[#f6f2ff] p-4">
               <h3 className="mb-2 text-lg font-extrabold text-[#48316e]">🗺️ Explore the 10 worlds</h3>
