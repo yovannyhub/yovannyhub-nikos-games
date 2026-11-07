@@ -13,6 +13,19 @@ import { GameEngine } from "./game/engine";
 import { addScore, clearScores, loadScores, loadSettings, saveSettings } from "./game/storage";
 import { FRIENDS, RELAXED_TIME, type GameResult, type HudState, type ScoreEntry, type Settings } from "./game/types";
 
+const STAR_KEY = "niko-adventure-stars-v1";
+function readAdventureStars(): number[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STAR_KEY) || "[]");
+    if (Array.isArray(raw)) return Array.from({ length: 10 }, (_, i) => Math.max(0, Math.min(3, Number(raw[i]) || 0)));
+  } catch { /* storage may be unavailable */ }
+  return Array(10).fill(0);
+}
+function awardAdventureStars(previous: number[], level: number, score: number): number[] {
+  const stars = score >= 800 ? 3 : score >= 300 ? 2 : 1;
+  return previous.map((old, index) => index === level ? Math.max(old, stars) : old);
+}
+
 type Phase = "start" | "playing" | "paused" | "over" | "count" | "pattern" | "creator" | "together" | "find" | "music";
 
 export default function App() {
@@ -27,6 +40,8 @@ export default function App() {
   const [hud, setHud] = useState<HudState>({ score: 0, hearts: 3, timeLeft: RELAXED_TIME, combo: 0, multiplier: 1, world: "Sunny Meadow", mode: "relaxed" });
   const [scores, setScores] = useState<ScoreEntry[]>(() => loadScores());
   const [result, setResult] = useState<GameResult | null>(null);
+  const [adventureStars, setAdventureStars] = useState<number[]>(readAdventureStars);
+  const selectedGameRef = useRef(0);
   const [lastId, setLastId] = useState<string | null>(null);
   const [rank, setRank] = useState(-1);
   const overAt = useRef(0);
@@ -49,6 +64,13 @@ export default function App() {
           setScores(loadScores());
           setRank(-1);
           setLastId(null);
+        }
+        if (r.mode === "relaxed") {
+          setAdventureStars(previous => {
+            const next = awardAdventureStars(previous, selectedGameRef.current, r.score);
+            try { localStorage.setItem(STAR_KEY, JSON.stringify(next)); } catch { /* private browsing */ }
+            return next;
+          });
         }
         setResult(r);
         overAt.current = performance.now();
@@ -82,7 +104,6 @@ export default function App() {
   const updateSettings = useCallback((s: Partial<Settings>) => setSettings((prev) => ({ ...prev, ...s })), []);
 
   // --- actions
-  const selectedGameRef = useRef(0);
   const play = useCallback((adventure?: number) => {
     const game = adventure ?? selectedGameRef.current;
     selectedGameRef.current = game;
@@ -199,6 +220,7 @@ export default function App() {
       {phase === "start" && (
         <StartScreen
           settings={settings}
+          adventureStars={adventureStars}
           onChange={updateSettings}
           onPlay={(adventure) => play(adventure)}
           scores={scores}
