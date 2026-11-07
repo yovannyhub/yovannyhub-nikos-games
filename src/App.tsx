@@ -300,6 +300,10 @@ export default function App() {
       {phase === "over" && result && (
         <GameOver
           result={result}
+          worldNumber={selectedGameRef.current + 1}
+          earnedStars={adventureStars[selectedGameRef.current] || 1}
+          calm={settings.calm}
+          onNextWorld={selectedGameRef.current < 9 ? () => play(selectedGameRef.current + 1) : null}
           scores={scores}
           highlightId={lastId}
           rank={rank}
