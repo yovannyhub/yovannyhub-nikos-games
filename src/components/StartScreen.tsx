@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { audio } from "../game/audio";
 import { FRIENDS, type ScoreEntry, type Settings } from "../game/types";
 import { ScoreTable } from "./ScoreTable";
@@ -19,6 +19,41 @@ const TITLE_COLORS = ["#ff7ab6", "#ffb000", "#3cc68a", "#4aa8ff", "#7c5cff"];
 
 export function StartScreen({ settings, adventureStars, onChange, onPlay, scores, onClearScores, onResetAdventure }: Props) {
   const [view, setView] = useState<"main" | "scores" | "grownups">("main");
+  const [lauryPlaying, setLauryPlaying] = useState(false);
+  const [lauryMessage, setLauryMessage] = useState("");
+  const lauryAudioRef = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    return () => {
+      lauryAudioRef.current?.pause();
+      lauryAudioRef.current = null;
+    };
+  }, []);
+  const toggleLaury = async () => {
+    if (lauryPlaying) {
+      lauryAudioRef.current?.pause();
+      if (lauryAudioRef.current) lauryAudioRef.current.currentTime = 0;
+      setLauryPlaying(false);
+      return;
+    }
+    if (!lauryAudioRef.current) {
+      const clip = new Audio(import.meta.env.BASE_URL + "audio/laury-welcome.mp3");
+      clip.onended = () => setLauryPlaying(false);
+      clip.onerror = () => {
+        setLauryPlaying(false);
+        setLauryMessage("Laury's welcome recording is coming soon!");
+      };
+      lauryAudioRef.current = clip;
+    }
+    try {
+      setLauryMessage("");
+      lauryAudioRef.current.currentTime = 0;
+      await lauryAudioRef.current.play();
+      setLauryPlaying(true);
+    } catch {
+      setLauryPlaying(false);
+      setLauryMessage("Laury's welcome recording is coming soon!");
+    }
+  };
   const [confirmClear, setConfirmClear] = useState(false);
   const [confirmResetAdventure, setConfirmResetAdventure] = useState(false);
   const [selectedAdventure, setSelectedAdventure] = useState(0);
@@ -228,14 +263,18 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
 
         <Panel className="w-full !p-3">
           <SettingsToggles settings={settings} onChange={onChange} />
-          <div className="mt-2 grid grid-cols-2 gap-2">
+          <div className="mt-2 grid grid-cols-3 gap-2">
             <BigButton color="yellow" className="!min-h-[48px] !text-lg" onClick={() => setView("scores")}>
               🏆 Star Board
             </BigButton>
             <BigButton color="white" className="!min-h-[48px] !text-lg" onClick={() => setView("grownups")}>
               👋 Grown-ups
             </BigButton>
+            <BigButton color="green" className="!min-h-[48px] !text-sm sm:!text-lg" onClick={toggleLaury} ariaLabel={lauryPlaying ? "Stop Laury's welcome" : "Meet Laury, play welcome audio"}>
+              {lauryPlaying ? "⏹ Stop Laury" : "🔊 Meet Laury"}
+            </BigButton>
           </div>
+          {lauryMessage && <p className="mt-2 text-center text-sm font-semibold text-[#71509d]" role="status">{lauryMessage}</p>}
         </Panel>
       </div>
     </Overlay>
