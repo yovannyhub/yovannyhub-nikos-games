@@ -163,6 +163,13 @@ export default function App() {
     song.loop = true;
     song.volume = 0.18;
     songRef.current = song;
+    // Establish playback permission during the Play button gesture, before Laury speaks.
+    if (s.music && !s.quiet) {
+      void song.play().then(() => {
+        if (lauryVoiceRef.current || songRef.current !== song) song.pause();
+      }).catch(() => {});
+      song.pause();
+    }
     setResult(null);
     // All choices on the new home screen use the original Relaxed catching game.
     e.setVisible(game > 1);
@@ -171,6 +178,7 @@ export default function App() {
     e.setLearningGame(game);
     if (game > 1) e.start("relaxed");
     setPhase(game === 0 ? "color" : game === 1 ? "shape" : "playing");
+    phaseRef.current = game === 0 ? "color" : game === 1 ? "shape" : "playing";
     playLaury(game);
   }, [playLaury, stopLaury]);
 
@@ -273,7 +281,7 @@ export default function App() {
       {(phase === "playing" || phase === "paused") && <Hud hud={hud} onPause={pause} onExit={home} />}
       {phase === "playing" && settings.sound && <button type="button" onClick={() => playLaury(selectedGameRef.current)} aria-label="Hear Laury instructions again" className="absolute right-3 top-[max(6.5rem,calc(env(safe-area-inset-top)+5.75rem))] z-30 flex h-14 w-14 items-center justify-center rounded-full border-2 border-white bg-[#7750f7] text-xl text-white shadow-lg sm:left-4 sm:right-auto sm:top-28 sm:h-auto sm:w-auto sm:px-4 sm:py-2 sm:text-sm"><span className="sm:hidden" aria-hidden="true">{laurySpeaking ? "🔈" : "🔊"}</span><span className="hidden sm:inline">{laurySpeaking ? "🔊 Laury is speaking…" : "🔊 Hear Laury Again"}</span></button>}
 
-      {phase === "shape" && <ShapeFinderWorld settings={settings} onHome={home} onHearLaury={() => playLaury(1)} onFinish={(score) => {
+      {phase === "shape" && <ShapeFinderWorld settings={settings} onHome={home} onHearLaury={() => playLaury(1)} onInteract={resumeSong} onFinish={(score) => {
         stopLaury();
         stopSong();
         setAdventureStars(previous => {
