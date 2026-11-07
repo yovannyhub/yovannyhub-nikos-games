@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FRIENDS, type GameResult, type ScoreEntry, type Settings } from "../game/types";
+import { type GameResult, type ScoreEntry, type Settings } from "../game/types";
 import { FriendPreview } from "./FriendPreview";
 import { ScoreTable } from "./ScoreTable";
 import { Overlay } from "./StartScreen";
@@ -80,16 +80,15 @@ export function GameOver({
   onRestart: () => void;
   onHome: () => void;
 }) {
-  const friend = FRIENDS.find((f) => f.kind === result.friend) || FRIENDS[0];
-  const who = playerName.trim() || friend.name;
+  const who = playerName.trim();
   const headline = rank === 0 && scores.length > 1 ? "New best score! 🎉" : rank >= 0 ? "You're on the Star Board!" : "Great job!";
   return (
     <Overlay dim>
       <Panel className="w-full max-w-md text-center">
         <div className="anim-floaty flex justify-center">
-          <FriendPreview kind={result.friend} size={104} basket />
+          <img src={`${import.meta.env.BASE_URL}niko-celebration.png`} alt="Niko sitting and giving a thumbs-up" className="h-32 w-32 object-contain sm:h-36 sm:w-36" />
         </div>
-        <h2 className="text-3xl font-bold sm:text-4xl">Wonderful job, {who}!</h2>
+        <h2 className="text-3xl font-bold sm:text-4xl">Wonderful job{who ? `, ${who}` : ""}! You helped Niko!</h2>
         <p className="text-sm font-bold text-[#6b6080]">World {worldNumber} complete · You did it!</p>
         <p className="text-lg font-semibold text-[#7c5cff]">{headline}</p>
         <div className="my-2">
