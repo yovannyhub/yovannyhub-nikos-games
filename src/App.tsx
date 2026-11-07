@@ -50,6 +50,12 @@ export default function App() {
   const [rank, setRank] = useState(-1);
   const overAt = useRef(0);
   const lauryVoiceRef = useRef<HTMLAudioElement | null>(null);
+  const songRef = useRef<HTMLAudioElement | null>(null);
+  const stopSong = () => { songRef.current?.pause(); songRef.current = null; };
+  const resumeSong = () => {
+    if (songRef.current && settingsRef.current.music && phaseRef.current === "playing" && !lauryVoiceRef.current)
+      void songRef.current.play().catch(() => {});
+  };
   const [laurySpeaking, setLaurySpeaking] = useState(false);
 
   const stopLaury = useCallback(() => {
@@ -69,7 +75,7 @@ export default function App() {
       if (lauryVoiceRef.current !== clip) return;
       lauryVoiceRef.current = null;
       setLaurySpeaking(false);
-      if (phaseRef.current === "playing" && settingsRef.current.music) audio.startMusic();
+      if (songRef.current && settingsRef.current.music && phaseRef.current === "playing") void songRef.current.play().catch(() => {});
     };
     clip.onended = finish;
     clip.onerror = finish;
@@ -102,6 +108,7 @@ export default function App() {
             return next;
           });
         }
+        stopSong();
         setResult(r);
         overAt.current = performance.now();
         setPhase("over");
@@ -111,6 +118,7 @@ export default function App() {
     engine.setOptions({ calm: settingsRef.current.calm, slow: settingsRef.current.slow });
     engineRef.current = engine;
     return () => {
+      stopSong();
       engine.destroy();
       engineRef.current = null;
       audio.stopMusic();
@@ -127,8 +135,9 @@ export default function App() {
     }
     audio.soundOn = settings.sound;
     audio.musicOn = settings.music;
-    if (!settings.music) audio.stopMusic();
-    else if (phaseRef.current === "playing") audio.startMusic();
+    audio.stopMusic();
+    if (!settings.music) songRef.current?.pause();
+    else resumeSong();
   }, [settings]);
 
   const updateSettings = useCallback((s: Partial<Settings>) => setSettings((prev) => ({ ...prev, ...s })), []);
@@ -145,7 +154,12 @@ export default function App() {
     audio.soundOn = s.sound;
     audio.musicOn = s.music;
     stopLaury();
+    stopSong();
     audio.stopMusic();
+    const song = new Audio(`${import.meta.env.BASE_URL}audio/world-${String(game + 1).padStart(2, "0")}-music.mp3`);
+    song.loop = true;
+    song.volume = 0.18;
+    songRef.current = song;
     setResult(null);
     // All choices on the new home screen use the original Relaxed catching game.
     e.setVisible(true);
@@ -166,6 +180,7 @@ export default function App() {
     if (phaseRef.current !== "playing") return;
     engineRef.current?.pause();
     stopLaury();
+    songRef.current?.pause();
     audio.stopMusic();
     setPhase("paused");
   }, [stopLaury]);
@@ -173,14 +188,15 @@ export default function App() {
   const resume = useCallback(() => {
     if (phaseRef.current !== "paused") return;
     engineRef.current?.resume();
-    if (settingsRef.current.music) audio.startMusic();
     setPhase("playing");
+    if (settingsRef.current.music && songRef.current) void songRef.current.play().catch(() => {});
   }, []);
 
   const home = useCallback(() => {
     engineRef.current?.goHome();
     engineRef.current?.setVisible(true);
     stopLaury();
+    stopSong();
     audio.stopMusic();
     setScores(loadScores());
     setPhase("start");
