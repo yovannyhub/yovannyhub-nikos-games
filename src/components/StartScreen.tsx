@@ -120,9 +120,9 @@ export function StartScreen({ settings, onChange, onPlay, scores, onClearScores 
         </div>
 
         <Panel className="w-full">
-          <h2 className="mb-1 text-center text-xl font-bold">Choose your adventure!</h2>
-          <p className="mb-3 text-center text-xs font-semibold text-[#8a809a]">Each adventure has its own friend, world, and learning game.</p>
-          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Choose an adventure">
+          <h2 className="mb-1 text-center text-xl font-bold">Your Adventure Map!</h2>
+          <p className="mb-3 text-center text-xs font-semibold text-[#8a809a]">Follow the magical trail through 10 worlds. Tap any world to play!</p>
+          <div className="relative flex flex-col gap-3 rounded-3xl bg-gradient-to-b from-[#e8fbf1] via-[#f4ecff] to-[#fff0d9] p-3" role="radiogroup" aria-label="Choose an adventure">
             {[
               { icon: "🐱", title: "Color Match", friend: "Mochi the Kitty", world: "Sunny Meadow" },
               { icon: "🐠", title: "Shape Finder", friend: "Finn the Fish", world: "Ocean World" },
@@ -151,12 +151,13 @@ export function StartScreen({ settings, onChange, onPlay, scores, onClearScores 
                     audio.unlock();
                     audio.click();
                   }}
-                  className={`relative flex min-h-[118px] flex-col items-center justify-center rounded-2xl border-4 px-2 py-2 text-center transition-all ${
-                    selected && available ? "border-[#7c5cff] bg-[#efeaff] shadow-sm" : available ? "cursor-pointer border-[#b3e8c1] bg-[#e8fbf1] hover:bg-[#d7f8e4]" : "cursor-not-allowed border-transparent bg-[#f6f2ff] opacity-65"
+                  style={{ alignSelf: index % 2 === 0 ? "flex-start" : "flex-end" }}
+                  className={`relative flex min-h-[100px] w-[84%] flex-col items-center justify-center rounded-3xl border-4 px-2 py-2 text-center shadow-sm transition-all ${
+                    selected && available ? "border-[#7c5cff] bg-white ring-4 ring-[#d9ccff]" : available ? "cursor-pointer border-[#b3e8c1] bg-white hover:bg-[#e8fbf1]" : "cursor-not-allowed border-transparent bg-[#f6f2ff] opacity-65"
                   }`}
                 >
-                  <span className="absolute left-2 top-1 text-xs font-bold text-[#776b8b]">Level {index + 1}</span>
-                  <span className="text-3xl sm:text-4xl" aria-hidden="true">{adventure.icon}</span>
+                  <span className="absolute left-2 top-1 rounded-full bg-[#f3edff] px-2 text-xs font-bold text-[#776b8b]">World {index + 1}</span>
+                  <span className="text-4xl sm:text-5xl" aria-hidden="true">{adventure.icon}</span>
                   <span className="text-sm font-bold leading-tight sm:text-base">{adventure.title}</span>
                   <span className="text-[11px] font-semibold text-[#6b6080]">{adventure.friend} · {adventure.world}</span>
                   <span className="mt-1 text-[10px] font-bold text-[#7c5cff]">{available ? "▶ READY TO PLAY" : "🔒 COMING SOON"}</span>
