@@ -34,10 +34,6 @@ jobs:
       - name: Build Niko's Games
         run: npm run build
 
-      # Diagnostic only: keep the source recording in GitHub, but exclude it from the deployed package.
-      - name: Temporarily exclude World 10 intro from Pages package
-        run: rm -f dist/audio/world-10-intro.mp3
-
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
