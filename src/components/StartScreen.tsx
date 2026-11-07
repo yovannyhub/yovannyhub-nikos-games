@@ -11,14 +11,16 @@ interface Props {
   onPlay: (adventure: number) => void;
   scores: ScoreEntry[];
   onClearScores: () => void;
+  onResetAdventure: () => void;
 }
 
 const TITLE = "Niko's Games";
 const TITLE_COLORS = ["#ff7ab6", "#ffb000", "#3cc68a", "#4aa8ff", "#7c5cff"];
 
-export function StartScreen({ settings, adventureStars, onChange, onPlay, scores, onClearScores }: Props) {
+export function StartScreen({ settings, adventureStars, onChange, onPlay, scores, onClearScores, onResetAdventure }: Props) {
   const [view, setView] = useState<"main" | "scores" | "grownups">("main");
   const [confirmClear, setConfirmClear] = useState(false);
+  const [confirmResetAdventure, setConfirmResetAdventure] = useState(false);
   const [selectedAdventure, setSelectedAdventure] = useState(0);
   const lastCompleted = adventureStars.reduce((last, value, index) => value > 0 ? index : last, -1);
   const unlockedThrough = Math.min(9, lastCompleted + 1);
@@ -90,6 +92,7 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
             <p>🤝 <b>Turn-Taking Board</b> — a cooperative game played with a grown-up.</p>
             <p className="mt-2 text-xs text-[#8a809a]">These are play ideas, not therapy or a medical claim. Best built with speech therapists, occupational therapists, teachers and autistic children themselves.</p>
           </div>
+          <button type="button" className="mt-4 w-full rounded-2xl border-2 border-[#d6c4f5] bg-[#f7f0ff] px-3 py-3 text-sm font-bold text-[#65428c]" onClick={() => { if (confirmResetAdventure) { onResetAdventure(); setSelectedAdventure(0); setConfirmResetAdventure(false); setView("main"); } else setConfirmResetAdventure(true); }}>{confirmResetAdventure ? "Confirm: reset stars and unlocks (keep Star Board)" : "🔄 Reset adventure progress (grown-ups)"}</button>
           <BigButton color="purple" className="mt-4 w-full" onClick={() => setView("main")} autoFocus>
             ← Back
           </BigButton>
@@ -159,7 +162,7 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
                       audio.unlock();
                       audio.click();
                     }}
-                    className={`relative z-10 flex min-h-[140px] flex-col items-center justify-center rounded-[1.5rem] border-[3px] p-2 text-center shadow-md transition-transform hover:-translate-y-1 sm:min-h-[155px] ${selected ? "border-[#7750f7] ring-4 ring-[#ac94ff] scale-[1.03]" : unlocked ? "border-white" : "border-white opacity-55 grayscale"}`}
+                    className={`relative z-10 flex min-h-[140px] flex-col items-center justify-center rounded-[1.5rem] border-[3px] p-2 text-center shadow-md transition-transform hover:-translate-y-1 sm:min-h-[155px] ${selected ? "border-[#7750f7] ring-4 ring-[#ac94ff] scale-[1.03]" : unlocked ? "border-white" : "border-[#e2cfff] shadow-sm"}`}
                     style={{backgroundColor:adventure.color}}
                   >
                     <span className="absolute left-2 top-1 rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-extrabold text-[#58436d]">{index + 1}</span>
