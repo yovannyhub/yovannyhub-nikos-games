@@ -96,7 +96,7 @@ export function StartScreen({ settings, onChange, onPlay, scores, onClearScores 
 
   return (
     <Overlay>
-      <div className="flex w-full max-w-lg flex-col items-center gap-3">
+      <div className="flex w-full max-w-5xl flex-col items-center gap-3">
         <div className="flex flex-col items-center gap-1">
           <span className="rounded-full border-2 border-white bg-[#7c5cff] px-3 py-0.5 text-xs font-bold tracking-[0.18em] text-white uppercase">
             ⭐ Welcome to Niko's world ⭐
@@ -119,76 +119,60 @@ export function StartScreen({ settings, onChange, onPlay, scores, onClearScores 
           </div>
         </div>
 
-        <Panel className="w-full">
-          <h2 className="mb-1 text-center text-xl font-bold">Your Adventure Map!</h2>
-          <p className="mb-3 text-center text-xs font-semibold text-[#8a809a]">Follow the magical trail through 10 worlds. Tap any world to play!</p>
-          <div className="relative flex flex-col gap-3 rounded-3xl bg-gradient-to-b from-[#e8fbf1] via-[#f4ecff] to-[#fff0d9] p-3" role="radiogroup" aria-label="Choose an adventure">
-            {[
-              { icon: "🐱", title: "Color Match", friend: "Mochi the Kitty", world: "Sunny Meadow" },
-              { icon: "🐠", title: "Shape Finder", friend: "Finn the Fish", world: "Ocean World" },
-              { icon: "👽", title: "Counting Fun", friend: "Alien", world: "Galaxy" },
-              { icon: "🐷", title: "Memory Match", friend: "Pig", world: "Farm" },
-              { icon: "🦊", title: "Feelings & Faces", friend: "Fox", world: "Forest" },
-              { icon: "🐼", title: "Listen & Choose", friend: "Panda", world: "Bamboo" },
-              { icon: "🐧", title: "Let's Communicate", friend: "Penguin", world: "Snow" },
-              { icon: "🦁", title: "My Daily Routine", friend: "Lion", world: "Savanna" },
-              { icon: "🐉", title: "Animal Friends", friend: "Dragon", world: "Dragon World" },
-              { icon: "🦄", title: "Niko's Big Challenge", friend: "Unicorn", world: "Magic World" },
-            ].map((adventure, index) => {
-              const available = index < 10;
-              const selected = selectedAdventure === index;
-              return (
-                <button
-                  key={adventure.title}
-                  type="button"
-                  role="radio"
-                  aria-checked={selected && available}
-                  disabled={!available}
-                  aria-label={`Level ${index + 1}: ${adventure.title} with ${adventure.friend} in ${adventure.world}${available ? "" : ", coming soon"}`}
-                  onClick={() => {
-                    setSelectedAdventure(index);
-                    onChange({ mode: "relaxed", friend: index === 1 ? "fish" : "kitty" });
-                    audio.unlock();
-                    audio.click();
-                  }}
-                  style={{ alignSelf: index % 2 === 0 ? "flex-start" : "flex-end" }}
-                  className={`relative flex min-h-[100px] w-[84%] flex-col items-center justify-center rounded-3xl border-4 px-2 py-2 text-center shadow-sm transition-all ${
-                    selected && available ? "border-[#7c5cff] bg-white ring-4 ring-[#d9ccff]" : available ? "cursor-pointer border-[#b3e8c1] bg-white hover:bg-[#e8fbf1]" : "cursor-not-allowed border-transparent bg-[#f6f2ff] opacity-65"
-                  }`}
-                >
-                  <span className="absolute left-2 top-1 rounded-full bg-[#f3edff] px-2 text-xs font-bold text-[#776b8b]">World {index + 1}</span>
-                  <span className="text-4xl sm:text-5xl" aria-hidden="true">{adventure.icon}</span>
-                  <span className="text-sm font-bold leading-tight sm:text-base">{adventure.title}</span>
-                  <span className="text-[11px] font-semibold text-[#6b6080]">{adventure.friend} · {adventure.world}</span>
-                  <span className="mt-1 text-[10px] font-bold text-[#7c5cff]">{available ? "▶ READY TO PLAY" : "🔒 COMING SOON"}</span>
-                </button>
-              );
-            })}
+        <section className="w-full rounded-[2rem] border-4 border-white/80 bg-white/90 p-3 shadow-xl sm:p-6">
+          <div className="mb-4 text-center">
+            <h2 className="text-2xl font-extrabold text-[#48316e] sm:text-3xl">🗺️ Niko's Great Adventure</h2>
+            <p className="text-sm font-semibold text-[#74618c]">Explore 10 magical worlds with Niko's friends!</p>
           </div>
-          <p className="mt-3 rounded-2xl bg-[#e8fbf1] px-3 py-2 text-center text-xs font-semibold text-[#2f7f5f]">
-            🌱 All 10 levels are ready! More learning adventures are coming soon.
-          </p>
-          <label className="mt-4 flex items-center gap-2 rounded-2xl bg-[#f6f2ff] px-3 py-2">
-            <span className="text-sm font-bold whitespace-nowrap">Your name:</span>
-            <input
-              value={settings.playerName}
-              maxLength={12}
-              onChange={(e) => onChange({ playerName: e.target.value })}
-              placeholder="(optional)"
-              className="min-w-0 flex-1 rounded-xl border-2 border-[#e2dafc] bg-white px-3 py-1.5 text-lg font-semibold text-[#3b2f4a] outline-none select-text"
-              aria-label="Your name for the Star Board (optional)"
-            />
-          </label>
-          <BigButton
-            color="pink"
-            onClick={() => onPlay(selectedAdventure)}
-            className="mt-4 w-full py-4 text-3xl"
-            ariaLabel="Play relaxed catching game"
-          >
-            ▶ Play!
-          </BigButton>
-          <p className="mt-2 hidden text-center text-sm font-medium text-[#8a809a] sm:block">Press Enter to play · Arrow keys to move · P to pause</p>
-        </Panel>
+          <div className="relative overflow-hidden rounded-[2rem] border-4 border-[#d9c8ff] bg-gradient-to-b from-[#c9e9ff] via-[#f3e4ff] to-[#dcf6d3] p-3 sm:p-7">
+            <div className="pointer-events-none absolute inset-0 opacity-50" aria-hidden="true" style={{backgroundImage:"radial-gradient(circle at 20% 16%, #fff 0 9px, transparent 10px), radial-gradient(circle at 78% 38%, #fff 0 12px, transparent 13px), radial-gradient(circle at 22% 75%, #fff 0 10px, transparent 11px)"}} />
+            <div className="relative grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-5 sm:gap-x-5 sm:gap-y-8" role="radiogroup" aria-label="Choose an adventure world">
+              {[
+                { icon: "🐱", title: "Color Match", world: "Sunny Meadow", color: "#ffe4a8" },
+                { icon: "🐠", title: "Shape Finder", world: "Ocean World", color: "#b8e9ff" },
+                { icon: "👽", title: "Counting Fun", world: "Galaxy", color: "#d8caff" },
+                { icon: "🐷", title: "Memory Match", world: "Happy Farm", color: "#ffd2e1" },
+                { icon: "🦊", title: "Feelings & Faces", world: "Forest", color: "#c8edc3" },
+                { icon: "🐼", title: "Listen & Choose", world: "Bamboo", color: "#d4f1bd" },
+                { icon: "🐧", title: "Let's Communicate", world: "Snow World", color: "#d9f3ff" },
+                { icon: "🦁", title: "My Daily Routine", world: "Savanna", color: "#ffe4b6" },
+                { icon: "🐉", title: "Animal Friends", world: "Dragon World", color: "#e1d0ff" },
+                { icon: "🦄", title: "Big Challenge", world: "Magic World", color: "#ffd6f2" },
+              ].map((adventure, index) => {
+                const selected = selectedAdventure === index;
+                return (
+                  <button
+                    key={adventure.title}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    aria-label={`World ${index + 1}: ${adventure.title}, ${adventure.world}`}
+                    onClick={() => {
+                      setSelectedAdventure(index);
+                      onChange({ mode: "relaxed", friend: index === 1 ? "fish" : "kitty" });
+                      audio.unlock();
+                      audio.click();
+                    }}
+                    className={`relative z-10 flex min-h-[140px] flex-col items-center justify-center rounded-[1.5rem] border-[3px] p-2 text-center shadow-md transition-transform hover:-translate-y-1 sm:min-h-[155px] ${selected ? "border-[#7750f7] ring-4 ring-[#ac94ff] scale-[1.03]" : "border-white"}`}
+                    style={{backgroundColor:adventure.color}}
+                  >
+                    <span className="absolute left-2 top-1 rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-extrabold text-[#58436d]">{index + 1}</span>
+                    <span className="text-5xl drop-shadow-sm sm:text-6xl" aria-hidden="true">{adventure.icon}</span>
+                    <span className="mt-1 text-sm font-extrabold leading-tight text-[#3b2f4a]">{adventure.title}</span>
+                    <span className="text-[11px] font-semibold text-[#695a7a]">{adventure.world}</span>
+                    {selected && <span className="mt-1 rounded-full bg-[#7750f7] px-2 py-0.5 text-[10px] font-bold text-white">SELECTED ✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className="mx-auto mt-4 flex max-w-xl flex-col items-center gap-3">
+            <p className="text-center text-sm font-bold text-[#655478]">✨ All 10 worlds are ready to explore!</p>
+            <BigButton color="pink" onClick={() => onPlay(selectedAdventure)} className="w-full py-4 text-2xl" ariaLabel={`Play world ${selectedAdventure + 1}`}>
+              ▶ Play World {selectedAdventure + 1}!
+            </BigButton>
+          </div>
+        </section>
 
         <Panel className="w-full !p-3">
           <SettingsToggles settings={settings} onChange={onChange} />
