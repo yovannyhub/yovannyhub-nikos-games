@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { audio } from "../game/audio";
-import { FRIENDS, type ScoreEntry, type Settings } from "../game/types";
+import { type ScoreEntry, type Settings } from "../game/types";
 import { ScoreTable } from "./ScoreTable";
 import { BigButton, Panel, SettingsToggles } from "./ui";
 
@@ -59,7 +59,6 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
   const [confirmClear, setConfirmClear] = useState(false);
   const [confirmResetAdventure, setConfirmResetAdventure] = useState(false);
   const [selectedAdventure, setSelectedAdventure] = useState(0);
-  const lastCompleted = adventureStars.reduce((last, value, index) => value > 0 ? index : last, -1);
   const unlockedThrough = premiumActive ? 9 : 0;
   const playableSelection = selectedAdventure;
   const completedCount = adventureStars.filter(stars => stars > 0).length;
