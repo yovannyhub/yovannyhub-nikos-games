@@ -45,6 +45,9 @@ export default function App() {
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
   const [phase, setPhase] = useState<Phase>("start");
+  const [lockedWorld, setLockedWorld] = useState<number | null>(null);
+  // Fail closed until RevenueCat verifies a premium entitlement.
+  const [premiumActive] = useState(false);
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
   const [hud, setHud] = useState<HudState>({ score: 0, hearts: 3, timeLeft: RELAXED_TIME, combo: 0, multiplier: 1, world: "Sunny Meadow", mode: "relaxed" });
@@ -196,7 +199,8 @@ export default function App() {
   // --- actions
   const play = useCallback((adventure?: number) => {
     const game = adventure ?? selectedGameRef.current;
-    if (game < 0 || game > highestUnlockedWorld(readAdventureStars())) return;
+    if (game < 0 || game > 9) return;
+    if (game > 0 && !premiumActive) { setLockedWorld(game + 1); return; }
     selectedGameRef.current = game;
     const e = engineRef.current;
     if (!e) return;
@@ -429,6 +433,8 @@ export default function App() {
         <StartScreen
           settings={settings}
           adventureStars={adventureStars}
+          premiumActive={premiumActive}
+          onLockedWorld={setLockedWorld}
           onResetAdventure={() => {
             const empty = Array(10).fill(0);
             try { localStorage.setItem(STAR_KEY, JSON.stringify(empty)); } catch { /* storage unavailable */ }
@@ -443,6 +449,19 @@ export default function App() {
             setScores([]);
           }}
         />
+      )}
+
+      {lockedWorld !== null && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#261a43]/70 p-4" role="dialog" aria-modal="true" aria-label="Parent area">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 text-center shadow-2xl">
+            <div className="text-5xl" aria-hidden="true">🔒</div>
+            <h2 className="mt-2 text-2xl font-extrabold text-[#48316e]">Grown-ups only</h2>
+            <p className="mt-3 text-[#58466d]">World {lockedWorld} is part of Niko's Games Premium. World 1 is always free.</p>
+            <p className="mt-3 font-bold text-[#48316e]">$27/year · Worlds 2–10</p>
+            <p className="mt-3 text-sm text-[#665a75]">The subscription checkout is being connected in this sandbox preview. No payment is available yet.</p>
+            <button type="button" className="mt-5 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white" onClick={() => setLockedWorld(null)}>Back to free play</button>
+          </div>
+        </div>
       )}
 
       {phase === "paused" && <PauseMenu settings={settings} onChange={updateSettings} onResume={resume} onRestart={play} onHome={home} />}
