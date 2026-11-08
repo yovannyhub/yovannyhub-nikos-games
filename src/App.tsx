@@ -13,7 +13,7 @@ import { Hud } from "./components/Hud";
 import { MusicMeadow } from "./components/MusicMeadow";
 import { GameOver, PauseMenu } from "./components/Menus";
 import { StartScreen } from "./components/StartScreen";
-import { hasPremiumAccess, openSandboxPaywall } from "./billing/revenuecat";
+import { getSandboxCustomerId, hasPremiumAccess, openSandboxPaywall } from "./billing/revenuecat";
 import { TogetherTime } from "./components/TogetherTime";
 import { audio } from "./game/audio";
 import { GameEngine } from "./game/engine";
@@ -502,6 +502,7 @@ export default function App() {
             <button type="button" disabled={billingBusy || billingChecking} className="mt-3 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white disabled:opacity-60" onClick={beginSandboxCheckout}>{billingBusy ? "Opening sandbox checkout…" : "Grown-up: Test $27/year checkout"}</button>
             <div ref={paywallTargetRef} className="mt-3" />
             {billingError && <p role="alert" className="mt-2 text-sm text-red-700">{billingError}</p>}
+            <p className="mt-3 break-all rounded-xl bg-[#f4f0ff] p-3 text-left text-xs text-[#58466d]">Sandbox browser customer ID: <strong>{getSandboxCustomerId()}</strong></p>
             <button type="button" className="mt-5 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white" onClick={() => setLockedWorld(null)}>Back to free play</button>
           </div>
         </div>
