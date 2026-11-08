@@ -294,7 +294,7 @@ export default function App() {
     setPhase(game === 0 ? "color" : game === 1 ? "shape" : game === 2 ? "galaxy" : game === 3 ? "farm" : game === 4 ? "forest" : game === 5 ? "bamboo" : "playing");
     phaseRef.current = game === 0 ? "color" : game === 1 ? "shape" : game === 2 ? "galaxy" : game === 3 ? "farm" : game === 4 ? "forest" : game === 5 ? "bamboo" : "playing";
     playLaury(game);
-  }, [playLaury, stopLaury]);
+  }, [playLaury, stopLaury, premiumActive]);
 
   const restartFromOver = useCallback(() => {
     if (performance.now() - overAt.current < 450) return; // avoid accidental taps carried over from gameplay
