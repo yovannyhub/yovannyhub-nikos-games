@@ -164,6 +164,16 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
               <p>Every child learns differently. There is no need to rush, chase high scores, or finish every world in one sitting. Niko's Games supports playful practice; it is <b>not a medical treatment, diagnostic tool, or replacement for professional therapy</b>.</p>
             </section>
           </div>
+          <section className="mt-5 rounded-2xl border-2 border-[#e2d6f6] bg-[#faf7ff] p-4" aria-labelledby="parent-policies-heading">
+            <h3 id="parent-policies-heading" className="text-lg font-extrabold text-[#48316e]">📋 Parent Information &amp; Policies</h3>
+            <p className="mt-1 text-sm text-[#665778]">Important information for parents and guardians.</p>
+            <div className="mt-3 flex flex-col gap-2">
+              <a href="/terms/" className="rounded-xl bg-white px-4 py-3 font-bold text-[#65428c] underline underline-offset-2">Terms &amp; Conditions</a>
+              <a href="/privacy/" className="rounded-xl bg-white px-4 py-3 font-bold text-[#65428c] underline underline-offset-2">Privacy Policy</a>
+              <a href="/subscriptions/" className="rounded-xl bg-white px-4 py-3 font-bold text-[#65428c] underline underline-offset-2">Subscriptions &amp; Cancellation</a>
+            </div>
+            <p className="mt-3 text-sm text-[#665778]">Questions? <a className="underline" href="mailto:nikowonderworld@gmail.com">nikowonderworld@gmail.com</a></p>
+          </section>
           <button type="button" className="mt-5 w-full rounded-2xl border-2 border-[#d6c4f5] bg-[#f7f0ff] px-3 py-3 text-sm font-bold text-[#65428c]" onClick={() => { if (confirmResetAdventure) { onResetAdventure(); setSelectedAdventure(0); setConfirmResetAdventure(false); setView("main"); } else setConfirmResetAdventure(true); }}>{confirmResetAdventure ? "Confirm: reset stars and unlocks (keep Star Board)" : "🔄 Reset adventure progress (grown-ups)"}</button>
           <BigButton color="purple" className="mt-4 w-full" onClick={() => setView("main")} autoFocus>
             ← Back to adventure
