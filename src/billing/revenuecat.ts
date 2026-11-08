@@ -30,3 +30,8 @@ export async function openSandboxPaywall(htmlTarget: HTMLElement): Promise<boole
   const result = await client.presentPaywall({ htmlTarget, offering });
   return PREMIUM_ENTITLEMENT_ID in result.customerInfo.entitlements.active;
 }
+
+/** Sandbox-only diagnostic: the exact RevenueCat identity this browser uses. */
+export function getSandboxCustomerId(): string {
+  return localStorage.getItem(ID_KEY) ?? "Not initialized";
+}
