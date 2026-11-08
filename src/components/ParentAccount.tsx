@@ -37,7 +37,7 @@ export function ParentAccount() {
       {loading ? <p className="mt-2 text-sm">Checking parent sign-in…</p> : user ? (
         <>
           <p className="mt-2 text-sm">Signed in as <strong>{user.email}</strong></p>
-          <p className="mt-2 text-xs">Parent sign-in is connected. Subscription migration is not enabled yet; signing in does not transfer the earlier anonymous sandbox purchase.</p>
+          <p className="mt-2 text-xs">Parent sign-in is connected to a stable subscription identity. Earlier anonymous sandbox purchases are not automatically transferred.</p>
           <button type="button" className="mt-3 rounded-xl bg-[#7750f7] px-4 py-2 font-bold text-white" onClick={() => { void supabase.auth.signOut().then(({ error }) => setMessage(error ? error.message : "Signed out.")); }}>Sign out</button>
         </>
       ) : (
