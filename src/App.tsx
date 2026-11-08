@@ -46,14 +46,31 @@ export default function App() {
   // Fail closed until RevenueCat verifies a premium entitlement.
   const [premiumActive, setPremiumActive] = useState(false);
   const [billingBusy, setBillingBusy] = useState(false);
+  const [billingChecking, setBillingChecking] = useState(true);
   const [billingError, setBillingError] = useState("");
   const paywallTargetRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let active = true;
     hasPremiumAccess().then(enabled => { if (active) setPremiumActive(enabled); })
-      .catch(() => { if (active) setBillingError("Unable to verify subscription status."); });
+      .catch(() => { if (active) setBillingError("Unable to verify subscription status."); })
+      .finally(() => { if (active) setBillingChecking(false); });
     return () => { active = false; };
   }, []);
+  const restoreSandboxAccess = async () => {
+    if (billingBusy) return;
+    setBillingBusy(true);
+    setBillingError("");
+    try {
+      const enabled = await hasPremiumAccess();
+      setPremiumActive(enabled);
+      if (enabled) setLockedWorld(null);
+      else setBillingError("No active sandbox subscription was found for this browser. Sandbox subscriptions can expire quickly. Please do not pay again until we verify the test purchase.");
+    } catch {
+      setBillingError("Could not reach RevenueCat to check your subscription. Try again when online.");
+    } finally {
+      setBillingBusy(false);
+    }
+  };
   const beginSandboxCheckout = async () => {
     if (!paywallTargetRef.current || billingBusy) return;
     setBillingBusy(true);
@@ -478,9 +495,11 @@ export default function App() {
             <h2 className="mt-2 text-2xl font-extrabold text-[#48316e]">Grown-ups only</h2>
             <p className="mt-3 text-[#58466d]">World {lockedWorld} is part of Niko's Games Premium. World 1 is always free.</p>
             <p className="mt-3 font-bold text-[#48316e]">$27/year · Worlds 2–10</p>
+            {billingChecking && <p className="mt-2 text-sm text-[#665a75]">Checking your existing subscription…</p>}
             <p className="mt-3 text-sm font-bold text-[#665a75]">SANDBOX TEST ONLY — no real payment will be collected.</p>
             <p className="mt-2 text-xs text-[#665a75]">For parents and guardians only. Annual subscriptions renew until canceled. <a className="underline" href="/terms/" target="_blank" rel="noreferrer">Terms</a> · <a className="underline" href="/privacy/" target="_blank" rel="noreferrer">Privacy</a> · <a className="underline" href="/subscriptions/" target="_blank" rel="noreferrer">Cancellation</a></p>
-            <button type="button" disabled={billingBusy} className="mt-4 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white disabled:opacity-60" onClick={beginSandboxCheckout}>{billingBusy ? "Opening sandbox checkout…" : "Grown-up: Test $27/year checkout"}</button>
+            <button type="button" disabled={billingBusy || billingChecking} className="mt-4 w-full rounded-2xl border-2 border-[#7750f7] bg-white px-5 py-3 font-bold text-[#7750f7] disabled:opacity-60" onClick={restoreSandboxAccess}>{billingBusy ? "Checking subscription…" : "Already subscribed? Check access"}</button>
+            <button type="button" disabled={billingBusy || billingChecking} className="mt-3 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white disabled:opacity-60" onClick={beginSandboxCheckout}>{billingBusy ? "Opening sandbox checkout…" : "Grown-up: Test $27/year checkout"}</button>
             <div ref={paywallTargetRef} className="mt-3" />
             {billingError && <p role="alert" className="mt-2 text-sm text-red-700">{billingError}</p>}
             <button type="button" className="mt-5 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white" onClick={() => setLockedWorld(null)}>Back to free play</button>
