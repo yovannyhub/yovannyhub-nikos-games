@@ -28,10 +28,6 @@ function readAdventureStars(): number[] {
   } catch { /* storage may be unavailable */ }
   return Array(10).fill(0);
 }
-function highestUnlockedWorld(stars: number[]): number {
-  const lastCompleted = stars.reduce((last, value, index) => value > 0 ? index : last, -1);
-  return Math.min(9, lastCompleted + 1);
-}
 function awardAdventureStars(previous: number[], level: number, score: number): number[] {
   const stars = score >= 800 ? 3 : score >= 300 ? 2 : 1;
   return previous.map((old, index) => index === level ? Math.max(old, stars) : old);
