@@ -13,6 +13,7 @@ import { Hud } from "./components/Hud";
 import { MusicMeadow } from "./components/MusicMeadow";
 import { GameOver, PauseMenu } from "./components/Menus";
 import { StartScreen } from "./components/StartScreen";
+import { hasPremiumAccess, openSandboxPaywall } from "./billing/revenuecat";
 import { TogetherTime } from "./components/TogetherTime";
 import { audio } from "./game/audio";
 import { GameEngine } from "./game/engine";
@@ -47,7 +48,30 @@ export default function App() {
   const [phase, setPhase] = useState<Phase>("start");
   const [lockedWorld, setLockedWorld] = useState<number | null>(null);
   // Fail closed until RevenueCat verifies a premium entitlement.
-  const [premiumActive] = useState(false);
+  const [premiumActive, setPremiumActive] = useState(false);
+  const [billingBusy, setBillingBusy] = useState(false);
+  const [billingError, setBillingError] = useState("");
+  const paywallTargetRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let active = true;
+    hasPremiumAccess().then(enabled => { if (active) setPremiumActive(enabled); })
+      .catch(() => { if (active) setBillingError("Unable to verify subscription status."); });
+    return () => { active = false; };
+  }, []);
+  const beginSandboxCheckout = async () => {
+    if (!paywallTargetRef.current || billingBusy) return;
+    setBillingBusy(true);
+    setBillingError("");
+    try {
+      const enabled = await openSandboxPaywall(paywallTargetRef.current);
+      setPremiumActive(enabled || await hasPremiumAccess());
+      if (enabled) setLockedWorld(null);
+    } catch {
+      setBillingError("Sandbox checkout was not completed. Please try again.");
+    } finally {
+      setBillingBusy(false);
+    }
+  };
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
   const [hud, setHud] = useState<HudState>({ score: 0, hearts: 3, timeLeft: RELAXED_TIME, combo: 0, multiplier: 1, world: "Sunny Meadow", mode: "relaxed" });
@@ -458,7 +482,11 @@ export default function App() {
             <h2 className="mt-2 text-2xl font-extrabold text-[#48316e]">Grown-ups only</h2>
             <p className="mt-3 text-[#58466d]">World {lockedWorld} is part of Niko's Games Premium. World 1 is always free.</p>
             <p className="mt-3 font-bold text-[#48316e]">$27/year · Worlds 2–10</p>
-            <p className="mt-3 text-sm text-[#665a75]">The subscription checkout is being connected in this sandbox preview. No payment is available yet.</p>
+            <p className="mt-3 text-sm font-bold text-[#665a75]">SANDBOX TEST ONLY — no real payment will be collected.</p>
+            <p className="mt-2 text-xs text-[#665a75]">For parents and guardians only. Annual subscriptions renew until canceled. <a className="underline" href="/terms/" target="_blank" rel="noreferrer">Terms</a> · <a className="underline" href="/privacy/" target="_blank" rel="noreferrer">Privacy</a> · <a className="underline" href="/subscriptions/" target="_blank" rel="noreferrer">Cancellation</a></p>
+            <button type="button" disabled={billingBusy} className="mt-4 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white disabled:opacity-60" onClick={beginSandboxCheckout}>{billingBusy ? "Opening sandbox checkout…" : "Grown-up: Test $27/year checkout"}</button>
+            <div ref={paywallTargetRef} className="mt-3" />
+            {billingError && <p role="alert" className="mt-2 text-sm text-red-700">{billingError}</p>}
             <button type="button" className="mt-5 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white" onClick={() => setLockedWorld(null)}>Back to free play</button>
           </div>
         </div>
