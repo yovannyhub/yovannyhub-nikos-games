@@ -1,17 +1,36 @@
 import { Purchases } from "@revenuecat/purchases-js";
+import { supabase } from "../auth/supabase";
 import { PREMIUM_ENTITLEMENT_ID, REVENUECAT_WEB_SANDBOX_KEY } from "./revenuecatConfig";
 
 const ID_KEY = "niko-revenuecat-sandbox-customer-v1";
 let instance: Purchases | null = null;
+let configuredId: string | null = null;
+
+export function currentBillingIdentity(): string | null { return configuredId; }
+
+/** Resolve a verified parent identity before configuring RevenueCat. */
+export async function initializeParentBilling(): Promise<void> {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) throw error;
+  const parentId = data.user ? `niko_parent_${data.user.id}` : null;
+  if (instance) {
+    if (parentId && configuredId !== parentId) throw new Error("Parent identity changed; reload to reconnect billing.");
+    return;
+  }
+  const id = parentId ?? getOrCreateAnonymousId();
+  configuredId = id;
+  instance = Purchases.configure({ apiKey: REVENUECAT_WEB_SANDBOX_KEY, appUserId: id });
+}
+
+function getOrCreateAnonymousId(): string {
+  let id = localStorage.getItem(ID_KEY);
+  if (!id) { id = Purchases.generateRevenueCatAnonymousAppUserId(); localStorage.setItem(ID_KEY, id); }
+  return id;
+}
+
 
 export function billingClient(): Purchases {
-  if (instance) return instance;
-  let id = localStorage.getItem(ID_KEY);
-  if (!id) {
-    id = Purchases.generateRevenueCatAnonymousAppUserId();
-    localStorage.setItem(ID_KEY, id);
-  }
-  instance = Purchases.configure({ apiKey: REVENUECAT_WEB_SANDBOX_KEY, appUserId: id });
+  if (!instance) throw new Error("Billing is not initialized; verify parent authentication first.");
   return instance;
 }
 
@@ -33,5 +52,5 @@ export async function openSandboxPaywall(htmlTarget: HTMLElement): Promise<boole
 
 /** Sandbox-only diagnostic: the exact RevenueCat identity this browser uses. */
 export function getSandboxCustomerId(): string {
-  return localStorage.getItem(ID_KEY) ?? "Not initialized";
+  return configuredId ?? "Not initialized";
 }
