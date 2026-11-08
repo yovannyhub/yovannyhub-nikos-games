@@ -14,7 +14,8 @@ import { MusicMeadow } from "./components/MusicMeadow";
 import { GameOver, PauseMenu } from "./components/Menus";
 import { StartScreen } from "./components/StartScreen";
 import { ParentAccount } from "./components/ParentAccount";
-import { getSandboxCustomerId, hasPremiumAccess, openSandboxPaywall } from "./billing/revenuecat";
+import { supabase } from "./auth/supabase";
+import { getSandboxCustomerId, hasPremiumAccess, initializeParentBilling, openSandboxPaywall } from "./billing/revenuecat";
 import { TogetherTime } from "./components/TogetherTime";
 import { audio } from "./game/audio";
 import { GameEngine } from "./game/engine";
@@ -52,16 +53,27 @@ export default function App() {
   const paywallTargetRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let active = true;
-    hasPremiumAccess().then(enabled => { if (active) setPremiumActive(enabled); })
+    initializeParentBilling().then(() => hasPremiumAccess()).then(enabled => { if (active) setPremiumActive(enabled); })
       .catch(() => { if (active) setBillingError("Unable to verify subscription status."); })
       .finally(() => { if (active) setBillingChecking(false); });
-    return () => { active = false; };
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        // RevenueCat is configured once per page load. Recreate it with the verified parent identity.
+        void supabase.auth.getUser().then(({ data }) => {
+          const next = data.user ? `niko_parent_${data.user.id}` : null;
+          const current = getSandboxCustomerId();
+          if ((next && current !== next) || (!next && current.startsWith("niko_parent_"))) window.location.reload();
+        });
+      }
+    });
+    return () => { active = false; subscription.unsubscribe(); };
   }, []);
   const restoreSandboxAccess = async () => {
     if (billingBusy) return;
     setBillingBusy(true);
     setBillingError("");
     try {
+      await initializeParentBilling();
       const enabled = await hasPremiumAccess();
       setPremiumActive(enabled);
       if (enabled) setLockedWorld(null);
@@ -77,6 +89,7 @@ export default function App() {
     setBillingBusy(true);
     setBillingError("");
     try {
+      await initializeParentBilling();
       const enabled = await openSandboxPaywall(paywallTargetRef.current);
       setPremiumActive(enabled || await hasPremiumAccess());
       if (enabled) setLockedWorld(null);
@@ -504,7 +517,7 @@ export default function App() {
             <div ref={paywallTargetRef} className="mt-3" />
             <ParentAccount />
             {billingError && <p role="alert" className="mt-2 text-sm text-red-700">{billingError}</p>}
-            <p className="mt-3 break-all rounded-xl bg-[#f4f0ff] p-3 text-left text-xs text-[#58466d]">Sandbox browser customer ID: <strong>{getSandboxCustomerId()}</strong></p>
+            <p className="mt-3 break-all rounded-xl bg-[#f4f0ff] p-3 text-left text-xs text-[#58466d]">RevenueCat sandbox customer ID: <strong>{getSandboxCustomerId()}</strong></p>
             <button type="button" className="mt-5 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white" onClick={() => setLockedWorld(null)}>Back to free play</button>
           </div>
         </div>
