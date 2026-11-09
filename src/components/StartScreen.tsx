@@ -167,6 +167,7 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
             </section>
           </div>
           <button type="button" className="mt-5 w-full rounded-2xl border-2 border-[#d6c4f5] bg-[#f7f0ff] px-3 py-3 text-sm font-bold text-[#65428c]" onClick={() => { if (confirmResetAdventure) { onResetAdventure(); setSelectedAdventure(0); setConfirmResetAdventure(false); setView("main"); } else setConfirmResetAdventure(true); }}>{confirmResetAdventure ? "Confirm: reset stars and unlocks (keep Star Board)" : "🔄 Reset adventure progress (grown-ups)"}</button>
+          <button type="button" onClick={onManageMembership} className="mt-4 w-full rounded-2xl bg-[#7750f7] px-4 py-3 font-bold text-white">🔐 Parent account & membership</button>
           <BigButton color="purple" className="mt-4 w-full" onClick={() => setView("main")} autoFocus>
             ← Back to adventure
           </BigButton>
