@@ -50,14 +50,17 @@ export default function App() {
   const [billingBusy, setBillingBusy] = useState(false);
   const [billingChecking, setBillingChecking] = useState(true);
   const [billingError, setBillingError] = useState("");
+  const [parentSignedIn, setParentSignedIn] = useState(false);
   const paywallTargetRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let active = true;
+    void supabase.auth.getUser().then(({ data }) => { if (active) setParentSignedIn(Boolean(data.user)); });
     initializeParentBilling().then(() => hasPremiumAccess()).then(enabled => { if (active) setPremiumActive(enabled); })
       .catch((error: unknown) => { if (active) setBillingError(`Subscription check failed: ${error instanceof Error ? error.message : String(error)}`); })
       .finally(() => { if (active) setBillingChecking(false); });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        setParentSignedIn(Boolean(session?.user));
         // RevenueCat is configured once per page load. Recreate it with the verified parent identity.
         void supabase.auth.getUser().then(({ data }) => {
           const next = data.user ? `niko_parent_${data.user.id}` : null;
@@ -70,6 +73,7 @@ export default function App() {
   }, []);
   const restoreSandboxAccess = async () => {
     if (billingBusy) return;
+    if (!parentSignedIn) { setBillingError("Sign in with your parent email first, then check your existing subscription."); return; }
     setBillingBusy(true);
     setBillingError("");
     try {
@@ -86,6 +90,7 @@ export default function App() {
   };
   const beginSandboxCheckout = async () => {
     if (!paywallTargetRef.current || billingBusy) return;
+    if (!parentSignedIn) { setBillingError("Sign in with your parent email before starting checkout."); return; }
     setBillingBusy(true);
     setBillingError("");
     try {
@@ -512,10 +517,17 @@ export default function App() {
             {billingChecking && <p className="mt-2 text-sm text-[#665a75]">Checking your existing subscription…</p>}
             <p className="mt-3 text-sm font-bold text-[#665a75]">SANDBOX TEST ONLY — no real payment will be collected.</p>
             <p className="mt-2 text-xs text-[#665a75]">For parents and guardians only. Annual subscriptions renew until canceled. <a className="underline" href="/terms/" target="_blank" rel="noreferrer">Terms</a> · <a className="underline" href="/privacy/" target="_blank" rel="noreferrer">Privacy</a> · <a className="underline" href="/subscriptions/" target="_blank" rel="noreferrer">Cancellation</a></p>
-            <button type="button" disabled={billingBusy || billingChecking} className="mt-4 w-full rounded-2xl border-2 border-[#7750f7] bg-white px-5 py-3 font-bold text-[#7750f7] disabled:opacity-60" onClick={restoreSandboxAccess}>{billingBusy ? "Checking subscription…" : "Already subscribed? Check access"}</button>
-            <button type="button" disabled={billingBusy || billingChecking} className="mt-3 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white disabled:opacity-60" onClick={beginSandboxCheckout}>{billingBusy ? "Opening sandbox checkout…" : "Grown-up: Test $27/year checkout"}</button>
-            <div ref={paywallTargetRef} className="mt-3" />
             <ParentAccount />
+            {parentSignedIn ? (
+              <>
+                <p className="mt-3 text-sm font-semibold text-[#48316e]">Step 2: Check your subscription before purchasing.</p>
+                <button type="button" disabled={billingBusy || billingChecking} className="mt-3 w-full rounded-2xl border-2 border-[#7750f7] bg-white px-5 py-3 font-bold text-[#7750f7] disabled:opacity-60" onClick={restoreSandboxAccess}>{billingBusy ? "Checking subscription…" : "Already subscribed? Check access"}</button>
+                {!premiumActive && <button type="button" disabled={billingBusy || billingChecking} className="mt-3 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white disabled:opacity-60" onClick={beginSandboxCheckout}>{billingBusy ? "Opening sandbox checkout…" : "Grown-up: Test $27/year checkout"}</button>}
+              </>
+            ) : (
+              <p className="mt-3 text-sm font-semibold text-[#48316e]">Step 1: Sign in above with your parent email. We’ll check your subscription before offering checkout.</p>
+            )}
+            <div ref={paywallTargetRef} className="mt-3" />
             {billingError && <p role="alert" className="mt-2 text-sm text-red-700">{billingError}</p>}
             <p className="mt-3 break-all rounded-xl bg-[#f4f0ff] p-3 text-left text-xs text-[#58466d]">RevenueCat sandbox customer ID: <strong>{getSandboxCustomerId()}</strong></p>
             <button type="button" className="mt-5 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white" onClick={() => setLockedWorld(null)}>Back to free play</button>
