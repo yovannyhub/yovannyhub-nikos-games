@@ -10,7 +10,11 @@ export function currentBillingIdentity(): string | null { return configuredId; }
 
 /** Resolve a verified parent identity before configuring RevenueCat. */
 export async function initializeParentBilling(): Promise<void> {
-  // A missing or expired session is normal for a signed-out visitor.\n  // Initialize anonymous billing so the paywall remains available, while\n  // requiring a verified Supabase user for a parent-linked identity.\n  const { data } = await supabase.auth.getUser();\n  const parentId = data.user ? `niko_parent_${data.user.id}` : null;
+  // A missing or expired session is normal for a signed-out visitor.
+  // Initialize anonymous billing while reserving parent-linked identities
+  // for verified Supabase users.
+  const { data } = await supabase.auth.getUser();
+  const parentId = data.user ? `niko_parent_${data.user.id}` : null;
   if (instance) {
     if (parentId && configuredId !== parentId) throw new Error("Parent identity changed; reload to reconnect billing.");
     return;
