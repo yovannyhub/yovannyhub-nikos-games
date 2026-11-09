@@ -54,7 +54,7 @@ export default function App() {
   useEffect(() => {
     let active = true;
     initializeParentBilling().then(() => hasPremiumAccess()).then(enabled => { if (active) setPremiumActive(enabled); })
-      .catch(() => { if (active) setBillingError("Unable to verify subscription status."); })
+      .catch((error: unknown) => { if (active) setBillingError(`Subscription check failed: ${error instanceof Error ? error.message : String(error)}`); })
       .finally(() => { if (active) setBillingChecking(false); });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
@@ -78,8 +78,8 @@ export default function App() {
       setPremiumActive(enabled);
       if (enabled) setLockedWorld(null);
       else setBillingError("No active sandbox subscription was found for this browser. Sandbox subscriptions can expire quickly. Please do not pay again until we verify the test purchase.");
-    } catch {
-      setBillingError("Could not reach RevenueCat to check your subscription. Try again when online.");
+    } catch (error) {
+      setBillingError(`Subscription check failed: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setBillingBusy(false);
     }
