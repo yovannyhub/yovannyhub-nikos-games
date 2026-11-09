@@ -51,6 +51,7 @@ export default function App() {
   const [billingChecking, setBillingChecking] = useState(true);
   const [billingError, setBillingError] = useState("");
   const [parentSignedIn, setParentSignedIn] = useState(false);
+  const [membershipMessage, setMembershipMessage] = useState("");
   const paywallTargetRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let active = true;
@@ -76,12 +77,17 @@ export default function App() {
     if (!parentSignedIn) { setBillingError("Sign in with your parent email first, then check your existing subscription."); return; }
     setBillingBusy(true);
     setBillingError("");
+    setMembershipMessage("");
     try {
       await initializeParentBilling();
       const enabled = await hasPremiumAccess();
       setPremiumActive(enabled);
-      if (enabled) setLockedWorld(null);
-      else setBillingError("No active sandbox subscription was found for this browser. Sandbox subscriptions can expire quickly. Please do not pay again until we verify the test purchase.");
+      if (enabled) {
+        setMembershipMessage("Your Premium membership is active. Worlds 2–10 are available.");
+        setLockedWorld(null);
+      } else {
+        setMembershipMessage("No active Premium membership was found for this parent account. World 1 is free, and you can start a new subscription below.");
+      }
     } catch (error) {
       setBillingError(`Subscription check failed: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
@@ -518,6 +524,7 @@ export default function App() {
             <p className="mt-3 text-sm font-bold text-[#665a75]">SANDBOX TEST ONLY — no real payment will be collected.</p>
             <p className="mt-2 text-xs text-[#665a75]">For parents and guardians only. Annual subscriptions renew until canceled. <a className="underline" href="/terms/" target="_blank" rel="noreferrer">Terms</a> · <a className="underline" href="/privacy/" target="_blank" rel="noreferrer">Privacy</a> · <a className="underline" href="/subscriptions/" target="_blank" rel="noreferrer">Cancellation</a></p>
             <ParentAccount />
+            {parentSignedIn && !billingChecking && <section className="mt-3 rounded-2xl border border-[#d6c4f5] bg-[#faf7ff] p-3 text-left" aria-label="Membership status"><h3 className="font-extrabold text-[#48316e]">Your membership</h3><p className="mt-1 text-sm text-[#58466d]">Status: <strong>{premiumActive ? "Premium active" : "No active Premium access"}</strong></p><p className="mt-1 text-sm text-[#58466d]">{premiumActive ? "Worlds 2–10 are unlocked." : "World 1 is free. Worlds 2–10 require an active subscription."}</p><p className="mt-2 text-xs text-[#665a75]">Sandbox subscriptions may expire quickly. Canceled subscriptions retain access until their expiration. To cancel a sandbox test subscription, use the RevenueCat dashboard. Self-service cancellation for real customers will be added before launch.</p></section>}
             {parentSignedIn ? (
               <>
                 <p className="mt-3 text-sm font-semibold text-[#48316e]">Step 2: Check your subscription before purchasing.</p>
@@ -528,6 +535,7 @@ export default function App() {
               <p className="mt-3 text-sm font-semibold text-[#48316e]">Step 1: Sign in above with your parent email. We’ll check your subscription before offering checkout.</p>
             )}
             <div ref={paywallTargetRef} className="mt-3" />
+            {membershipMessage && <p role="status" className="mt-2 text-sm text-[#48316e]">{membershipMessage}</p>}
             {billingError && <p role="alert" className="mt-2 text-sm text-red-700">{billingError}</p>}
             <p className="mt-3 break-all rounded-xl bg-[#f4f0ff] p-3 text-left text-xs text-[#58466d]">RevenueCat sandbox customer ID: <strong>{getSandboxCustomerId()}</strong></p>
             <button type="button" className="mt-5 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white" onClick={() => setLockedWorld(null)}>Back to free play</button>
