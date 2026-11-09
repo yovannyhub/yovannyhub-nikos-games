@@ -15,7 +15,7 @@ import { GameOver, PauseMenu } from "./components/Menus";
 import { StartScreen } from "./components/StartScreen";
 import { ParentAccount } from "./components/ParentAccount";
 import { supabase } from "./auth/supabase";
-import { getMembershipDetails, getSandboxCustomerId, hasPremiumAccess, initializeParentBilling, openSandboxPaywall } from "./billing/revenuecat";
+import { getMembershipDetails, getSandboxCustomerId, initializeParentBilling, openSandboxPaywall } from "./billing/revenuecat";
 import { TogetherTime } from "./components/TogetherTime";
 import { audio } from "./game/audio";
 import { GameEngine } from "./game/engine";
