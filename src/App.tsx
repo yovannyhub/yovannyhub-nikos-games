@@ -54,11 +54,12 @@ export default function App() {
   const [membershipMessage, setMembershipMessage] = useState("");
   const [managementUrl, setManagementUrl] = useState<string | null>(null);
   const [membershipExpiry, setMembershipExpiry] = useState<string | null>(null);
+  const [membershipWillRenew, setMembershipWillRenew] = useState<boolean | null>(null);
   const paywallTargetRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let active = true;
     void supabase.auth.getUser().then(({ data }) => { if (active) setParentSignedIn(Boolean(data.user)); });
-    initializeParentBilling().then(() => getMembershipDetails()).then(details => { if (active) { setPremiumActive(details.active); setManagementUrl(details.managementUrl); setMembershipExpiry(details.expiresAt); } })
+    initializeParentBilling().then(() => getMembershipDetails()).then(details => { if (active) { setPremiumActive(details.active); setManagementUrl(details.managementUrl); setMembershipExpiry(details.expiresAt); setMembershipWillRenew(details.willRenew); } })
       .catch((error: unknown) => { if (active) setBillingError(`Subscription check failed: ${error instanceof Error ? error.message : String(error)}`); })
       .finally(() => { if (active) setBillingChecking(false); });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -86,9 +87,9 @@ export default function App() {
       const enabled = details.active;
       setPremiumActive(enabled);
       setManagementUrl(details.managementUrl);
-      setMembershipExpiry(details.expiresAt);
+      setMembershipExpiry(details.expiresAt); setMembershipWillRenew(details.willRenew);
       if (enabled) {
-        setMembershipMessage("Your Premium membership is active. Worlds 2–10 are available.");
+        setMembershipMessage(details.willRenew === false ? "Your Premium subscription is canceled. Worlds 2–10 remain available until expiration." : "Your Premium membership is active. Worlds 2–10 are available.");
         setLockedWorld(null);
       } else {
         setMembershipMessage("No active Premium membership was found for this parent account. World 1 is free, and you can start a new subscription below.");
@@ -110,7 +111,7 @@ export default function App() {
       const details = await getMembershipDetails();
       setPremiumActive(enabled || details.active);
       setManagementUrl(details.managementUrl);
-      setMembershipExpiry(details.expiresAt);
+      setMembershipExpiry(details.expiresAt); setMembershipWillRenew(details.willRenew);
       if (enabled || details.active) setLockedWorld(null);
     } catch {
       setBillingError("Sandbox checkout was not completed. Please try again.");
@@ -533,7 +534,7 @@ export default function App() {
             <p className="mt-3 text-sm font-bold text-[#665a75]">SANDBOX TEST ONLY — no real payment will be collected.</p>
             <p className="mt-2 text-xs text-[#665a75]">For parents and guardians only. Annual subscriptions renew until canceled. <a className="underline" href="/terms/" target="_blank" rel="noreferrer">Terms</a> · <a className="underline" href="/privacy/" target="_blank" rel="noreferrer">Privacy</a> · <a className="underline" href="/subscriptions/" target="_blank" rel="noreferrer">Cancellation</a></p>
             <ParentAccount />
-            {parentSignedIn && !billingChecking && <section className="mt-3 rounded-2xl border border-[#d6c4f5] bg-[#faf7ff] p-3 text-left" aria-label="Membership status"><h3 className="font-extrabold text-[#48316e]">Your membership</h3><p className="mt-1 text-sm text-[#58466d]">Status: <strong>{premiumActive ? "Premium active" : "No active Premium access"}</strong></p><p className="mt-1 text-sm text-[#58466d]">{premiumActive ? "Worlds 2–10 are unlocked." : "World 1 is free. Worlds 2–10 require an active subscription."}</p><p className="mt-2 text-xs text-[#665a75]">Sandbox subscriptions may expire quickly. Cancellation keeps access until the paid period ends.</p>{premiumActive && membershipExpiry && <p className="mt-2 text-sm text-[#58466d]">Access through: <strong>{new Date(membershipExpiry).toLocaleString()}</strong></p>}{premiumActive && managementUrl && <a href={managementUrl} target="_blank" rel="noopener noreferrer" className="mt-3 block rounded-xl bg-[#7750f7] px-4 py-3 text-center font-bold text-white">Manage or cancel subscription ↗</a>}{premiumActive && !managementUrl && <p className="mt-2 text-xs text-[#665a75]">Your subscription management link is unavailable right now. Check the billing confirmation email for the customer portal link.</p>}</section>}
+            {parentSignedIn && !billingChecking && <section className="mt-3 rounded-2xl border border-[#d6c4f5] bg-[#faf7ff] p-3 text-left" aria-label="Membership status"><h3 className="font-extrabold text-[#48316e]">Your membership</h3><p className="mt-1 text-sm text-[#58466d]">Status: <strong>{premiumActive ? (membershipWillRenew === false ? "Premium canceled — access remains until expiration" : membershipWillRenew === true ? "Premium active — renews automatically" : "Premium active — renewal status unavailable") : "Premium expired or no active subscription"}</strong></p><p className="mt-1 text-sm text-[#58466d]">{premiumActive ? "Worlds 2–10 are unlocked." : "World 1 is free. Worlds 2–10 require an active subscription."}</p><p className="mt-2 text-xs text-[#665a75]">Sandbox subscriptions may expire quickly. Cancellation keeps access until the paid period ends.</p>{premiumActive && membershipExpiry && <p className="mt-2 text-sm text-[#58466d]">Access through: <strong>{new Date(membershipExpiry).toLocaleString()}</strong></p>}{premiumActive && managementUrl && <a href={managementUrl} target="_blank" rel="noopener noreferrer" className="mt-3 block rounded-xl bg-[#7750f7] px-4 py-3 text-center font-bold text-white">{membershipWillRenew === false ? "Manage or renew subscription ↗" : "Manage or cancel subscription ↗"}</a>}{premiumActive && !managementUrl && <p className="mt-2 text-xs text-[#665a75]">Your subscription management link is unavailable right now. Check the billing confirmation email for the customer portal link.</p>}</section>}
             {parentSignedIn ? (
               <>
                 <p className="mt-3 text-sm font-semibold text-[#48316e]">Step 2: Check your subscription before purchasing.</p>
