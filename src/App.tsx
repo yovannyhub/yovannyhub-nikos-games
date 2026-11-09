@@ -505,6 +505,7 @@ export default function App() {
           adventureStars={adventureStars}
           premiumActive={premiumActive}
           onLockedWorld={setLockedWorld}
+          onManageMembership={() => setLockedWorld(2)}
           onResetAdventure={() => {
             const empty = Array(10).fill(0);
             try { localStorage.setItem(STAR_KEY, JSON.stringify(empty)); } catch { /* storage unavailable */ }
@@ -525,8 +526,8 @@ export default function App() {
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#261a43]/70 p-4" role="dialog" aria-modal="true" aria-label="Parent area">
           <div className="w-full max-w-md rounded-3xl bg-white p-6 text-center shadow-2xl">
             <div className="text-5xl" aria-hidden="true">🔒</div>
-            <h2 className="mt-2 text-2xl font-extrabold text-[#48316e]">Grown-ups only</h2>
-            <p className="mt-3 text-[#58466d]">World {lockedWorld} is part of Niko's Games Premium. World 1 is always free.</p>
+            <h2 className="mt-2 text-2xl font-extrabold text-[#48316e]">{premiumActive ? "Parent membership" : "Grown-ups only"}</h2>
+            <p className="mt-3 text-[#58466d]">{premiumActive ? "Manage your Niko's Games Premium membership." : `World ${lockedWorld} is part of Niko's Games Premium. World 1 is always free.`}</p>
             <p className="mt-3 font-bold text-[#48316e]">$27/year · Worlds 2–10</p>
             {billingChecking && <p className="mt-2 text-sm text-[#665a75]">Checking your existing subscription…</p>}
             <p className="mt-3 text-sm font-bold text-[#665a75]">SANDBOX TEST ONLY — no real payment will be collected.</p>
