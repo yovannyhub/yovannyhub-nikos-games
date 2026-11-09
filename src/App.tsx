@@ -89,8 +89,7 @@ export default function App() {
       setManagementUrl(details.managementUrl);
       setMembershipExpiry(details.expiresAt); setMembershipWillRenew(details.willRenew);
       if (enabled) {
-        setMembershipMessage(details.willRenew === false ? "Your Premium subscription is canceled. Worlds 2–10 remain available until expiration." : "Your Premium membership is active. Worlds 2–10 are available.");
-        setLockedWorld(null);
+        setMembershipMessage(details.willRenew === false ? "Your Premium subscription is canceled. Worlds 2–10 remain available until expiration." : details.willRenew === true ? "Your Premium membership is active and set to renew. Worlds 2–10 are available." : "Your Premium access is active, but renewal status could not be confirmed. Check the billing portal for cancellation details.");
       } else {
         setMembershipMessage("No active Premium membership was found for this parent account. World 1 is free, and you can start a new subscription below.");
       }
