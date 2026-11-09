@@ -15,7 +15,7 @@ import { GameOver, PauseMenu } from "./components/Menus";
 import { StartScreen } from "./components/StartScreen";
 import { ParentAccount } from "./components/ParentAccount";
 import { supabase } from "./auth/supabase";
-import { getSandboxCustomerId, hasPremiumAccess, initializeParentBilling, openSandboxPaywall } from "./billing/revenuecat";
+import { getMembershipDetails, getSandboxCustomerId, hasPremiumAccess, initializeParentBilling, openSandboxPaywall } from "./billing/revenuecat";
 import { TogetherTime } from "./components/TogetherTime";
 import { audio } from "./game/audio";
 import { GameEngine } from "./game/engine";
@@ -52,11 +52,13 @@ export default function App() {
   const [billingError, setBillingError] = useState("");
   const [parentSignedIn, setParentSignedIn] = useState(false);
   const [membershipMessage, setMembershipMessage] = useState("");
+  const [managementUrl, setManagementUrl] = useState<string | null>(null);
+  const [membershipExpiry, setMembershipExpiry] = useState<string | null>(null);
   const paywallTargetRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let active = true;
     void supabase.auth.getUser().then(({ data }) => { if (active) setParentSignedIn(Boolean(data.user)); });
-    initializeParentBilling().then(() => hasPremiumAccess()).then(enabled => { if (active) setPremiumActive(enabled); })
+    initializeParentBilling().then(() => getMembershipDetails()).then(details => { if (active) { setPremiumActive(details.active); setManagementUrl(details.managementUrl); setMembershipExpiry(details.expiresAt); } })
       .catch((error: unknown) => { if (active) setBillingError(`Subscription check failed: ${error instanceof Error ? error.message : String(error)}`); })
       .finally(() => { if (active) setBillingChecking(false); });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -80,8 +82,11 @@ export default function App() {
     setMembershipMessage("");
     try {
       await initializeParentBilling();
-      const enabled = await hasPremiumAccess();
+      const details = await getMembershipDetails();
+      const enabled = details.active;
       setPremiumActive(enabled);
+      setManagementUrl(details.managementUrl);
+      setMembershipExpiry(details.expiresAt);
       if (enabled) {
         setMembershipMessage("Your Premium membership is active. Worlds 2–10 are available.");
         setLockedWorld(null);
@@ -102,8 +107,11 @@ export default function App() {
     try {
       await initializeParentBilling();
       const enabled = await openSandboxPaywall(paywallTargetRef.current);
-      setPremiumActive(enabled || await hasPremiumAccess());
-      if (enabled) setLockedWorld(null);
+      const details = await getMembershipDetails();
+      setPremiumActive(enabled || details.active);
+      setManagementUrl(details.managementUrl);
+      setMembershipExpiry(details.expiresAt);
+      if (enabled || details.active) setLockedWorld(null);
     } catch {
       setBillingError("Sandbox checkout was not completed. Please try again.");
     } finally {
@@ -524,7 +532,7 @@ export default function App() {
             <p className="mt-3 text-sm font-bold text-[#665a75]">SANDBOX TEST ONLY — no real payment will be collected.</p>
             <p className="mt-2 text-xs text-[#665a75]">For parents and guardians only. Annual subscriptions renew until canceled. <a className="underline" href="/terms/" target="_blank" rel="noreferrer">Terms</a> · <a className="underline" href="/privacy/" target="_blank" rel="noreferrer">Privacy</a> · <a className="underline" href="/subscriptions/" target="_blank" rel="noreferrer">Cancellation</a></p>
             <ParentAccount />
-            {parentSignedIn && !billingChecking && <section className="mt-3 rounded-2xl border border-[#d6c4f5] bg-[#faf7ff] p-3 text-left" aria-label="Membership status"><h3 className="font-extrabold text-[#48316e]">Your membership</h3><p className="mt-1 text-sm text-[#58466d]">Status: <strong>{premiumActive ? "Premium active" : "No active Premium access"}</strong></p><p className="mt-1 text-sm text-[#58466d]">{premiumActive ? "Worlds 2–10 are unlocked." : "World 1 is free. Worlds 2–10 require an active subscription."}</p><p className="mt-2 text-xs text-[#665a75]">Sandbox subscriptions may expire quickly. Canceled subscriptions retain access until their expiration. To cancel a sandbox test subscription, use the RevenueCat dashboard. Self-service cancellation for real customers will be added before launch.</p></section>}
+            {parentSignedIn && !billingChecking && <section className="mt-3 rounded-2xl border border-[#d6c4f5] bg-[#faf7ff] p-3 text-left" aria-label="Membership status"><h3 className="font-extrabold text-[#48316e]">Your membership</h3><p className="mt-1 text-sm text-[#58466d]">Status: <strong>{premiumActive ? "Premium active" : "No active Premium access"}</strong></p><p className="mt-1 text-sm text-[#58466d]">{premiumActive ? "Worlds 2–10 are unlocked." : "World 1 is free. Worlds 2–10 require an active subscription."}</p><p className="mt-2 text-xs text-[#665a75]">Sandbox subscriptions may expire quickly. Cancellation keeps access until the paid period ends.</p>{premiumActive && membershipExpiry && <p className="mt-2 text-sm text-[#58466d]">Access through: <strong>{new Date(membershipExpiry).toLocaleString()}</strong></p>}{premiumActive && managementUrl && <a href={managementUrl} target="_blank" rel="noopener noreferrer" className="mt-3 block rounded-xl bg-[#7750f7] px-4 py-3 text-center font-bold text-white">Manage or cancel subscription ↗</a>}{premiumActive && !managementUrl && <p className="mt-2 text-xs text-[#665a75]">Your subscription management link is unavailable right now. Check the billing confirmation email for the customer portal link.</p>}</section>}
             {parentSignedIn ? (
               <>
                 <p className="mt-3 text-sm font-semibold text-[#48316e]">Step 2: Check your subscription before purchasing.</p>
