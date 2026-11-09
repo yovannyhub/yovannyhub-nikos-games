@@ -11,6 +11,7 @@ interface Props {
   onPlay: (adventure: number) => void;
   premiumActive: boolean;
   onLockedWorld: (world: number) => void;
+  onManageMembership: () => void;
   scores: ScoreEntry[];
   onClearScores: () => void;
   onResetAdventure: () => void;
@@ -19,7 +20,7 @@ interface Props {
 const TITLE = "Niko's Games";
 const TITLE_COLORS = ["#ff7ab6", "#ffb000", "#3cc68a", "#4aa8ff", "#7c5cff"];
 
-export function StartScreen({ settings, adventureStars, onChange, onPlay, scores, onClearScores, onResetAdventure, premiumActive, onLockedWorld }: Props) {
+export function StartScreen({ settings, adventureStars, onChange, onPlay, scores, onClearScores, onResetAdventure, premiumActive, onLockedWorld, onManageMembership }: Props) {
   const [view, setView] = useState<"main" | "scores" | "grownups">("main");
   const [lauryPlaying, setLauryPlaying] = useState(false);
   const [lauryMessage, setLauryMessage] = useState("");
