@@ -36,6 +36,12 @@ export function billingClient(): Purchases {
   return instance;
 }
 
+export async function getMembershipDetails(): Promise<{ active: boolean; managementUrl: string | null; expiresAt: string | null }> {
+  const info = await billingClient().getCustomerInfo();
+  const entitlement = info.entitlements.active[PREMIUM_ENTITLEMENT_ID];
+  return { active: Boolean(entitlement), managementUrl: info.managementURL ?? null, expiresAt: entitlement?.expirationDate ?? null };
+}
+
 export async function hasPremiumAccess(): Promise<boolean> {
   const info = await billingClient().getCustomerInfo();
   return PREMIUM_ENTITLEMENT_ID in info.entitlements.active;
