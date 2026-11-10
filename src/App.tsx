@@ -524,7 +524,8 @@ export default function App() {
 
       {lockedWorld !== null && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#261a43]/70 p-4" role="dialog" aria-modal="true" aria-label="Parent area">
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 text-center shadow-2xl">
+          <div className="relative max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-6 text-center shadow-2xl">
+            <button type="button" aria-label="Close membership window" title="Close membership window" className="sticky top-0 z-10 float-right flex h-10 w-10 items-center justify-center rounded-full bg-[#f4f0ff] text-2xl font-bold text-[#48316e] shadow-sm" onClick={() => setLockedWorld(null)}>×</button>
             <div className="text-5xl" aria-hidden="true">🔒</div>
             <h2 className="mt-2 text-2xl font-extrabold text-[#48316e]">{premiumActive ? "Parent membership" : "Grown-ups only"}</h2>
             <p className="mt-3 text-[#58466d]">{premiumActive ? "Manage your Niko's Games Premium membership." : `World ${lockedWorld} is part of Niko's Games Premium. World 1 is always free.`}</p>
@@ -547,7 +548,7 @@ export default function App() {
             {membershipMessage && <p role="status" className="mt-2 text-sm text-[#48316e]">{membershipMessage}</p>}
             {billingError && <p role="alert" className="mt-2 text-sm text-red-700">{billingError}</p>}
             <p className="mt-3 break-all rounded-xl bg-[#f4f0ff] p-3 text-left text-xs text-[#58466d]">RevenueCat sandbox customer ID: <strong>{getSandboxCustomerId()}</strong></p>
-            <button type="button" className="mt-5 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white" onClick={() => setLockedWorld(null)}>Back to free play</button>
+            <button type="button" className="mt-5 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white" onClick={() => setLockedWorld(null)}>← Back to Niko’s Games</button>
           </div>
         </div>
       )}
