@@ -206,6 +206,7 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
           <div className="mb-4 text-center">
             <h2 className="text-2xl font-extrabold text-[#48316e] sm:text-3xl">🗺️ Niko's Great Adventure</h2>
             <p className="text-sm font-semibold text-[#74618c]">Explore 10 magical worlds with Niko's friends!</p>
+            <p className="mobile-tap-hint mt-2 text-base font-extrabold text-[#7750f7]">👆 Tap World 1 to start playing!</p>
           </div>
           <div className="relative overflow-hidden rounded-[2rem] border-4 border-[#d9c8ff] bg-gradient-to-b from-[#c9e9ff] via-[#f3e4ff] to-[#dcf6d3] p-3 sm:p-7">
             <div className="pointer-events-none absolute inset-0 opacity-50" aria-hidden="true" style={{backgroundImage:"radial-gradient(circle at 20% 16%, #fff 0 9px, transparent 10px), radial-gradient(circle at 78% 38%, #fff 0 12px, transparent 13px), radial-gradient(circle at 22% 75%, #fff 0 10px, transparent 11px)"}} />
