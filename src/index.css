@@ -179,3 +179,10 @@ input:focus-visible {
   .anim-popin, .note-float, .confetti span, .animate-spin-slow { animation: none !important; }
   button { transition-duration: 0s !important; }
 }
+
+/* Mobile touch screens launch unlocked worlds directly from their cards. */
+.mobile-tap-hint { display: none; }
+@media (pointer: coarse) and (max-width: 950px) {
+  .mobile-hide-play-button { display: none !important; }
+  .mobile-tap-hint { display: block; }
+}
