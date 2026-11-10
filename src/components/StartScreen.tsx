@@ -238,6 +238,8 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
                       onChange({ mode: "relaxed", friend: index === 1 ? "fish" : "kitty" });
                       audio.unlock();
                       audio.click();
+                      // Mobile phones start the selected unlocked world immediately; desktop keeps selection-first behavior.
+                      if (window.matchMedia("(pointer: coarse) and (max-width: 950px)").matches) onPlay(index);
                     }}
                     className={`relative z-10 flex min-h-[140px] flex-col items-center justify-center rounded-[1.5rem] border-[3px] p-2 text-center shadow-md transition-transform hover:-translate-y-1 sm:min-h-[155px] ${selected ? "border-[#7750f7] ring-4 ring-[#ac94ff] scale-[1.03]" : unlocked ? "border-white" : "border-[#e2cfff] shadow-sm"}`}
                     style={{backgroundColor:adventure.color}}
@@ -260,7 +262,7 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
             {completedCount > 0 && <BigButton color="green" onClick={() => onPlay(premiumActive ? continueWorld : 0)} className="w-full py-3 text-xl" ariaLabel={completedCount === 10 ? "Replay final world" : `Continue adventure at world ${continueWorld + 1}`}>
               {completedCount === 10 ? "🌟 Replay the Final World" : `✨ Continue Adventure · World ${continueWorld + 1}`}
             </BigButton>}
-            <BigButton color="pink" onClick={() => onPlay(playableSelection)} className="w-full py-4 text-2xl" ariaLabel={`Play world ${playableSelection + 1}`}>
+            <BigButton color="pink" onClick={() => onPlay(playableSelection)} className="mobile-hide-play-button w-full py-4 text-2xl" ariaLabel={`Play world ${playableSelection + 1}`}>
               ▶ Play World {playableSelection + 1}!
             </BigButton>
           </div>
