@@ -94,21 +94,6 @@ export function drawFriend(ctx: Ctx, f: FriendInfo, x: number, y: number, s: num
     return;
   }
 
-  if (f.kind === "fish") {
-    ctx.fillStyle = f.dark;
-    ctx.beginPath();
-    ctx.moveTo(-s * 0.55, s * 0.1);
-    ctx.lineTo(-s * 1.12, -s * 0.55);
-    ctx.lineTo(-s * 1.08, s * 0.65);
-    ctx.closePath();
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(-s * 0.12, -s * 0.55);
-    ctx.lineTo(s * 0.22, -s * 1.2);
-    ctx.lineTo(s * 0.42, -s * 0.55);
-    ctx.closePath();
-    ctx.fill();
-  }
 
   // ---- ears / top features (behind body)
   if (f.kind === "bunny") {
@@ -1222,7 +1207,7 @@ export function drawForestWorld(ctx: Ctx, W: number, H: number, time: number, gr
   }
 }
 
-export function drawBambooWorld(ctx: Ctx, W: number, H: number, time: number, groundY: number) {
+export function drawBambooWorld(ctx: Ctx, W: number, H: number, _time: number, groundY: number) {
   const sky = ctx.createLinearGradient(0, 0, 0, H);
   sky.addColorStop(0, "#c7f2d6"); sky.addColorStop(1, "#f1f8ce");
   ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
@@ -1277,7 +1262,7 @@ export function drawSnowWorld(ctx: Ctx, W: number, H: number, time: number, grou
   }
 }
 
-export function drawSavannaWorld(ctx: Ctx, W: number, H: number, time: number, groundY: number) {
+export function drawSavannaWorld(ctx: Ctx, W: number, H: number, _time: number, groundY: number) {
   const sky = ctx.createLinearGradient(0, 0, 0, H);
   sky.addColorStop(0, "#f6b776");
   sky.addColorStop(1, "#ffe4ad");

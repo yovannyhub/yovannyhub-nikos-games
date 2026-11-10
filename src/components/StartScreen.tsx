@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { audio } from "../game/audio";
-import { FRIENDS, type ScoreEntry, type Settings } from "../game/types";
+import { type ScoreEntry, type Settings } from "../game/types";
 import { ScoreTable } from "./ScoreTable";
 import { BigButton, Panel, SettingsToggles } from "./ui";
 
@@ -9,6 +9,9 @@ interface Props {
   adventureStars: number[];
   onChange: (s: Partial<Settings>) => void;
   onPlay: (adventure: number) => void;
+  premiumActive: boolean;
+  onLockedWorld: (world: number) => void;
+  onManageMembership: () => void;
   scores: ScoreEntry[];
   onClearScores: () => void;
   onResetAdventure: () => void;
@@ -17,7 +20,7 @@ interface Props {
 const TITLE = "Niko's Games";
 const TITLE_COLORS = ["#ff7ab6", "#ffb000", "#3cc68a", "#4aa8ff", "#7c5cff"];
 
-export function StartScreen({ settings, adventureStars, onChange, onPlay, scores, onClearScores, onResetAdventure }: Props) {
+export function StartScreen({ settings, adventureStars, onChange, onPlay, scores, onClearScores, onResetAdventure, premiumActive, onLockedWorld, onManageMembership }: Props) {
   const [view, setView] = useState<"main" | "scores" | "grownups">("main");
   const [lauryPlaying, setLauryPlaying] = useState(false);
   const [lauryMessage, setLauryMessage] = useState("");
@@ -57,9 +60,8 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
   const [confirmClear, setConfirmClear] = useState(false);
   const [confirmResetAdventure, setConfirmResetAdventure] = useState(false);
   const [selectedAdventure, setSelectedAdventure] = useState(0);
-  const lastCompleted = adventureStars.reduce((last, value, index) => value > 0 ? index : last, -1);
-  const unlockedThrough = Math.min(9, lastCompleted + 1);
-  const playableSelection = Math.min(selectedAdventure, unlockedThrough);
+  const unlockedThrough = premiumActive ? 9 : 0;
+  const playableSelection = selectedAdventure;
   const completedCount = adventureStars.filter(stars => stars > 0).length;
   const nextWorld = adventureStars.findIndex(stars => stars === 0);
   const continueWorld = nextWorld < 0 ? 9 : Math.min(nextWorld, unlockedThrough);
@@ -110,8 +112,9 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
     ];
     return (
       <Overlay>
-        <Panel className="w-full max-w-2xl">
-          <div className="text-center">
+        <Panel className="relative w-full max-w-2xl">
+          <button type="button" aria-label="Close grown-ups guide" title="Close guide" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-[#f4f0ff] text-2xl font-bold text-[#48316e] shadow-sm" onClick={() => setView("main")}>×</button>
+          <div className="text-center pt-10 sm:pt-4">
             <p className="text-sm font-bold text-[#7c5cff]">A GUIDE FOR PARENTS & CAREGIVERS</p>
             <h2 className="mt-1 text-3xl font-extrabold text-[#48316e]">👋 Welcome, grown-ups!</h2>
             <p className="mt-2 text-sm font-medium leading-relaxed text-[#6b6080]">Niko's Great Adventure is a gentle, replayable journey through 10 learning worlds. Play alongside your child, celebrate trying, and go at their pace.</p>
@@ -151,7 +154,7 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
             </section>
             <section className="rounded-2xl bg-[#effaf4] p-4">
               <h3 className="mb-2 text-lg font-extrabold text-[#26734e]">⭐ Stars and progress</h3>
-              <p>Completing a world earns <b>1–3 stars</b> based on points and unlocks the next world. The best stars earned in each world are saved on this device. Use <b>Continue Adventure</b> to pick up where your child left off, or replay a favorite world.</p>
+              <p>Completing a world earns <b>1–3 stars</b> based on points. Worlds 2–10 require a Premium membership. The best stars earned in each world are saved on this device. Use <b>Continue Adventure</b> to pick up where your child left off, or replay a favorite world.</p>
               <p className="mt-2">The <b>Star Board</b> stores scores locally on this device. Progress and scores are separate: resetting the adventure below does not clear the Star Board.</p>
             </section>
             <section className="rounded-2xl bg-[#fff7e5] p-4">
@@ -175,6 +178,7 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
             <p className="mt-3 text-sm text-[#665778]">Questions? <a className="underline" href="mailto:nikowonderworld@gmail.com">nikowonderworld@gmail.com</a></p>
           </section>
           <button type="button" className="mt-5 w-full rounded-2xl border-2 border-[#d6c4f5] bg-[#f7f0ff] px-3 py-3 text-sm font-bold text-[#65428c]" onClick={() => { if (confirmResetAdventure) { onResetAdventure(); setSelectedAdventure(0); setConfirmResetAdventure(false); setView("main"); } else setConfirmResetAdventure(true); }}>{confirmResetAdventure ? "Confirm: reset stars and unlocks (keep Star Board)" : "🔄 Reset adventure progress (grown-ups)"}</button>
+          <button type="button" onClick={onManageMembership} className="mt-4 w-full rounded-2xl bg-[#7750f7] px-4 py-3 font-bold text-white">🔐 Parent account & membership</button>
           <BigButton color="purple" className="mt-4 w-full" onClick={() => setView("main")} autoFocus>
             ← Back to adventure
           </BigButton>
@@ -212,6 +216,7 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
           <div className="mb-4 text-center">
             <h2 className="text-2xl font-extrabold text-[#48316e] sm:text-3xl">🗺️ Niko's Great Adventure</h2>
             <p className="text-sm font-semibold text-[#74618c]">Explore 10 magical worlds with Niko's friends!</p>
+            <p className="mobile-tap-hint mt-2 text-base font-extrabold text-[#7750f7]">👆 Tap World 1 to start playing!</p>
           </div>
           <div className="relative overflow-hidden rounded-[2rem] border-4 border-[#d9c8ff] bg-gradient-to-b from-[#c9e9ff] via-[#f3e4ff] to-[#dcf6d3] p-3 sm:p-7">
             <div className="pointer-events-none absolute inset-0 opacity-50" aria-hidden="true" style={{backgroundImage:"radial-gradient(circle at 20% 16%, #fff 0 9px, transparent 10px), radial-gradient(circle at 78% 38%, #fff 0 12px, transparent 13px), radial-gradient(circle at 22% 75%, #fff 0 10px, transparent 11px)"}} />
@@ -236,13 +241,16 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
                     type="button"
                     role="radio"
                     aria-checked={selected}
-                    disabled={!unlocked}
+                    
                     aria-label={`World ${index + 1}: ${adventure.title}, ${adventure.world}, ${adventureStars[index] || 0} of 3 stars earned${unlocked ? "" : ", locked"}`}
                     onClick={() => {
+                      if (!unlocked) { onLockedWorld(index + 1); return; }
                       setSelectedAdventure(index);
                       onChange({ mode: "relaxed", friend: index === 1 ? "fish" : "kitty" });
                       audio.unlock();
                       audio.click();
+                      // Mobile phones start the selected unlocked world immediately; desktop keeps selection-first behavior.
+                      if (window.matchMedia("(pointer: coarse) and (max-width: 950px)").matches) onPlay(index);
                     }}
                     className={`relative z-10 flex min-h-[140px] flex-col items-center justify-center rounded-[1.5rem] border-[3px] p-2 text-center shadow-md transition-transform hover:-translate-y-1 sm:min-h-[155px] ${selected ? "border-[#7750f7] ring-4 ring-[#ac94ff] scale-[1.03]" : unlocked ? "border-white" : "border-[#e2cfff] shadow-sm"}`}
                     style={{backgroundColor:adventure.color}}
@@ -261,11 +269,11 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
             </div>
           </div>
           <div className="mx-auto mt-4 flex max-w-xl flex-col items-center gap-3">
-            <p className="text-center text-sm font-bold text-[#655478]">🔓 {unlockedThrough + 1} of 10 worlds unlocked · Finish a world to open the next!</p>
-            {completedCount > 0 && <BigButton color="green" onClick={() => onPlay(continueWorld)} className="w-full py-3 text-xl" ariaLabel={completedCount === 10 ? "Replay final world" : `Continue adventure at world ${continueWorld + 1}`}>
+            <p className="text-center text-sm font-bold text-[#655478]">🔓 {premiumActive ? 'All 10 worlds unlocked with Premium' : 'World 1 is free · Worlds 2–10 require Premium'}</p>
+            {completedCount > 0 && <BigButton color="green" onClick={() => onPlay(premiumActive ? continueWorld : 0)} className="w-full py-3 text-xl" ariaLabel={completedCount === 10 ? "Replay final world" : `Continue adventure at world ${continueWorld + 1}`}>
               {completedCount === 10 ? "🌟 Replay the Final World" : `✨ Continue Adventure · World ${continueWorld + 1}`}
             </BigButton>}
-            <BigButton color="pink" onClick={() => onPlay(playableSelection)} className="w-full py-4 text-2xl" ariaLabel={`Play world ${playableSelection + 1}`}>
+            <BigButton color="pink" onClick={() => onPlay(playableSelection)} className="mobile-hide-play-button w-full py-4 text-2xl" ariaLabel={`Play world ${playableSelection + 1}`}>
               ▶ Play World {playableSelection + 1}!
             </BigButton>
           </div>

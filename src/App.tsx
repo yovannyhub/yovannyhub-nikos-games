@@ -13,6 +13,9 @@ import { Hud } from "./components/Hud";
 import { MusicMeadow } from "./components/MusicMeadow";
 import { GameOver, PauseMenu } from "./components/Menus";
 import { StartScreen } from "./components/StartScreen";
+import { ParentAccount } from "./components/ParentAccount";
+import { supabase } from "./auth/supabase";
+import { getMembershipDetails, getSandboxCustomerId, initializeParentBilling, openSandboxPaywall } from "./billing/revenuecat";
 import { TogetherTime } from "./components/TogetherTime";
 import { audio } from "./game/audio";
 import { GameEngine } from "./game/engine";
@@ -26,10 +29,6 @@ function readAdventureStars(): number[] {
     if (Array.isArray(raw)) return Array.from({ length: 10 }, (_, i) => Math.max(0, Math.min(3, Number(raw[i]) || 0)));
   } catch { /* storage may be unavailable */ }
   return Array(10).fill(0);
-}
-function highestUnlockedWorld(stars: number[]): number {
-  const lastCompleted = stars.reduce((last, value, index) => value > 0 ? index : last, -1);
-  return Math.min(9, lastCompleted + 1);
 }
 function awardAdventureStars(previous: number[], level: number, score: number): number[] {
   const stars = score >= 800 ? 3 : score >= 300 ? 2 : 1;
@@ -45,6 +44,80 @@ export default function App() {
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
   const [phase, setPhase] = useState<Phase>("start");
+  const [lockedWorld, setLockedWorld] = useState<number | null>(null);
+  // Fail closed until RevenueCat verifies a premium entitlement.
+  const [premiumActive, setPremiumActive] = useState(false);
+  const [billingBusy, setBillingBusy] = useState(false);
+  const [billingChecking, setBillingChecking] = useState(true);
+  const [billingError, setBillingError] = useState("");
+  const [parentSignedIn, setParentSignedIn] = useState(false);
+  const [membershipMessage, setMembershipMessage] = useState("");
+  const [managementUrl, setManagementUrl] = useState<string | null>(null);
+  const [membershipExpiry, setMembershipExpiry] = useState<string | null>(null);
+  const [membershipWillRenew, setMembershipWillRenew] = useState<boolean | null>(null);
+  const paywallTargetRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getUser().then(({ data }) => { if (active) setParentSignedIn(Boolean(data.user)); });
+    initializeParentBilling().then(() => getMembershipDetails()).then(details => { if (active) { setPremiumActive(details.active); setManagementUrl(details.managementUrl); setMembershipExpiry(details.expiresAt); setMembershipWillRenew(details.willRenew); } })
+      .catch((error: unknown) => { if (active) setBillingError(`Subscription check failed: ${error instanceof Error ? error.message : String(error)}`); })
+      .finally(() => { if (active) setBillingChecking(false); });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        setParentSignedIn(Boolean(session?.user));
+        // RevenueCat is configured once per page load. Recreate it with the verified parent identity.
+        void supabase.auth.getUser().then(({ data }) => {
+          const next = data.user ? `niko_parent_${data.user.id}` : null;
+          const current = getSandboxCustomerId();
+          if ((next && current !== next) || (!next && current.startsWith("niko_parent_"))) window.location.reload();
+        });
+      }
+    });
+    return () => { active = false; subscription.unsubscribe(); };
+  }, []);
+  const restoreSandboxAccess = async () => {
+    if (billingBusy) return;
+    if (!parentSignedIn) { setBillingError("Sign in with your parent email first, then check your existing subscription."); return; }
+    setBillingBusy(true);
+    setBillingError("");
+    setMembershipMessage("");
+    try {
+      await initializeParentBilling();
+      const details = await getMembershipDetails();
+      const enabled = details.active;
+      setPremiumActive(enabled);
+      setManagementUrl(details.managementUrl);
+      setMembershipExpiry(details.expiresAt); setMembershipWillRenew(details.willRenew);
+      if (enabled) {
+        setMembershipMessage(details.willRenew === false ? "Your Premium subscription is canceled. Worlds 2–10 remain available until expiration." : details.willRenew === true ? "Your Premium membership is active and set to renew. Worlds 2–10 are available." : "Your Premium access is active, but renewal status could not be confirmed. Check the billing portal for cancellation details.");
+      } else {
+        setMembershipMessage("No active Premium membership was found for this parent account. World 1 is free, and you can start a new subscription below.");
+      }
+    } catch (error) {
+      setBillingError(`Subscription check failed: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setBillingBusy(false);
+    }
+  };
+  const beginSandboxCheckout = async () => {
+    if (!paywallTargetRef.current || billingBusy) return;
+    if (!parentSignedIn) { setBillingError("Sign in with your parent email before starting checkout."); return; }
+    setBillingBusy(true);
+    setBillingError("");
+    try {
+      await initializeParentBilling();
+      const enabled = await openSandboxPaywall(paywallTargetRef.current);
+      const details = await getMembershipDetails();
+      setPremiumActive(enabled || details.active);
+      setManagementUrl(details.managementUrl);
+      setMembershipExpiry(details.expiresAt); setMembershipWillRenew(details.willRenew);
+      if (enabled || details.active) setLockedWorld(null);
+    } catch {
+      setBillingError("Sandbox checkout was not completed. Please try again.");
+    } finally {
+      setBillingBusy(false);
+    }
+  };
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
   const [hud, setHud] = useState<HudState>({ score: 0, hearts: 3, timeLeft: RELAXED_TIME, combo: 0, multiplier: 1, world: "Sunny Meadow", mode: "relaxed" });
@@ -196,7 +269,8 @@ export default function App() {
   // --- actions
   const play = useCallback((adventure?: number) => {
     const game = adventure ?? selectedGameRef.current;
-    if (game < 0 || game > highestUnlockedWorld(readAdventureStars())) return;
+    if (game < 0 || game > 9) return;
+    if (game > 0 && !premiumActive) { setLockedWorld(game + 1); return; }
     selectedGameRef.current = game;
     const e = engineRef.current;
     if (!e) return;
@@ -239,7 +313,7 @@ export default function App() {
     setPhase(game === 0 ? "color" : game === 1 ? "shape" : game === 2 ? "galaxy" : game === 3 ? "farm" : game === 4 ? "forest" : game === 5 ? "bamboo" : "playing");
     phaseRef.current = game === 0 ? "color" : game === 1 ? "shape" : game === 2 ? "galaxy" : game === 3 ? "farm" : game === 4 ? "forest" : game === 5 ? "bamboo" : "playing";
     playLaury(game);
-  }, [playLaury, stopLaury]);
+  }, [playLaury, stopLaury, premiumActive]);
 
   const restartFromOver = useCallback(() => {
     if (performance.now() - overAt.current < 450) return; // avoid accidental taps carried over from gameplay
@@ -429,6 +503,9 @@ export default function App() {
         <StartScreen
           settings={settings}
           adventureStars={adventureStars}
+          premiumActive={premiumActive}
+          onLockedWorld={setLockedWorld}
+          onManageMembership={() => setLockedWorld(2)}
           onResetAdventure={() => {
             const empty = Array(10).fill(0);
             try { localStorage.setItem(STAR_KEY, JSON.stringify(empty)); } catch { /* storage unavailable */ }
@@ -443,6 +520,37 @@ export default function App() {
             setScores([]);
           }}
         />
+      )}
+
+      {lockedWorld !== null && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#261a43]/70 p-4" role="dialog" aria-modal="true" aria-label="Parent area">
+          <div className="relative max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-6 text-center shadow-2xl">
+            <button type="button" aria-label="Close membership window" title="Close membership window" className="sticky top-0 z-10 float-right flex h-10 w-10 items-center justify-center rounded-full bg-[#f4f0ff] text-2xl font-bold text-[#48316e] shadow-sm" onClick={() => setLockedWorld(null)}>×</button>
+            <div className="text-5xl" aria-hidden="true">🔒</div>
+            <h2 className="mt-2 text-2xl font-extrabold text-[#48316e]">{premiumActive ? "Parent membership" : "Grown-ups only"}</h2>
+            <p className="mt-3 text-[#58466d]">{premiumActive ? "Manage your Niko's Games Premium membership." : `World ${lockedWorld} is part of Niko's Games Premium. World 1 is always free.`}</p>
+            <p className="mt-3 font-bold text-[#48316e]">$27/year · Worlds 2–10</p>
+            {billingChecking && <p className="mt-2 text-sm text-[#665a75]">Checking your existing subscription…</p>}
+            <p className="mt-3 text-sm font-bold text-[#665a75]">SANDBOX TEST ONLY — no real payment will be collected.</p>
+            <p className="mt-2 text-xs text-[#665a75]">For parents and guardians only. Annual subscriptions renew until canceled. <a className="underline" href="/terms/" target="_blank" rel="noreferrer">Terms</a> · <a className="underline" href="/privacy/" target="_blank" rel="noreferrer">Privacy</a> · <a className="underline" href="/subscriptions/" target="_blank" rel="noreferrer">Cancellation</a></p>
+            <ParentAccount />
+            {parentSignedIn && !billingChecking && <section className="mt-3 rounded-2xl border border-[#d6c4f5] bg-[#faf7ff] p-3 text-left" aria-label="Membership status"><h3 className="font-extrabold text-[#48316e]">Your membership</h3><p className="mt-1 text-sm text-[#58466d]">Status: <strong>{premiumActive ? (membershipWillRenew === false ? "Premium canceled — access remains until expiration" : membershipWillRenew === true ? "Premium active — renews automatically" : "Premium active — renewal status unavailable") : "Premium expired or no active subscription"}</strong></p><p className="mt-1 text-sm text-[#58466d]">{premiumActive ? "Worlds 2–10 are unlocked." : "World 1 is free. Worlds 2–10 require an active subscription."}</p><p className="mt-2 text-xs text-[#665a75]">Sandbox subscriptions may expire quickly. Cancellation keeps access until the paid period ends.</p>{premiumActive && membershipExpiry && <p className="mt-2 text-sm text-[#58466d]">Access through: <strong>{new Date(membershipExpiry).toLocaleString()}</strong></p>}{premiumActive && managementUrl && <a href={managementUrl} target="_blank" rel="noopener noreferrer" className="mt-3 block rounded-xl bg-[#7750f7] px-4 py-3 text-center font-bold text-white">{membershipWillRenew === false ? "Manage or renew subscription ↗" : "Manage or cancel subscription ↗"}</a>}{premiumActive && !managementUrl && <p className="mt-2 text-xs text-[#665a75]">Your subscription management link is unavailable right now. Check the billing confirmation email for the customer portal link.</p>}</section>}
+            {parentSignedIn ? (
+              <>
+                <p className="mt-3 text-sm font-semibold text-[#48316e]">Step 2: Check your subscription before purchasing.</p>
+                <button type="button" disabled={billingBusy || billingChecking} className="mt-3 w-full rounded-2xl border-2 border-[#7750f7] bg-white px-5 py-3 font-bold text-[#7750f7] disabled:opacity-60" onClick={restoreSandboxAccess}>{billingBusy ? "Checking subscription…" : "Already subscribed? Check access"}</button>
+                {!premiumActive && <button type="button" disabled={billingBusy || billingChecking} className="mt-3 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white disabled:opacity-60" onClick={beginSandboxCheckout}>{billingBusy ? "Opening sandbox checkout…" : "Grown-up: Test $27/year checkout"}</button>}
+              </>
+            ) : (
+              <p className="mt-3 text-sm font-semibold text-[#48316e]">Step 1: Sign in above with your parent email. We’ll check your subscription before offering checkout.</p>
+            )}
+            <div ref={paywallTargetRef} className="mt-3" />
+            {membershipMessage && <p role="status" className="mt-2 text-sm text-[#48316e]">{membershipMessage}</p>}
+            {billingError && <p role="alert" className="mt-2 text-sm text-red-700">{billingError}</p>}
+            <p className="mt-3 break-all rounded-xl bg-[#f4f0ff] p-3 text-left text-xs text-[#58466d]">RevenueCat sandbox customer ID: <strong>{getSandboxCustomerId()}</strong></p>
+            <button type="button" className="mt-5 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white" onClick={() => setLockedWorld(null)}>← Back to Niko’s Games</button>
+          </div>
+        </div>
       )}
 
       {phase === "paused" && <PauseMenu settings={settings} onChange={updateSettings} onResume={resume} onRestart={play} onHome={home} />}
