@@ -112,8 +112,9 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
     ];
     return (
       <Overlay>
-        <Panel className="w-full max-w-2xl">
-          <div className="text-center">
+        <Panel className="relative w-full max-w-2xl">
+          <button type="button" aria-label="Close grown-ups guide" title="Close guide" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-[#f4f0ff] text-2xl font-bold text-[#48316e] shadow-sm" onClick={() => setView("main")}>×</button>
+          <div className="text-center pt-10 sm:pt-4">
             <p className="text-sm font-bold text-[#7c5cff]">A GUIDE FOR PARENTS & CAREGIVERS</p>
             <h2 className="mt-1 text-3xl font-extrabold text-[#48316e]">👋 Welcome, grown-ups!</h2>
             <p className="mt-2 text-sm font-medium leading-relaxed text-[#6b6080]">Niko's Great Adventure is a gentle, replayable journey through 10 learning worlds. Play alongside your child, celebrate trying, and go at their pace.</p>
