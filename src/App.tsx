@@ -540,7 +540,7 @@ export default function App() {
               <>
                 <p className="mt-3 text-sm font-semibold text-[#48316e]">Step 2: Check your subscription before purchasing.</p>
                 <button type="button" disabled={billingBusy || billingChecking} className="mt-3 w-full rounded-2xl border-2 border-[#7750f7] bg-white px-5 py-3 font-bold text-[#7750f7] disabled:opacity-60" onClick={restoreSandboxAccess}>{billingBusy ? "Checking subscription…" : "Already subscribed? Check access"}</button>
-                {!premiumActive && <button type="button" disabled={billingBusy || billingChecking} className="mt-3 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white disabled:opacity-60" onClick={beginSandboxCheckout}>{billingBusy ? "Opening checkout…" : {BILLING_MODE === "live" ? "Grown-up: Subscribe for $27/year" : "Grown-up: Test $27/year checkout"}}</button>}
+                {!premiumActive && <button type="button" disabled={billingBusy || billingChecking} className="mt-3 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white disabled:opacity-60" onClick={beginSandboxCheckout}>{billingBusy ? "Opening checkout…" : BILLING_MODE === "live" ? "Grown-up: Subscribe for $27/year" : "Grown-up: Test $27/year checkout"}</button>}
               </>
             ) : (
               <p className="mt-3 text-sm font-semibold text-[#48316e]">Step 1: Sign in above with your parent email. We’ll check your subscription before offering checkout.</p>
