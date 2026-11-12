@@ -25,3 +25,6 @@ Development branch only. Do not merge until test purchase, parental gate, entitl
 - src/components/StartScreen.tsx disables locked world buttons, so locked taps cannot currently open paywall.
 - src/App.tsx play() also checks highestUnlockedWorld.
 - package.json is React/Vite and currently lacks @revenuecat/purchases-js.
+
+## Controlled live billing test (development preview only)
+Cloudflare Pages preview build variables `VITE_NIKO_BILLING_MODE=live` and `VITE_NIKO_ENABLE_LIVE_CHECKOUT=enabled` are set for the authorized one-time $27/year real-card test. Production `main` and production environment variables remain unchanged. Revert both preview variables to sandbox/disabled immediately after testing. Preview builds are shared across preview branches; do not publicize their links during the test.
