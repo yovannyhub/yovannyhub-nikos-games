@@ -290,12 +290,21 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
             </div>
           </div>
           <div className="my-5 h-px bg-[#ded4ed]" />
-          <div className="grid grid-cols-1 gap-6 text-sm sm:grid-cols-2 sm:gap-10">
+          <div className="grid grid-cols-1 gap-6 text-sm sm:grid-cols-3 sm:gap-6">
+            <div>
+              <h2 className="mb-3 font-extrabold text-[#493575]">Company</h2>
+              <nav aria-label="Company" className="flex flex-col items-start gap-2.5">
+                <a className="font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" href="/about/">About Us</a>
+                <a className="font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" href="/mission/">Our Mission</a>
+                <a className="font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" href="/careers/">Careers</a>
+                <a className="font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" href="/contact/">Contact Us</a>
+              </nav>
+            </div>
             <div>
               <h2 className="mb-3 font-extrabold text-[#493575]">For Parents</h2>
               <nav aria-label="Parent resources" className="flex flex-col items-start gap-2.5">
-                <button type="button" className="text-left font-medium text-[#65577b] hover:text-[#6542bd] hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6542bd]" onClick={() => setView("grownups")}>Grown-ups Guide</button>
-                <button type="button" className="text-left font-medium text-[#65577b] hover:text-[#6542bd] hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6542bd]" onClick={onManageMembership}>Parent Account &amp; Manage Membership</button>
+                <button type="button" className="text-left font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" onClick={() => setView("grownups")}>Grown-ups Guide</button>
+                <button type="button" className="text-left font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" onClick={onManageMembership}>Parent Account &amp; Manage Membership</button>
               </nav>
             </div>
             <div>
