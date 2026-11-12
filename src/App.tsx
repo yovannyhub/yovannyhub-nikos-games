@@ -1,3 +1,4 @@
+import { BILLING_MODE } from "./billing/revenuecatConfig";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ColorMatchWorld } from "./components/ColorMatchWorld";
 import { ShapeFinderWorld } from "./components/ShapeFinderWorld";
@@ -113,7 +114,7 @@ export default function App() {
       setMembershipExpiry(details.expiresAt); setMembershipWillRenew(details.willRenew);
       if (enabled || details.active) setLockedWorld(null);
     } catch {
-      setBillingError("Sandbox checkout was not completed. Please try again.");
+      setBillingError("Checkout was not completed. Please try again.");
     } finally {
       setBillingBusy(false);
     }
@@ -534,12 +535,12 @@ export default function App() {
             <p className="mt-3 text-sm font-bold text-[#665a75]">SANDBOX TEST ONLY — no real payment will be collected.</p>
             <p className="mt-2 text-xs text-[#665a75]">For parents and guardians only. Annual subscriptions renew until canceled. <a className="underline" href="/terms/" target="_blank" rel="noreferrer">Terms</a> · <a className="underline" href="/privacy/" target="_blank" rel="noreferrer">Privacy</a> · <a className="underline" href="/subscriptions/" target="_blank" rel="noreferrer">Cancellation</a></p>
             <ParentAccount />
-            {parentSignedIn && !billingChecking && <section className="mt-3 rounded-2xl border border-[#d6c4f5] bg-[#faf7ff] p-3 text-left" aria-label="Membership status"><h3 className="font-extrabold text-[#48316e]">Your membership</h3><p className="mt-1 text-sm text-[#58466d]">Status: <strong>{premiumActive ? (membershipWillRenew === false ? "Premium canceled — access remains until expiration" : membershipWillRenew === true ? "Premium active — renews automatically" : "Premium active — renewal status unavailable") : "Premium expired or no active subscription"}</strong></p><p className="mt-1 text-sm text-[#58466d]">{premiumActive ? "Worlds 2–10 are unlocked." : "World 1 is free. Worlds 2–10 require an active subscription."}</p><p className="mt-2 text-xs text-[#665a75]">Sandbox subscriptions may expire quickly. Cancellation keeps access until the paid period ends.</p>{premiumActive && membershipExpiry && <p className="mt-2 text-sm text-[#58466d]">Access through: <strong>{new Date(membershipExpiry).toLocaleString()}</strong></p>}{premiumActive && managementUrl && <a href={managementUrl} target="_blank" rel="noopener noreferrer" className="mt-3 block rounded-xl bg-[#7750f7] px-4 py-3 text-center font-bold text-white">{membershipWillRenew === false ? "Manage or renew subscription ↗" : "Manage or cancel subscription ↗"}</a>}{premiumActive && !managementUrl && <p className="mt-2 text-xs text-[#665a75]">Your subscription management link is unavailable right now. Check the billing confirmation email for the customer portal link.</p>}</section>}
+            {parentSignedIn && !billingChecking && <section className="mt-3 rounded-2xl border border-[#d6c4f5] bg-[#faf7ff] p-3 text-left" aria-label="Membership status"><h3 className="font-extrabold text-[#48316e]">Your membership</h3><p className="mt-1 text-sm text-[#58466d]">Status: <strong>{premiumActive ? (membershipWillRenew === false ? "Premium canceled — access remains until expiration" : membershipWillRenew === true ? "Premium active — renews automatically" : "Premium active — renewal status unavailable") : "Premium expired or no active subscription"}</strong></p><p className="mt-1 text-sm text-[#58466d]">{premiumActive ? "Worlds 2–10 are unlocked." : "World 1 is free. Worlds 2–10 require an active subscription."}</p><p className="mt-2 text-xs text-[#665a75]">Cancellation keeps access until the subscription period ends. Sandbox subscriptions may expire quickly.</p>{premiumActive && membershipExpiry && <p className="mt-2 text-sm text-[#58466d]">Access through: <strong>{new Date(membershipExpiry).toLocaleString()}</strong></p>}{premiumActive && managementUrl && <a href={managementUrl} target="_blank" rel="noopener noreferrer" className="mt-3 block rounded-xl bg-[#7750f7] px-4 py-3 text-center font-bold text-white">{membershipWillRenew === false ? "Manage or renew subscription ↗" : "Manage or cancel subscription ↗"}</a>}{premiumActive && !managementUrl && <p className="mt-2 text-xs text-[#665a75]">Your subscription management link is unavailable right now. Check the billing confirmation email for the customer portal link.</p>}</section>}
             {parentSignedIn ? (
               <>
                 <p className="mt-3 text-sm font-semibold text-[#48316e]">Step 2: Check your subscription before purchasing.</p>
                 <button type="button" disabled={billingBusy || billingChecking} className="mt-3 w-full rounded-2xl border-2 border-[#7750f7] bg-white px-5 py-3 font-bold text-[#7750f7] disabled:opacity-60" onClick={restoreSandboxAccess}>{billingBusy ? "Checking subscription…" : "Already subscribed? Check access"}</button>
-                {!premiumActive && <button type="button" disabled={billingBusy || billingChecking} className="mt-3 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white disabled:opacity-60" onClick={beginSandboxCheckout}>{billingBusy ? "Opening sandbox checkout…" : "Grown-up: Test $27/year checkout"}</button>}
+                {!premiumActive && <button type="button" disabled={billingBusy || billingChecking} className="mt-3 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white disabled:opacity-60" onClick={beginSandboxCheckout}>{billingBusy ? "Opening checkout…" : "{BILLING_MODE === "live" ? "Grown-up: Subscribe for $27/year" : "Grown-up: Test $27/year checkout"}"}</button>}
               </>
             ) : (
               <p className="mt-3 text-sm font-semibold text-[#48316e]">Step 1: Sign in above with your parent email. We’ll check your subscription before offering checkout.</p>
@@ -547,7 +548,7 @@ export default function App() {
             <div ref={paywallTargetRef} className="mt-3" />
             {membershipMessage && <p role="status" className="mt-2 text-sm text-[#48316e]">{membershipMessage}</p>}
             {billingError && <p role="alert" className="mt-2 text-sm text-red-700">{billingError}</p>}
-            <p className="mt-3 break-all rounded-xl bg-[#f4f0ff] p-3 text-left text-xs text-[#58466d]">RevenueCat sandbox customer ID: <strong>{getSandboxCustomerId()}</strong></p>
+            <p className="mt-3 break-all rounded-xl bg-[#f4f0ff] p-3 text-left text-xs text-[#58466d]">RevenueCat {BILLING_MODE} customer ID: <strong>{getSandboxCustomerId()}</strong></p>
             <button type="button" className="mt-5 w-full rounded-2xl bg-[#7750f7] px-5 py-3 font-bold text-white" onClick={() => setLockedWorld(null)}>← Back to Niko’s Games</button>
           </div>
         </div>
