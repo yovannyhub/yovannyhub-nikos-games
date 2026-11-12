@@ -281,6 +281,30 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
           </div>
           {lauryMessage && <p className="mt-2 text-center text-sm font-semibold text-[#71509d]" role="status">{lauryMessage}</p>}
         </Panel>
+        <footer className="w-full rounded-3xl border-2 border-white/80 bg-white/90 px-5 py-5 text-center shadow-md" aria-label="Information for parents and guardians">
+          <p className="text-lg font-extrabold text-[#48316e]">⭐ Niko's Games</p>
+          <p className="mt-1 text-xs font-semibold text-[#74618c]">Parent information and support</p>
+          <div className="mt-4 grid grid-cols-1 gap-5 text-sm sm:grid-cols-2 sm:text-left">
+            <div>
+              <h2 className="font-extrabold text-[#48316e]">For Parents</h2>
+              <div className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-2 sm:justify-start">
+                <button type="button" className="font-semibold text-[#6542bd] underline underline-offset-2" onClick={() => setView("grownups")}>Grown-ups Guide</button>
+                <button type="button" className="font-semibold text-[#6542bd] underline underline-offset-2" onClick={onManageMembership}>Parent Account & Membership</button>
+                <a className="font-semibold text-[#6542bd] underline underline-offset-2" href="/support/">Help & Support</a>
+              </div>
+            </div>
+            <div>
+              <h2 className="font-extrabold text-[#48316e]">Legal & Membership</h2>
+              <div className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-2 sm:justify-start">
+                <a className="font-semibold text-[#6542bd] underline underline-offset-2" href="/refunds/">Refund Policy</a>
+                <a className="font-semibold text-[#6542bd] underline underline-offset-2" href="/terms/">Terms of Service</a>
+                <a className="font-semibold text-[#6542bd] underline underline-offset-2" href="/privacy/">Privacy Policy</a>
+                <a className="font-semibold text-[#6542bd] underline underline-offset-2" href="/subscriptions/">Subscriptions & Cancellation</a>
+              </div>
+            </div>
+          </div>
+          <p className="mt-5 border-t border-[#e4d6ff] pt-3 text-xs text-[#74618c]">© 2026 Niko's Games · Parent purchases only · World 1 is free</p>
+        </footer>
       </div>
     </Overlay>
   );
