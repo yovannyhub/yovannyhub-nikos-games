@@ -285,6 +285,45 @@ export function StartScreen({ settings, adventureStars, onChange, onPlay, scores
           </div>
           {lauryMessage && <p className="mt-2 text-center text-sm font-semibold text-[#71509d]" role="status">{lauryMessage}</p>}
         </Panel>
+        <footer className="w-full rounded-2xl border border-[#ded4f0] bg-[#f9f7ff]/95 px-5 py-5 text-left shadow-sm sm:px-7 sm:py-6" aria-label="Information for parents and guardians">
+          <div className="flex items-center gap-3">
+            <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#e9e1ff] text-2xl">⭐</span>
+            <div>
+              <p className="text-lg font-extrabold leading-tight text-[#493575]">Niko's Games</p>
+              <p className="mt-1 text-xs text-[#7b6b94]">Little adventures. Big discoveries.</p>
+            </div>
+          </div>
+          <div className="my-5 h-px bg-[#ded4ed]" />
+          <div className="grid grid-cols-1 gap-6 text-sm sm:grid-cols-3 sm:gap-6">
+            <div>
+              <h2 className="mb-3 font-extrabold text-[#493575]">Company</h2>
+              <nav aria-label="Company" className="flex flex-col items-start gap-2.5">
+                <a className="font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" href="/about/">About Us</a>
+                <a className="font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" href="/mission/">Our Mission</a>
+                <a className="font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" href="/careers/">Careers</a>
+                <a className="font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" href="/contact/">Contact Us</a>
+              </nav>
+            </div>
+            <div>
+              <h2 className="mb-3 font-extrabold text-[#493575]">For Parents</h2>
+              <nav aria-label="Parent resources" className="flex flex-col items-start gap-2.5">
+                <button type="button" className="text-left font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" onClick={() => setView("grownups")}>Grown-ups Guide</button>
+                <button type="button" className="text-left font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" onClick={onManageMembership}>Parent Account &amp; Manage Membership</button>
+              </nav>
+            </div>
+            <div>
+              <h2 className="mb-3 font-extrabold text-[#493575]">Help &amp; Legal</h2>
+              <nav aria-label="Support and legal information" className="flex flex-col items-start gap-2.5">
+                <a className="font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" href="/support/">Help &amp; Support</a>
+                <a className="font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" href="/refunds/">Refund Policy</a>
+                <a className="font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" href="/terms/">Terms of Service</a>
+                <a className="font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" href="/privacy/">Privacy Policy</a>
+                <a className="font-medium text-[#65577b] hover:text-[#6542bd] hover:underline" href="/subscriptions/">Subscriptions &amp; Cancellation</a>
+              </nav>
+            </div>
+          </div>
+          <div className="mt-6 border-t border-[#ded4ed] pt-4 text-center text-xs text-[#7b6b94]">© 2026 Niko's Games · Made for little learners, with parents in mind.</div>
+        </footer>
       </div>
     </Overlay>
   );
