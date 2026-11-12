@@ -1,8 +1,8 @@
 import { Purchases } from "@revenuecat/purchases-js";
 import { supabase } from "../auth/supabase";
-import { PREMIUM_ENTITLEMENT_ID, REVENUECAT_WEB_SANDBOX_KEY } from "./revenuecatConfig";
+import { PREMIUM_ENTITLEMENT_ID, REVENUECAT_WEB_KEY, BILLING_MODE } from "./revenuecatConfig";
 
-const ID_KEY = "niko-revenuecat-sandbox-customer-v1";
+const ID_KEY = `niko-revenuecat-${BILLING_MODE}-customer-v1`;
 let instance: Purchases | null = null;
 let configuredId: string | null = null;
 
@@ -21,7 +21,7 @@ export async function initializeParentBilling(): Promise<void> {
   }
   const id = parentId ?? getOrCreateAnonymousId();
   configuredId = id;
-  instance = Purchases.configure({ apiKey: REVENUECAT_WEB_SANDBOX_KEY, appUserId: id });
+  instance = Purchases.configure({ apiKey: REVENUECAT_WEB_KEY, appUserId: id });
 }
 
 function getOrCreateAnonymousId(): string {
