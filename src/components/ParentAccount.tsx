@@ -1,3 +1,4 @@
+import { BILLING_MODE } from "../billing/revenuecatConfig";
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "../auth/supabase";
@@ -33,11 +34,11 @@ export function ParentAccount() {
 
   return (
     <section className="mt-4 rounded-2xl border-2 border-[#d6c4f5] bg-[#f7f0ff] p-4 text-left">
-      <h3 className="text-lg font-extrabold text-[#48316e]">Parent account (sandbox)</h3>
+      <h3 className="text-lg font-extrabold text-[#48316e]">Parent account {BILLING_MODE === "sandbox" ? "(sandbox)" : ""}</h3>
       {loading ? <p className="mt-2 text-sm">Checking parent sign-in…</p> : user ? (
         <>
           <p className="mt-2 text-sm">Signed in as <strong>{user.email}</strong></p>
-          <p className="mt-2 text-xs">Parent sign-in is connected to a stable subscription identity. Earlier anonymous sandbox purchases are not automatically transferred.</p>
+          <p className="mt-2 text-xs">Parent sign-in is connected to a stable subscription identity. Earlier anonymous purchases are not automatically transferred.</p>
           <button type="button" className="mt-3 rounded-xl bg-[#7750f7] px-4 py-2 font-bold text-white" onClick={() => { void supabase.auth.signOut().then(({ error }) => setMessage(error ? error.message : "Signed out.")); }}>Sign out</button>
         </>
       ) : (
